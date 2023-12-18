@@ -8,11 +8,21 @@ const routes = [
         children: [
             {
                 path: '',
-                name: 'Home',
+                name: 'Storefront',
                 // route level code-splitting
-                // this generates a separate chunk (Home-[hash].js) for this route
+                // this generates a separate chunk (Storefront-[hash].js) for this route
                 // which is lazy-loaded when the route is visited.
-                component: () => import('@/views/Home.vue'),
+                component: () => import('@/views/TheStorefront.vue'),
+            },
+            {
+                path: 'products',
+                name: 'Products',
+                component: () => import('@/views/TheProducts.vue'),
+            },
+            {
+                path: 'products/:productid/:productvariantid',
+                name: 'Product',
+                component: () => import('@/views/TheProduct.vue'),
             },
         ],
     },
