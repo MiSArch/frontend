@@ -1,21 +1,22 @@
-<!-- TODO Add category information -->
-<!-- TODO Add characteristic values -->
+<!-- TODO Remove "bg-surface-variant" from div for product summary row -->
+
+<!-- TODO Make category chips clickable -> route to category -->
 <!-- TODO Extract ShippingInformation component -->
 
 <template>
-    <div class="d-flex flex-column">
+    <div class="d-flex flex-column ga-4">
         <div>
             <v-btn
-                class="ml-4"
+                class="mx-4"
                 prepend-icon="mdi-arrow-left"
                 :to="{ name: 'Storefront' }"
             >
                 Back
             </v-btn>
         </div>
-        <v-divider class="my-4"></v-divider>
-        <div>
-            <div class="d-flex ma-4">
+        <v-divider></v-divider>
+        <div class="d-flex flex-column ga-4">
+            <div class="d-flex mx-4 ga-4">
                 <div>
                     <v-carousel cycle show-arrows="hover">
                         <v-carousel-item
@@ -35,35 +36,38 @@
                         ></v-carousel-item>
                     </v-carousel>
                 </div>
-                <v-card
-                    class="align-self-start flex-grow-1 mx-4"
-                    title="Bar"
-                    subtitle="Foo"
-                >
-                    <ProductPrice
-                        class="ma-2"
-                        :price="90"
-                        :retail-price="100"
-                    />
+                <div class="d-flex flex-column ga-4">
+                    <v-card title="Nikon F2" text="Product Summary">
+                        <div class="d-flex flex-wrap mx-4 mb-4 ga-2">
+                            <v-chip>Photography</v-chip>
+                            <v-chip>Cameras</v-chip>
+                            <v-chip>Film Cameras</v-chip>
+                        </div>
+                        <v-select class="mx-4"
+                            label="Product Variant"
+                            :items="['Nikon F2 50BK', 'Nikon F2 24S', 'Nikon F2 50S']"
+                            variant="underlined"
+                        ></v-select>
+                        <div class="d-flex flex-wrap mx-4 mb-4 ga-2">
+                            <v-chip>Lens: 50 mm F/1.8</v-chip>
+                            <v-chip>Color: Black</v-chip>
+                        </div>
+                    </v-card>
+                </div>
+                <v-card class="align-self-start">
+                    <ProductPrice :price="90" :retail-price="100" />
                     <v-select
                         class="ma-2"
-                        clearable
-                        density="compact"
-                        label="Variant"
-                        :items="['Bar', 'Baz', 'Zep']"
-                        variant="solo"
-                    ></v-select>
-                    <v-select
-                        class="ma-2"
-                        clearable
-                        density="compact"
-                        label="Amount"
                         :items="['1', '2', '3', '4', '5']"
+                        density="compact"
+                        hint="Choose how many to add to the cart."
+                        label="Amount"
+                        persistent-hint
                         variant="solo"
                     ></v-select>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn prepend-icon="mdi-cart">Add To Cart</v-btn>
+                        <v-btn disabled prepend-icon="mdi-cart">Add To Cart</v-btn>
                     </v-card-actions>
                 </v-card>
                 <v-spacer></v-spacer>
@@ -74,7 +78,7 @@
                 ></v-card>
             </div>
             <v-card
-                class="ma-4"
+                class="mx-4"
                 title="Description"
                 text="Foo is the single most amazing thing on earth."
             >

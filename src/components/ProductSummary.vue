@@ -1,3 +1,5 @@
+<!-- TODO Refine component -->
+
 <template>
     <router-link to="/products/foo/bar">
         <v-sheet class="d-flex" :elevation="1">
