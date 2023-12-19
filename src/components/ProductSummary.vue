@@ -10,7 +10,7 @@
             </div>
             <div class="d-flex flex-column ma-2">
                 <span class="text-body-1"> Foo </span>
-                <ProductPrice />
+                <ProductPrice :price="90" :retail-price="100" />
             </div>
         </v-sheet>
     </router-link>

@@ -1,53 +1,50 @@
+<!-- TODO Add category information -->
+<!-- TODO Add characteristic values -->
+<!-- TODO Extract ShippingInformation component -->
+
 <template>
-    <div
-        class="d-flex flex-column pa-4"
-    >
-        <div
-            class="d-flex mb-4"
-        >
+    <div class="d-flex flex-column">
+        <div>
             <v-btn
+                class="ml-4"
                 prepend-icon="mdi-arrow-left"
-                :to="{name: 'Storefront'}"
+                :to="{ name: 'Storefront' }"
             >
                 Back
             </v-btn>
         </div>
-        
-        <div
-            class="d-flex mb-4"
-        >
-            <v-sheet
-                border
-            >
-                <v-carousel
-                    cycle
-                    show-arrows="hover"
-                >
-                    <v-carousel-item
-                        :width="360"
-                        aspect-ratio="4/3"
-                        src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
-                    ></v-carousel-item>
-                    <v-carousel-item
-                        :width="360"
-                        aspect-ratio="4/3"
-                        src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
-                    ></v-carousel-item>
-                    <v-carousel-item
-                        :width="360"
-                        aspect-ratio="4/3"
-                        src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
-                    ></v-carousel-item>
-                </v-carousel>
-            </v-sheet>
-
-            <div
-                class="ml-8 me-auto"
-            >
+        <v-divider class="my-4"></v-divider>
+        <div>
+            <div class="d-flex ma-4">
+                <div>
+                    <v-carousel cycle show-arrows="hover">
+                        <v-carousel-item
+                            :width="360"
+                            aspect-ratio="4/3"
+                            src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+                        ></v-carousel-item>
+                        <v-carousel-item
+                            :width="360"
+                            aspect-ratio="4/3"
+                            src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+                        ></v-carousel-item>
+                        <v-carousel-item
+                            :width="360"
+                            aspect-ratio="4/3"
+                            src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+                        ></v-carousel-item>
+                    </v-carousel>
+                </div>
                 <v-card
+                    class="align-self-start flex-grow-1 mx-4"
                     title="Bar"
                     subtitle="Foo"
                 >
+                    <ProductPrice
+                        class="ma-2"
+                        :price="90"
+                        :retail-price="100"
+                    />
                     <v-select
                         class="ma-2"
                         clearable
@@ -56,7 +53,6 @@
                         :items="['Bar', 'Baz', 'Zep']"
                         variant="solo"
                     ></v-select>
-                    <ProductPrice class="ma-2"/>
                     <v-select
                         class="ma-2"
                         clearable
@@ -66,27 +62,21 @@
                         variant="solo"
                     ></v-select>
                     <v-card-actions>
+                        <v-spacer></v-spacer>
                         <v-btn prepend-icon="mdi-cart">Add To Cart</v-btn>
                     </v-card-actions>
                 </v-card>
-            </div>
-
-            <div
-                class=""
-            >
+                <v-spacer></v-spacer>
                 <v-card
+                    disabled
                     title="Shipping"
                     text="3 Working Days"
                 ></v-card>
             </div>
-        </div>
-
-        <div
-            class="mb-4"
-        >
             <v-card
+                class="ma-4"
                 title="Description"
-                text="Foo is the most amazing thing on earth."
+                text="Foo is the single most amazing thing on earth."
             >
             </v-card>
         </div>
@@ -94,5 +84,5 @@
 </template>
 
 <script setup lang="ts">
-    import ProductPrice from '@/components/ProductPrice.vue';
+import ProductPrice from '@/components/ProductPrice.vue'
 </script>

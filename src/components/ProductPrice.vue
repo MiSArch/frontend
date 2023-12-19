@@ -1,15 +1,29 @@
+<!-- TODO Replace string "EUR" with actual currency symbol -->
+<!-- TODO Add prop for currency -->
+
 <template>
-    <v-card
-        flat
-    >
+    <v-card flat>
         <v-card-item>
-            <v-card-title>90 EUR</v-card-title>
+            <v-card-title>{{ price }} EUR</v-card-title>
             <v-card-subtitle
                 class="text-decoration-line-through"
-                v-if="true"
+                v-if="price != retailPrice"
             >
-                100 EUR
+                {{ retailPrice }} EUR
             </v-card-subtitle>
         </v-card-item>
     </v-card>
 </template>
+
+<script lang="ts" setup>
+const props = defineProps({
+    price: {
+        type: Number,
+        required: true,
+    },
+    retailPrice: {
+        type: Number,
+        required: true,
+    },
+})
+</script>
