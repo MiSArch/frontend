@@ -4,7 +4,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
     {
         path: '/',
-        component: () => import('@/layouts/default/Default.vue'),
+        name: 'Default',
+        component: () => import('@/layouts/default/TheDefaultLayout.vue'),
         children: [
             {
                 path: '',
@@ -12,17 +13,17 @@ const routes = [
                 // route level code-splitting
                 // this generates a separate chunk (Storefront-[hash].js) for this route
                 // which is lazy-loaded when the route is visited.
-                component: () => import('@/views/TheStorefront.vue'),
+                component: () => import('@/views/StorefrontView.vue'),
             },
             {
                 path: 'products',
                 name: 'Products',
-                component: () => import('@/views/TheProducts.vue'),
+                component: () => import('@/views/ProductsView.vue'),
             },
             {
                 path: 'products/:productid/:productvariantid',
                 name: 'Product',
-                component: () => import('@/views/TheProduct.vue'),
+                component: () => import('@/views/ProductView.vue'),
             },
         ],
     },
