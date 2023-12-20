@@ -1,11 +1,8 @@
 <template>
     <v-app-bar flat>
-        <v-app-bar-title
-            ><router-link to="/products/foo/bar">
-                MiSArch Frontend
-            </router-link></v-app-bar-title
-        >
-
+        <v-app-bar-title>
+            <router-link to="/"> MiSArch Online Store </router-link>
+        </v-app-bar-title>
         <v-btn disabled prepend-icon="mdi-cart"> Shopping Cart </v-btn>
         <v-btn prepend-icon="mdi-plus" @click="openAddProductDialog">
             Add Product
@@ -14,7 +11,6 @@
             v-model="addProductDialogOpen"
             @close-dialog="closeAddProductDialog"
         />
-        <AddProductDialog />
     </v-app-bar>
 </template>
 

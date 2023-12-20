@@ -1,16 +1,19 @@
 <template>
     <div class="d-flex flex-column">
         <v-list>
-            <v-list-item class="">
+            <v-list-item>
                 <ProductSummary />
             </v-list-item>
-            <v-list-item class="pa-8">
+            <v-list-item>
                 <ProductSummary />
             </v-list-item>
-            <v-list-item class="pa-4">
+            <v-list-item>
                 <ProductSummary />
             </v-list-item>
-            <v-list-item class="pa-2">
+            <v-list-item>
+                <ProductSummary />
+            </v-list-item>
+            <v-list-item>
                 <ProductSummary />
             </v-list-item>
         </v-list>
