@@ -7,6 +7,6 @@ import { getSdk } from './generated'
  * @returns The GraphQL client.
  */
 export function useClient() {
-    const client = new GraphQLClient('/api')
+    const client = new GraphQLClient('/api/graphql')
     return getSdk(client)
 }

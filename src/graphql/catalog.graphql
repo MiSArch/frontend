@@ -1,8 +1,27 @@
-query getProducts($first: Int, $skip: Int) {
+query getProductsList($first: Int, $skip: Int) {
     products(first: $first, skip: $skip) {
         nodes {
             id
-            internalName
+            defaultVariant {
+                id
+                currentVersion {
+                    name
+                    retailPrice
+                }
+            }
         }
+        totalCount
+    }
+}
+
+mutation createProduct($input: CreateProductInput!) {
+    createProduct(input: $input) {
+        id
+    }
+}
+
+mutation createProductVariant($input: CreateProductVariantInput!) {
+    createProductVariant(input: $input) {
+        id
     }
 }

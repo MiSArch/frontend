@@ -232,30 +232,78 @@ export type ProductVariantVersionOrderInput = {
     field: ProductVariantVersionOrderField
 }
 
-export type GetProductsQueryVariables = Exact<{
+export type GetProductsListQueryVariables = Exact<{
     first?: InputMaybe<Scalars['Int']['input']>
     skip?: InputMaybe<Scalars['Int']['input']>
 }>
 
-export type GetProductsQuery = {
+export type GetProductsListQuery = {
     __typename?: 'Query'
     products: {
         __typename?: 'ProductConnection'
+        totalCount: number
         nodes: Array<{
             __typename?: 'Product'
             id: string
-            internalName: string
+            defaultVariant: {
+                __typename?: 'ProductVariant'
+                id: string
+                currentVersion: {
+                    __typename?: 'ProductVariantVersion'
+                    name: string
+                    retailPrice: number
+                }
+            }
         }>
     }
 }
 
-export const GetProductsDocument = gql`
-    query getProducts($first: Int, $skip: Int) {
+export type CreateProductMutationVariables = Exact<{
+    input: CreateProductInput
+}>
+
+export type CreateProductMutation = {
+    __typename?: 'Mutation'
+    createProduct: { __typename?: 'Product'; id: string }
+}
+
+export type CreateProductVariantMutationVariables = Exact<{
+    input: CreateProductVariantInput
+}>
+
+export type CreateProductVariantMutation = {
+    __typename?: 'Mutation'
+    createProductVariant: { __typename?: 'ProductVariant'; id: string }
+}
+
+export const GetProductsListDocument = gql`
+    query getProductsList($first: Int, $skip: Int) {
         products(first: $first, skip: $skip) {
             nodes {
                 id
-                internalName
+                defaultVariant {
+                    id
+                    currentVersion {
+                        name
+                        retailPrice
+                    }
+                }
             }
+            totalCount
+        }
+    }
+`
+export const CreateProductDocument = gql`
+    mutation createProduct($input: CreateProductInput!) {
+        createProduct(input: $input) {
+            id
+        }
+    }
+`
+export const CreateProductVariantDocument = gql`
+    mutation createProductVariant($input: CreateProductVariantInput!) {
+        createProductVariant(input: $input) {
+            id
         }
     }
 `
@@ -279,19 +327,51 @@ export function getSdk(
     withWrapper: SdkFunctionWrapper = defaultWrapper
 ) {
     return {
-        getProducts(
-            variables?: GetProductsQueryVariables,
+        getProductsList(
+            variables?: GetProductsListQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetProductsQuery> {
+        ): Promise<GetProductsListQuery> {
             return withWrapper(
                 (wrappedRequestHeaders) =>
-                    client.request<GetProductsQuery>(
-                        GetProductsDocument,
+                    client.request<GetProductsListQuery>(
+                        GetProductsListDocument,
                         variables,
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
-                'getProducts',
+                'getProductsList',
                 'query',
+                variables
+            )
+        },
+        createProduct(
+            variables: CreateProductMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateProductMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateProductMutation>(
+                        CreateProductDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createProduct',
+                'mutation',
+                variables
+            )
+        },
+        createProductVariant(
+            variables: CreateProductVariantMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateProductVariantMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateProductVariantMutation>(
+                        CreateProductVariantDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createProductVariant',
+                'mutation',
                 variables
             )
         },
