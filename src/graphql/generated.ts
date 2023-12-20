@@ -1,0 +1,300 @@
+import { GraphQLClient } from 'graphql-request'
+import { GraphQLClientRequestHeaders } from 'graphql-request/build/cjs/types'
+import gql from 'graphql-tag'
+export type Maybe<T> = T | null
+export type InputMaybe<T> = Maybe<T>
+export type Exact<T extends { [key: string]: unknown }> = {
+    [K in keyof T]: T[K]
+}
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
+    [SubKey in K]?: Maybe<T[SubKey]>
+}
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
+    [SubKey in K]: Maybe<T[SubKey]>
+}
+export type MakeEmpty<
+    T extends { [key: string]: unknown },
+    K extends keyof T,
+> = { [_ in K]?: never }
+export type Incremental<T> =
+    | T
+    | {
+          [P in keyof T]?: P extends ' $fragmentName' | '__typename'
+              ? T[P]
+              : never
+      }
+/** All built-in and custom scalars, mapped to their actual values */
+export type Scalars = {
+    ID: { input: string; output: string }
+    String: { input: string; output: string }
+    Boolean: { input: boolean; output: boolean }
+    Int: { input: number; output: number }
+    Float: { input: number; output: number }
+    /** A slightly refined version of RFC-3339 compliant DateTime Scalar */
+    DateTime: { input: any; output: any }
+}
+
+/** Input to create a CategoricalCategoryCharacteristic for a Category */
+export type CategoricalCategoryCharacteristicInput = {
+    /** The description of the CategoricalCategoryCharacteristic */
+    description: Scalars['String']['input']
+    /** The name of the CategoricalCategoryCharacteristic */
+    name: Scalars['String']['input']
+}
+
+/** Input for creating a CategoricalCategoryCharacteristicValue. */
+export type CategoricalCategoryCharacteristicValueInput = {
+    /** The id of the CategoryCharacteristic. */
+    characteristicId: Scalars['ID']['input']
+    /** The value of the CategoricalCategoryCharacteristicValue. */
+    value: Scalars['String']['input']
+}
+
+/** CategoryCharacteristic order fields */
+export enum CategoryCharacteristicOrderField {
+    /** Order categoryCharacteristics by their id */
+    Id = 'ID',
+}
+
+/** CategoryCharacteristic order */
+export type CategoryCharacteristicOrderInput = {
+    direction: OrderDirection
+    field: CategoryCharacteristicOrderField
+}
+
+/** CategoryCharacteristicValue order fields */
+export enum CategoryCharacteristicValueOrderField {
+    /** Order categoryCharacteristicValues by their id */
+    Id = 'ID',
+}
+
+/** CategoryCharacteristicValue order */
+export type CategoryCharacteristicValueOrderInput = {
+    direction: OrderDirection
+    field: CategoryCharacteristicValueOrderField
+}
+
+/** Category order fields */
+export enum CategoryOrderField {
+    /** Order categorys by their id */
+    Id = 'ID',
+}
+
+/** Category order */
+export type CategoryOrderInput = {
+    direction: OrderDirection
+    field: CategoryOrderField
+}
+
+/** Input for the createCategoricalCategoryCharacteristic mutation */
+export type CreateCategoricalCategoryCharacteristicInput = {
+    /** The Category that the CategoricalCategoryCharacteristicI belongs to */
+    categoryId: Scalars['ID']['input']
+    description: Scalars['String']['input']
+    name: Scalars['String']['input']
+}
+
+/** Input for the createCategory mutation */
+export type CreateCategoryInput = {
+    /** The CategoricalCategoryCharacteristics of the Category */
+    categoricalCharacteristics: Array<CategoricalCategoryCharacteristicInput>
+    /** The description of the Category */
+    description: Scalars['String']['input']
+    /** The name of the Category */
+    name: Scalars['String']['input']
+    /** The NumericalCategoryCharacteristics of the Category */
+    numericalCharacteristics: Array<NumericalCategoryCharacteristicInput>
+}
+
+/** Input for the createNumericalCategoryCharacteristic mutation */
+export type CreateNumericalCategoryCharacteristicInput = {
+    /** The Category that the NumericalCategoryCharacteristic belongs to */
+    categoryId: Scalars['ID']['input']
+    description: Scalars['String']['input']
+    name: Scalars['String']['input']
+    unit: Scalars['String']['input']
+}
+
+/** Input for the createProduct mutation */
+export type CreateProductInput = {
+    /** The Categories this product is associated with. */
+    categoryIds: Array<Scalars['ID']['input']>
+    /** The default ProductVariant of the Product. */
+    defaultVariant: ProductVariantInput
+    /** An internal name to identify the Product, not visible to customers. */
+    internalName: Scalars['String']['input']
+    /** If true, the Product is visible to customers. */
+    isPubliclyVisible: Scalars['Boolean']['input']
+}
+
+/** Input for the createProductVariant mutation */
+export type CreateProductVariantInput = {
+    initialVersion: ProductVariantVersionInput
+    isPubliclyVisible: Scalars['Boolean']['input']
+    /** The id of the Product this ProductVariant belongs to. */
+    productId: Scalars['ID']['input']
+}
+
+/** Input for the createProductVariantVersion mutation */
+export type CreateProductVariantVersionInput = {
+    canBeReturnedForDays?: InputMaybe<Scalars['Float']['input']>
+    categoricalCharacteristicValues: Array<CategoricalCategoryCharacteristicValueInput>
+    description: Scalars['String']['input']
+    name: Scalars['String']['input']
+    numericalCharacteristicValues: Array<NumericalCategoryCharacteristicValueInput>
+    productVariantId: Scalars['ID']['input']
+    retailPrice: Scalars['Int']['input']
+}
+
+/** Input to create a NumericalCategoryCharacteristic for a Category */
+export type NumericalCategoryCharacteristicInput = {
+    /** The description of the NumericalCategoryCharacteristic */
+    description: Scalars['String']['input']
+    /** The name of the NumericalCategoryCharacteristic */
+    name: Scalars['String']['input']
+    /** The unit of the NumericalCategoryCharacteristic */
+    unit: Scalars['String']['input']
+}
+
+/** Input for creating a NumericalCategoryCharacteristicValue. */
+export type NumericalCategoryCharacteristicValueInput = {
+    /** The id of the CategoryCharacteristic. */
+    characteristicId: Scalars['ID']['input']
+    /** The value of the NumericalCategoryCharacteristicValue. */
+    value: Scalars['Float']['input']
+}
+
+/** Order direction */
+export enum OrderDirection {
+    /** Ascending order */
+    Asc = 'ASC',
+    /** Descending order */
+    Desc = 'DESC',
+}
+
+/** Product order fields */
+export enum ProductOrderField {
+    /** Order products by their id */
+    Id = 'ID',
+}
+
+/** Product order */
+export type ProductOrderInput = {
+    direction: OrderDirection
+    field: ProductOrderField
+}
+
+/** Input for creating a product variant */
+export type ProductVariantInput = {
+    /** The initial ProductVariantVersion of the ProductVariant. */
+    initialVersion: ProductVariantVersionInput
+    /** If true, the ProductVariant is visible to customers. */
+    isPubliclyVisible: Scalars['Boolean']['input']
+}
+
+/** ProductVariant order fields */
+export enum ProductVariantOrderField {
+    /** Order productVariants by their id */
+    Id = 'ID',
+}
+
+/** ProductVariant order */
+export type ProductVariantOrderInput = {
+    direction: OrderDirection
+    field: ProductVariantOrderField
+}
+
+/** Input for creating a ProductVariantVersion. */
+export type ProductVariantVersionInput = {
+    /** The amount of days for which an instance of the ProductVariant can be returned after purchase */
+    canBeReturnedForDays?: InputMaybe<Scalars['Float']['input']>
+    /** The CategoricalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product. */
+    categoricalCharacteristicValues: Array<CategoricalCategoryCharacteristicValueInput>
+    /** The description of the ProductVariant. */
+    description: Scalars['String']['input']
+    /** The name of the ProductVariant. */
+    name: Scalars['String']['input']
+    /** The NumericalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product. */
+    numericalCharacteristicValues: Array<NumericalCategoryCharacteristicValueInput>
+    /** The retail price of the ProductVariant. */
+    retailPrice: Scalars['Int']['input']
+}
+
+/** ProductVariantVersion order fields */
+export enum ProductVariantVersionOrderField {
+    /** Order productVariantVersions by their id */
+    Id = 'ID',
+}
+
+/** ProductVariantVersion order */
+export type ProductVariantVersionOrderInput = {
+    direction: OrderDirection
+    field: ProductVariantVersionOrderField
+}
+
+export type GetProductsQueryVariables = Exact<{
+    first?: InputMaybe<Scalars['Int']['input']>
+    skip?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetProductsQuery = {
+    __typename?: 'Query'
+    products: {
+        __typename?: 'ProductConnection'
+        nodes: Array<{
+            __typename?: 'Product'
+            id: string
+            internalName: string
+        }>
+    }
+}
+
+export const GetProductsDocument = gql`
+    query getProducts($first: Int, $skip: Int) {
+        products(first: $first, skip: $skip) {
+            nodes {
+                id
+                internalName
+            }
+        }
+    }
+`
+
+export type SdkFunctionWrapper = <T>(
+    action: (requestHeaders?: Record<string, string>) => Promise<T>,
+    operationName: string,
+    operationType?: string,
+    variables?: any
+) => Promise<T>
+
+const defaultWrapper: SdkFunctionWrapper = (
+    action,
+    _operationName,
+    _operationType,
+    variables
+) => action()
+
+export function getSdk(
+    client: GraphQLClient,
+    withWrapper: SdkFunctionWrapper = defaultWrapper
+) {
+    return {
+        getProducts(
+            variables?: GetProductsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetProductsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetProductsQuery>(
+                        GetProductsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getProducts',
+                'query',
+                variables
+            )
+        },
+    }
+}
+export type Sdk = ReturnType<typeof getSdk>

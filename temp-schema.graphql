@@ -1,0 +1,508 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+"Marks the field, argument, input field or enum value as deprecated"
+directive @deprecated(
+    "The reason for the deprecation"
+    reason: String = "No longer supported"
+  ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+"Directs the executor to include this field or fragment only when the `if` argument is true"
+directive @include(
+    "Included when true."
+    if: Boolean!
+  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"Indicates an Input Object is a OneOf Input Object."
+directive @oneOf on INPUT_OBJECT
+
+"Directs the executor to skip this field or fragment when the `if` argument is true."
+directive @skip(
+    "Skipped when true."
+    if: Boolean!
+  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"Exposes a URL that specifies the behaviour of this scalar."
+directive @specifiedBy(
+    "The URL that specifies the behaviour of this scalar."
+    url: String!
+  ) on SCALAR
+
+"A characteristic of a category."
+interface CategoryCharacteristic implements Node {
+  "The category this item belongs to."
+  category: Category!
+  "The description of the characteristic."
+  description: String!
+  id: ID!
+  "The name of the characteristic."
+  name: String!
+}
+
+"A value for a category characteristic."
+interface CategoryCharacteristicValue {
+  "The associated CategoryCharacteristic this is a value of."
+  characteristic: CategoryCharacteristic!
+}
+
+"An object with an ID."
+interface Node {
+  id: ID!
+}
+
+"A categorical characteristic of a category."
+type CategoricalCategoryCharacteristic implements CategoryCharacteristic & Node {
+  "The category this item belongs to."
+  category: Category!
+  description: String!
+  id: ID!
+  name: String!
+}
+
+"A categorical value of a CategoricalCategoryCharacteristic."
+type CategoricalCategoryCharacteristicValue implements CategoryCharacteristicValue {
+  "The associated CategoryCharacteristic this is a value of."
+  characteristic: CategoryCharacteristic!
+  "The value of the characteristic."
+  value: String!
+}
+
+"A category"
+type Category implements Node {
+  "Get characteristics for the category"
+  characteristics(
+    "Number of items to return"
+    first: Int,
+    "Ordering"
+    orderBy: CategoryCharacteristicOrderInput,
+    "Number of items to skip"
+    skip: Int
+  ): CategoryCharacteristicConnection!
+  "The description of the category."
+  description: String!
+  id: ID!
+  "The name of the category."
+  name: String!
+  "Get all associated products"
+  products(
+    "Number of items to return"
+    first: Int,
+    "Ordering"
+    orderBy: ProductOrderInput,
+    "Number of items to skip"
+    skip: Int
+  ): ProductConnection!
+}
+
+"A connection to a list of `CategoryCharacteristic` values."
+type CategoryCharacteristicConnection {
+  "Whether this connection has a next page"
+  hasNextPage: Boolean!
+  "The resulting ."
+  nodes: [CategoryCharacteristic!]!
+  "The total amount of items in this connection"
+  totalCount: Int!
+}
+
+"A connection to a list of `CategoryCharacteristicValue` values."
+type CategoryCharacteristicValueConnection {
+  "Whether this connection has a next page"
+  hasNextPage: Boolean!
+  "The resulting ."
+  nodes: [CategoryCharacteristicValue!]!
+  "The total amount of items in this connection"
+  totalCount: Int!
+}
+
+"A connection to a list of `Category` values."
+type CategoryConnection {
+  "Whether this connection has a next page"
+  hasNextPage: Boolean!
+  "The resulting ."
+  nodes: [Category!]!
+  "The total amount of items in this connection"
+  totalCount: Int!
+}
+
+type Mutation {
+  "Create a new CategoricalCategoryCharacteristic"
+  createCategoricalCategoryCharacteristic(
+    "Input for the createCategoricalCategoryCharacteristic mutation"
+    input: CreateCategoricalCategoryCharacteristicInput!
+  ): CategoricalCategoryCharacteristic!
+  "Create a new category"
+  createCategory(
+    "Input for the createCategory mutation"
+    input: CreateCategoryInput!
+  ): Category!
+  "Create a new numerical category characteristic"
+  createNumericalCategoryCharacteristic(
+    "Input for the createNumericalCategoryCharacteristic mutation"
+    input: CreateNumericalCategoryCharacteristicInput!
+  ): NumericalCategoryCharacteristic!
+  "Create a new product"
+  createProduct(
+    "Input for the createProduct mutation"
+    input: CreateProductInput!
+  ): Product!
+  "Create a new product variant"
+  createProductVariant(
+    "Input for the createProductVariant mutation"
+    input: CreateProductVariantInput!
+  ): ProductVariant!
+  "Create a new product variant version"
+  createProductVariantVersion(
+    "Input for the createProductVariantVersion mutation"
+    input: CreateProductVariantVersionInput!
+  ): ProductVariantVersion!
+}
+
+"A numerical characteristic of a category."
+type NumericalCategoryCharacteristic implements CategoryCharacteristic & Node {
+  "The category this item belongs to."
+  category: Category!
+  description: String!
+  id: ID!
+  name: String!
+  "The unit of the characteristic."
+  unit: String!
+}
+
+"A numerical value of a numerical category characteristic."
+type NumericalCategoryCharacteristicValue implements CategoryCharacteristicValue {
+  "The associated CategoryCharacteristic this is a value of."
+  characteristic: CategoryCharacteristic!
+  "The value of the characteristic."
+  value: Float!
+}
+
+"A product."
+type Product implements Node {
+  "Get all associated variants"
+  categories(
+    "Number of items to return"
+    first: Int,
+    "Ordering"
+    orderBy: CategoryOrderInput,
+    "Number of items to skip"
+    skip: Int
+  ): CategoryConnection!
+  "The default variant of the product."
+  defaultVariant: ProductVariant!
+  id: ID!
+  "An internal name to identify the product, not visible to customers."
+  internalName: String!
+  "If true, the product is visible to customers."
+  isPubliclyVisible: Boolean!
+  "Get all associated variants"
+  variants(
+    "Number of items to return"
+    first: Int,
+    "Ordering"
+    orderBy: ProductVariantOrderInput,
+    "Number of items to skip"
+    skip: Int
+  ): ProductVariantConnection!
+}
+
+"A connection to a list of `Product` values."
+type ProductConnection {
+  "Whether this connection has a next page"
+  hasNextPage: Boolean!
+  "The resulting ."
+  nodes: [Product!]!
+  "The total amount of items in this connection"
+  totalCount: Int!
+}
+
+"A variant of a product."
+type ProductVariant implements Node {
+  "The current version of the product variant."
+  currentVersion: ProductVariantVersion!
+  id: ID!
+  "If true, the variant is visible to customers."
+  isPubliclyVisible: Boolean!
+  "The product this is a variant of."
+  product: Product!
+  "Get all associated versions"
+  versions(
+    "Number of items to return"
+    first: Int,
+    "Ordering"
+    orderBy: ProductVariantVersionOrderInput,
+    "Number of items to skip"
+    skip: Int
+  ): ProductVariantVersionConnection!
+}
+
+"A connection to a list of `ProductVariant` values."
+type ProductVariantConnection {
+  "Whether this connection has a next page"
+  hasNextPage: Boolean!
+  "The resulting ."
+  nodes: [ProductVariant!]!
+  "The total amount of items in this connection"
+  totalCount: Int!
+}
+
+"A version of a product variant."
+type ProductVariantVersion implements Node {
+  "The amount of days for which an instance of the product variant can be returned after purchase"
+  canBeReturnedForDays: Float
+  "Get all associated characteristic values"
+  characteristicValues(
+    "Number of items to return"
+    first: Int,
+    "Ordering"
+    orderBy: CategoryCharacteristicValueOrderInput,
+    "Number of items to skip"
+    skip: Int
+  ): CategoryCharacteristicValueConnection!
+  "The date when the product variant version was created."
+  createdAt: DateTime!
+  "The description of the product variant."
+  description: String!
+  id: ID!
+  "The name of the product variant."
+  name: String!
+  "The product variant this is a version of."
+  productVariant: ProductVariant!
+  "The retail price of the product variant."
+  retailPrice: Int!
+  "The version of the product variant."
+  version: Int!
+}
+
+"A connection to a list of `ProductVariantVersion` values."
+type ProductVariantVersionConnection {
+  "Whether this connection has a next page"
+  hasNextPage: Boolean!
+  "The resulting ."
+  nodes: [ProductVariantVersion!]!
+  "The total amount of items in this connection"
+  totalCount: Int!
+}
+
+type Query {
+  "Get all categories"
+  categories(
+    "Number of items to return"
+    first: Int,
+    "Ordering"
+    orderBy: CategoryOrderInput,
+    "Number of items to skip"
+    skip: Int
+  ): CategoryConnection!
+  "Get all products"
+  products(
+    "Number of items to return"
+    first: Int,
+    "Ordering"
+    orderBy: ProductOrderInput,
+    "Number of items to skip"
+    skip: Int
+  ): ProductConnection!
+}
+
+"CategoryCharacteristic order fields"
+enum CategoryCharacteristicOrderField {
+  "Order categoryCharacteristics by their id"
+  ID
+}
+
+"CategoryCharacteristicValue order fields"
+enum CategoryCharacteristicValueOrderField {
+  "Order categoryCharacteristicValues by their id"
+  ID
+}
+
+"Category order fields"
+enum CategoryOrderField {
+  "Order categorys by their id"
+  ID
+}
+
+"Order direction"
+enum OrderDirection {
+  "Ascending order"
+  ASC
+  "Descending order"
+  DESC
+}
+
+"Product order fields"
+enum ProductOrderField {
+  "Order products by their id"
+  ID
+}
+
+"ProductVariant order fields"
+enum ProductVariantOrderField {
+  "Order productVariants by their id"
+  ID
+}
+
+"ProductVariantVersion order fields"
+enum ProductVariantVersionOrderField {
+  "Order productVariantVersions by their id"
+  ID
+}
+
+"A slightly refined version of RFC-3339 compliant DateTime Scalar"
+scalar DateTime
+
+"Input to create a CategoricalCategoryCharacteristic for a Category"
+input CategoricalCategoryCharacteristicInput {
+  "The description of the CategoricalCategoryCharacteristic"
+  description: String!
+  "The name of the CategoricalCategoryCharacteristic"
+  name: String!
+}
+
+"Input for creating a CategoricalCategoryCharacteristicValue."
+input CategoricalCategoryCharacteristicValueInput {
+  "The id of the CategoryCharacteristic."
+  characteristicId: ID!
+  "The value of the CategoricalCategoryCharacteristicValue."
+  value: String!
+}
+
+"CategoryCharacteristic order"
+input CategoryCharacteristicOrderInput {
+  direction: OrderDirection!
+  field: CategoryCharacteristicOrderField!
+}
+
+"CategoryCharacteristicValue order"
+input CategoryCharacteristicValueOrderInput {
+  direction: OrderDirection!
+  field: CategoryCharacteristicValueOrderField!
+}
+
+"Category order"
+input CategoryOrderInput {
+  direction: OrderDirection!
+  field: CategoryOrderField!
+}
+
+"Input for the createCategoricalCategoryCharacteristic mutation"
+input CreateCategoricalCategoryCharacteristicInput {
+  "The Category that the CategoricalCategoryCharacteristicI belongs to"
+  categoryId: ID!
+  description: String!
+  name: String!
+}
+
+"Input for the createCategory mutation"
+input CreateCategoryInput {
+  "The CategoricalCategoryCharacteristics of the Category"
+  categoricalCharacteristics: [CategoricalCategoryCharacteristicInput!]!
+  "The description of the Category"
+  description: String!
+  "The name of the Category"
+  name: String!
+  "The NumericalCategoryCharacteristics of the Category"
+  numericalCharacteristics: [NumericalCategoryCharacteristicInput!]!
+}
+
+"Input for the createNumericalCategoryCharacteristic mutation"
+input CreateNumericalCategoryCharacteristicInput {
+  "The Category that the NumericalCategoryCharacteristic belongs to"
+  categoryId: ID!
+  description: String!
+  name: String!
+  unit: String!
+}
+
+"Input for the createProduct mutation"
+input CreateProductInput {
+  "The Categories this product is associated with."
+  categoryIds: [ID!]!
+  "The default ProductVariant of the Product."
+  defaultVariant: ProductVariantInput!
+  "An internal name to identify the Product, not visible to customers."
+  internalName: String!
+  "If true, the Product is visible to customers."
+  isPubliclyVisible: Boolean!
+}
+
+"Input for the createProductVariant mutation"
+input CreateProductVariantInput {
+  initialVersion: ProductVariantVersionInput!
+  isPubliclyVisible: Boolean!
+  "The id of the Product this ProductVariant belongs to."
+  productId: ID!
+}
+
+"Input for the createProductVariantVersion mutation"
+input CreateProductVariantVersionInput {
+  canBeReturnedForDays: Float
+  categoricalCharacteristicValues: [CategoricalCategoryCharacteristicValueInput!]!
+  description: String!
+  name: String!
+  numericalCharacteristicValues: [NumericalCategoryCharacteristicValueInput!]!
+  productVariantId: ID!
+  retailPrice: Int!
+}
+
+"Input to create a NumericalCategoryCharacteristic for a Category"
+input NumericalCategoryCharacteristicInput {
+  "The description of the NumericalCategoryCharacteristic"
+  description: String!
+  "The name of the NumericalCategoryCharacteristic"
+  name: String!
+  "The unit of the NumericalCategoryCharacteristic"
+  unit: String!
+}
+
+"Input for creating a NumericalCategoryCharacteristicValue."
+input NumericalCategoryCharacteristicValueInput {
+  "The id of the CategoryCharacteristic."
+  characteristicId: ID!
+  "The value of the NumericalCategoryCharacteristicValue."
+  value: Float!
+}
+
+"Product order"
+input ProductOrderInput {
+  direction: OrderDirection!
+  field: ProductOrderField!
+}
+
+"Input for creating a product variant"
+input ProductVariantInput {
+  "The initial ProductVariantVersion of the ProductVariant."
+  initialVersion: ProductVariantVersionInput!
+  "If true, the ProductVariant is visible to customers."
+  isPubliclyVisible: Boolean!
+}
+
+"ProductVariant order"
+input ProductVariantOrderInput {
+  direction: OrderDirection!
+  field: ProductVariantOrderField!
+}
+
+"Input for creating a ProductVariantVersion."
+input ProductVariantVersionInput {
+  "The amount of days for which an instance of the ProductVariant can be returned after purchase"
+  canBeReturnedForDays: Float
+  "The CategoricalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product."
+  categoricalCharacteristicValues: [CategoricalCategoryCharacteristicValueInput!]!
+  "The description of the ProductVariant."
+  description: String!
+  "The name of the ProductVariant."
+  name: String!
+  "The NumericalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product."
+  numericalCharacteristicValues: [NumericalCategoryCharacteristicValueInput!]!
+  "The retail price of the ProductVariant."
+  retailPrice: Int!
+}
+
+"ProductVariantVersion order"
+input ProductVariantVersionOrderInput {
+  direction: OrderDirection!
+  field: ProductVariantVersionOrderField!
+}

@@ -1,0 +1,8 @@
+query getProducts($first: Int, $skip: Int) {
+    products(first: $first, skip: $skip) {
+        nodes {
+            id
+            internalName
+        }
+    }
+}

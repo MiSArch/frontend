@@ -7,11 +7,14 @@
         "build": "vue-tsc --noEmit && vite build",
         "preview": "vite preview",
         "lint": "eslint . --fix --ignore-path .gitignore",
-        "format": "prettier --write \"**/*.{ts,json,js,tsx,jsx,vue}\""
+        "format": "prettier --write \"**/*.{ts,json,js,tsx,jsx,vue}\"",
+        "codegen": "graphql-codegen --config codegen.yaml"
     },
     "dependencies": {
         "@mdi/font": "7.0.96",
         "core-js": "^3.29.0",
+        "graphql": "^16.8.1",
+        "graphql-request": "^6.1.0",
         "pinia": "^2.0.0",
         "roboto-fontface": "*",
         "vue": "^3.2.0",
@@ -20,6 +23,11 @@
     },
     "devDependencies": {
         "@babel/types": "^7.21.4",
+        "@graphql-codegen/cli": "^5.0.0",
+        "@graphql-codegen/typescript": "^4.0.1",
+        "@graphql-codegen/typescript-document-nodes": "^4.0.1",
+        "@graphql-codegen/typescript-graphql-request": "^6.1.0",
+        "@graphql-codegen/typescript-operations": "^4.0.1",
         "@types/node": "^18.15.0",
         "@typescript-eslint/eslint-plugin": "^6.14.0",
         "@typescript-eslint/parser": "^6.14.0",
