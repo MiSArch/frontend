@@ -4,7 +4,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
     {
         path: '/',
-        name: 'Default',
         component: () => import('@/layouts/default/TheDefaultLayout.vue'),
         children: [
             {
@@ -21,7 +20,7 @@ const routes = [
                 component: () => import('@/views/ProductsView.vue'),
             },
             {
-                path: 'products/:productid/:productvariantid',
+                path: 'products/:productid/:productvariantid?',
                 name: 'Product',
                 component: () => import('@/views/ProductView.vue'),
             },

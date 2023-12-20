@@ -1,6 +1,3 @@
-<!-- TODO Replace string "EUR" with actual currency symbol -->
-<!-- TODO Add prop for currency -->
-
 <template>
     <v-card flat>
         <v-card-item>
