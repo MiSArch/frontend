@@ -1,8 +1,3 @@
-<!-- TODO Remove "bg-surface-variant" from div for product summary row -->
-
-<!-- TODO Make category chips clickable -> route to category -->
-<!-- TODO Extract ShippingInformation component -->
-
 <template>
     <div class="d-flex flex-column ga-4">
         <div>

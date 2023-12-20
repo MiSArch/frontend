@@ -1,5 +1,3 @@
-<!-- TODO Refine component -->
-
 <template>
     <v-sheet class="d-flex" :elevation="1" border>
         <div class="d-inline-flex ma-2">
