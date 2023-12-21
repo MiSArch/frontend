@@ -258,6 +258,47 @@ export type GetProductsListQuery = {
     }
 }
 
+export type GetProductQueryVariables = Exact<{
+    id: Scalars['ID']['input']
+}>
+
+export type GetProductQuery = {
+    __typename?: 'Query'
+    product: {
+        __typename?: 'Product'
+        id: string
+        internalName: string
+        isPubliclyVisible: boolean
+        defaultVariant: {
+            __typename?: 'ProductVariant'
+            id: string
+            isPubliclyVisible: boolean
+            currentVersion: {
+                __typename?: 'ProductVariantVersion'
+                id: string
+                name: string
+                description: string
+                retailPrice: number
+            }
+        }
+        variants: {
+            __typename?: 'ProductVariantConnection'
+            nodes: Array<{
+                __typename?: 'ProductVariant'
+                id: string
+                isPubliclyVisible: boolean
+                currentVersion: {
+                    __typename?: 'ProductVariantVersion'
+                    id: string
+                    name: string
+                    description: string
+                    retailPrice: number
+                }
+            }>
+        }
+    }
+}
+
 export type CreateProductMutationVariables = Exact<{
     input: CreateProductInput
 }>
@@ -290,6 +331,37 @@ export const GetProductsListDocument = gql`
                 }
             }
             totalCount
+        }
+    }
+`
+export const GetProductDocument = gql`
+    query getProduct($id: ID!) {
+        product(id: $id) {
+            id
+            internalName
+            isPubliclyVisible
+            defaultVariant {
+                id
+                isPubliclyVisible
+                currentVersion {
+                    id
+                    name
+                    description
+                    retailPrice
+                }
+            }
+            variants {
+                nodes {
+                    id
+                    isPubliclyVisible
+                    currentVersion {
+                        id
+                        name
+                        description
+                        retailPrice
+                    }
+                }
+            }
         }
     }
 `
@@ -339,6 +411,22 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'getProductsList',
+                'query',
+                variables
+            )
+        },
+        getProduct(
+            variables: GetProductQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetProductQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetProductQuery>(
+                        GetProductDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getProduct',
                 'query',
                 variables
             )

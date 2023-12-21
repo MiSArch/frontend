@@ -30,18 +30,18 @@ directive @specifiedBy(
     url: String!
   ) on SCALAR
 
-"A characteristic of a category."
+"A characteristic of a Category."
 interface CategoryCharacteristic implements Node {
-  "The category this item belongs to."
+  "The Category this item belongs to."
   category: Category!
-  "The description of the characteristic."
+  "The description of the CategoryCharacteristic."
   description: String!
   id: ID!
-  "The name of the characteristic."
+  "The name of the CategoryCharacteristic."
   name: String!
 }
 
-"A value for a category characteristic."
+"A value for a CategoryCharacteristic."
 interface CategoryCharacteristicValue {
   "The associated CategoryCharacteristic this is a value of."
   characteristic: CategoryCharacteristic!
@@ -54,7 +54,7 @@ interface Node {
 
 "A categorical characteristic of a category."
 type CategoricalCategoryCharacteristic implements CategoryCharacteristic & Node {
-  "The category this item belongs to."
+  "The Category this item belongs to."
   category: Category!
   description: String!
   id: ID!
@@ -159,28 +159,28 @@ type Mutation {
   ): ProductVariantVersion!
 }
 
-"A numerical characteristic of a category."
+"A numerical characteristic of a Category."
 type NumericalCategoryCharacteristic implements CategoryCharacteristic & Node {
-  "The category this item belongs to."
+  "The Category this item belongs to."
   category: Category!
   description: String!
   id: ID!
   name: String!
-  "The unit of the characteristic."
+  "The unit of the NumericalCategoryCharacteristic."
   unit: String!
 }
 
-"A numerical value of a numerical category characteristic."
+"A numerical value of a NumericalCategoryCharacteristic."
 type NumericalCategoryCharacteristicValue implements CategoryCharacteristicValue {
   "The associated CategoryCharacteristic this is a value of."
   characteristic: CategoryCharacteristic!
-  "The value of the characteristic."
+  "The value of the NumericalCategoryCharacteristic."
   value: Float!
 }
 
 "A product."
 type Product implements Node {
-  "Get all associated variants"
+  "Get all associated Categories"
   categories(
     "Number of items to return"
     first: Int,
@@ -192,11 +192,11 @@ type Product implements Node {
   "The default variant of the product."
   defaultVariant: ProductVariant!
   id: ID!
-  "An internal name to identify the product, not visible to customers."
+  "An internal name to identify the Product, not visible to customers."
   internalName: String!
-  "If true, the product is visible to customers."
+  "If true, the Product is visible to customers."
   isPubliclyVisible: Boolean!
-  "Get all associated variants"
+  "Get all associated ProductVariants"
   variants(
     "Number of items to return"
     first: Int,
@@ -217,14 +217,14 @@ type ProductConnection {
   totalCount: Int!
 }
 
-"A variant of a product."
+"A variant of a Product."
 type ProductVariant implements Node {
-  "The current version of the product variant."
+  "The current version of the ProductVariant."
   currentVersion: ProductVariantVersion!
   id: ID!
-  "If true, the variant is visible to customers."
+  "If true, the ProductVariant is visible to customers."
   isPubliclyVisible: Boolean!
-  "The product this is a variant of."
+  "The Product this is a ProductVariant of."
   product: Product!
   "Get all associated versions"
   versions(
@@ -247,11 +247,11 @@ type ProductVariantConnection {
   totalCount: Int!
 }
 
-"A version of a product variant."
+"A version of a ProductVariant."
 type ProductVariantVersion implements Node {
-  "The amount of days for which an instance of the product variant can be returned after purchase"
+  "The amount of days for which an instance of the ProductVariantVersion can be returned after purchase"
   canBeReturnedForDays: Float
-  "Get all associated characteristic values"
+  "Get all associated CategoryCharacteristicValues"
   characteristicValues(
     "Number of items to return"
     first: Int,
@@ -260,18 +260,18 @@ type ProductVariantVersion implements Node {
     "Number of items to skip"
     skip: Int
   ): CategoryCharacteristicValueConnection!
-  "The date when the product variant version was created."
+  "The date when the ProductVariantVersion version was created."
   createdAt: DateTime!
-  "The description of the product variant."
+  "The description of the ProductVariantVersion."
   description: String!
   id: ID!
-  "The name of the product variant."
+  "The name of the ProductVariantVersion."
   name: String!
-  "The product variant this is a version of."
+  "The ProductVariant this is a version of."
   productVariant: ProductVariant!
-  "The retail price of the product variant."
+  "The retail price of the ProductVariantVersion."
   retailPrice: Int!
-  "The version of the product variant."
+  "The version of the ProductVariantVersion."
   version: Int!
 }
 
@@ -295,6 +295,16 @@ type Query {
     "Number of items to skip"
     skip: Int
   ): CategoryConnection!
+  "Get a category by id"
+  category(
+    "The id of the category"
+    id: ID!
+  ): Category!
+  "Get a product by id"
+  product(
+    "The id of the product"
+    id: ID!
+  ): Product!
   "Get all products"
   products(
     "Number of items to return"

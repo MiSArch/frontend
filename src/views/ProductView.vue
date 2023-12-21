@@ -33,45 +33,53 @@
                 </v-sheet>
                 <v-card class="align-self-start" elevation="4">
                     <v-card-item>
-                        <v-card-title>{{ internalName }}</v-card-title>
+                        <v-card-title>{{
+                            product?.product.internalName
+                        }}</v-card-title>
                         <v-card-subtitle>{{
-                            productVariantName
+                            productVariant?.currentVersion.name
                         }}</v-card-subtitle>
                     </v-card-item>
                     <v-card-text>
                         <div class="d-flex flex-wrap ga-2">
-                            <v-chip>Clothing</v-chip>
-                            <v-chip>T-Shirts</v-chip>
+                            <v-chip>Dummy Clothing</v-chip>
+                            <v-chip>Dummy T-Shirts</v-chip>
                         </div>
                     </v-card-text>
                     <v-divider></v-divider>
                     <div class="pa-4">
                         <v-select
-                            :items="['Black', 'White']"
+                            :items="['Dummy Black', 'Dummy White']"
                             density="compact"
                             label="Color"
                             variant="outlined"
                         ></v-select>
                         <v-select
-                            :items="['S', 'M', 'L']"
+                            :items="['Dummy S', 'Dummy M', 'Dummy L']"
                             density="compact"
                             label="Size"
                             variant="outlined"
                         ></v-select>
                     </div>
-                    <v-card-actions>
+                    <!-- <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn>Reset To Default</v-btn>
-                    </v-card-actions>
+                    </v-card-actions> -->
                 </v-card>
                 <v-card class="align-self-start">
                     <v-card-item>
-                        <v-card-title>{{ price }} EUR</v-card-title>
+                        <v-card-title
+                            >{{
+                                productVariant?.currentVersion.retailPrice
+                            }}
+                            EUR</v-card-title
+                        >
                         <v-card-subtitle
                             class="text-decoration-line-through"
-                            v-if="price != retailPrice"
+                            v-if="false"
                         >
-                            {{ retailPrice }} EUR
+                            {{ productVariant?.currentVersion.retailPrice }}
+                            EUR
                         </v-card-subtitle>
                     </v-card-item>
                     <v-divider></v-divider>
@@ -104,7 +112,7 @@
                 class="mx-4"
                 elevation="4"
                 title="Description"
-                text="This T-Shirt is the single most amazing T-Shirt on earth."
+                :text="productVariant?.currentVersion.description"
             >
             </v-card>
         </div>
@@ -112,11 +120,34 @@
 </template>
 
 <script setup lang="ts">
-import ProductPrice from '@/components/ProductPrice.vue'
-import { ref } from 'vue'
+import { asyncComputed } from '@vueuse/core'
+import { useClient } from '@/graphql/client'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 
-const internalName = ref('New York T-Shirt')
-const productVariantName = ref('New York T-Shirt Black Medium')
-const price = ref(90)
-const retailPrice = ref(100)
+const client = useClient()
+const route = useRoute()
+
+const id = route.params.productid.toString()
+const productVariantId = route.params.productvariantid?.toString()
+
+const product = asyncComputed(
+    async () => {
+        return client.getProduct({
+            id: route.params.productid.toString(),
+        })
+    },
+    null,
+    { shallow: false }
+)
+
+const productVariant = computed(() => {
+    if (!productVariantId) {
+        return product?.value?.product?.defaultVariant
+    } else {
+        return product?.value?.product?.variants?.nodes?.find(
+            (v) => v.id == productVariantId
+        )
+    }
+})
 </script>
