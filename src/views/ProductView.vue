@@ -61,10 +61,6 @@
                             variant="outlined"
                         ></v-select>
                     </div>
-                    <!-- <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn>Reset To Default</v-btn>
-                    </v-card-actions> -->
                 </v-card>
                 <v-card class="align-self-start">
                     <v-card-item>
