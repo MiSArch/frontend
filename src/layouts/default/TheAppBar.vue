@@ -18,13 +18,22 @@
 import AddProductDialog from '@/components/AddProductDialog.vue'
 import { ref } from 'vue'
 
+/**
+ * Whether or not the "ADD PRODUCT" dialog is open.
+ */
 const addProductDialogOpen = ref(false)
 
-const openAddProductDialog = () => {
+/**
+ * Opens the "ADD PRODUCT" dialog.
+ */
+function openAddProductDialog() {
     addProductDialogOpen.value = true
 }
 
-const closeAddProductDialog = () => {
+/**
+ * Closes the "ADD PRODUCT" dialog.
+ */
+function closeAddProductDialog() {
     addProductDialogOpen.value = false
 }
 </script>

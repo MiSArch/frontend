@@ -8,39 +8,79 @@
                 <v-toolbar-title>Add Product</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                    <v-btn @click="$emit('close-dialog')">Add Product</v-btn>
+                    <v-btn prepend-icon="mdi-content-save" @click="save"
+                        >Add Product</v-btn
+                    >
                 </v-toolbar-items>
             </v-toolbar>
             <div class="d-flex flex-column pa-4">
-                <v-switch label="Visible"></v-switch>
-                <v-text-field clearable label="Product Name"> </v-text-field>
+                <v-switch label="Visible" v-model="visible"></v-switch>
+                <v-text-field
+                    clearable
+                    label="Internal Product Name"
+                    v-model="internalName"
+                >
+                </v-text-field>
                 <v-select
-                    density="compact"
                     label="Default Product Variant"
-                    :items="['Bar', 'Baz', 'Zep']"
+                    :items="variants"
+                    :item-title="
+                        (item) => item.name || 'Product Variant ' + item.tempId
+                    "
+                    item-value="tempId"
                     variant="solo"
+                    v-model="defaultVariant"
                 ></v-select>
-                <v-tabs v-model="tabs">
-                    <v-tab v-for="n in variants" :key="n" :value="'tab-' + n">
-                        Product Variant {{ n }}
-                    </v-tab>
-                </v-tabs>
-                <v-window v-model="tabs">
+                <div class="d-flex">
+                    <v-tabs v-model="variantTab">
+                        <v-tab
+                            v-for="(variant, idx) in variants"
+                            :key="idx"
+                            :value="variant.tempId"
+                        >
+                            <template v-if="variant.name">
+                                {{ variant.name }}
+                            </template>
+                            <template v-else>
+                                Product Variant {{ idx }}
+                            </template>
+                        </v-tab>
+                    </v-tabs>
+                    <v-spacer />
+                    <v-btn
+                        icon
+                        @click="addVariant"
+                        variant="outlined"
+                        color="primary"
+                    >
+                        <v-icon icon="mdi-plus"></v-icon>
+                    </v-btn>
+                </div>
+                <v-window v-model="variantTab">
                     <v-window-item
-                        v-for="n in variants"
-                        :key="n"
-                        :value="'tab-' + n"
+                        v-for="(variant, idx) in variants"
+                        :key="idx"
+                        :value="variant.tempId"
                     >
                         <v-card class="pa-8" flat>
                             <v-switch label="Visible"></v-switch>
                             <v-text-field
                                 clearable
                                 label="Product Variant Name"
+                                v-model="variant.name"
                             >
                             </v-text-field>
-                            <v-textarea clearable label="Description">
+                            <v-textarea
+                                clearable
+                                label="Description"
+                                v-model="variant.description"
+                            >
                             </v-textarea>
-                            <v-text-field clearable label="Retail Price">
+                            <v-text-field
+                                clearable
+                                label="Retail Price"
+                                v-model="variant.retailPrice"
+                            >
                             </v-text-field>
                             <v-text-field clearable label="Actual Price">
                             </v-text-field>
@@ -61,7 +101,9 @@
                                 variant="outlined"
                             ></v-file-input>
                             <v-card-actions>
-                                <v-btn prepend-icon="mdi-close"
+                                <v-btn
+                                    prepend-icon="mdi-close"
+                                    @click="removeVariant(variant.tempId)"
                                     >Remove Product Variant</v-btn
                                 >
                             </v-card-actions>
@@ -74,8 +116,126 @@
 </template>
 
 <script lang="ts" setup>
+import { useClient } from '@/graphql/client'
+import {
+    CreateProductInput,
+    CreateProductVariantInput,
+} from '@/graphql/generated'
 import { ref } from 'vue'
 
-const tabs = ref(true)
-const variants = ref(3)
+const emit = defineEmits<{
+    (event: 'close-dialog'): void
+}>()
+
+/**
+ * The GraphQL client to use for all GraphQL requests.
+ */
+const client = useClient()
+
+const variantTab = ref<number>()
+
+interface ProductVariant {
+    tempId: number
+    visible: boolean
+    name: string
+    description: string
+    retailPrice: string
+    categories: string[]
+}
+
+const internalName = ref('')
+const visible = ref(false)
+const defaultVariant = ref<number>()
+const variants = ref<ProductVariant[]>([])
+const tempIdCounter = ref(0)
+
+/**
+ * Adds a product variant template to the dialog
+ * so the user can add another product variant.
+ */
+function addVariant() {
+    const createdVariant = {
+        tempId: tempIdCounter.value++,
+        visible: false,
+        name: '',
+        description: '',
+        retailPrice: '',
+        categories: [],
+    }
+    variants.value.push(createdVariant)
+    variantTab.value = createdVariant.tempId
+}
+
+/**
+ * Removes a product variant from the product.
+ * @param tempId The temporary id of the product variant to remove.
+ */
+function removeVariant(tempId: number) {
+    const idx = variants.value.findIndex((v) => v.tempId === tempId)
+    if (idx > -1) {
+        variants.value.splice(idx, 1)
+    }
+    if (variants.value.length > 0) {
+        const newIdx = Math.max(0, idx - 1)
+        variantTab.value = variants.value[newIdx].tempId
+    }
+}
+
+/**
+ * Transforms a given ProductVariant into a CreateProductInput object.
+ * @param variant The product variant to transform into a CreateProductInput object.
+ */
+function transformVariant(
+    variant: ProductVariant
+): CreateProductInput['defaultVariant'] {
+    return {
+        isPubliclyVisible: variant.visible,
+        initialVersion: {
+            name: variant.name,
+            description: variant.description,
+            retailPrice: Number.parseInt(variant.retailPrice),
+            numericalCharacteristicValues: [],
+            categoricalCharacteristicValues: [],
+        },
+    }
+}
+
+/**
+ * Saves the product and its variants (to the catalog service).
+ */
+async function save() {
+    const defaultVariantValue = variants.value.find(
+        (v) => v.tempId === defaultVariant.value
+    )!
+
+    const product = await client.createProduct({
+        input: {
+            internalName: internalName.value,
+            isPubliclyVisible: visible.value,
+            categoryIds: [],
+            defaultVariant: transformVariant(defaultVariantValue),
+        },
+    })
+
+    const productId = product.createProduct.id
+
+    for (const variant of variants.value) {
+        if (variant.tempId != defaultVariant.value) {
+            const variantInput: CreateProductVariantInput = {
+                productId,
+                isPubliclyVisible: variant.visible,
+                initialVersion: {
+                    name: variant.name,
+                    description: variant.description,
+                    retailPrice: Number.parseInt(variant.retailPrice),
+                    numericalCharacteristicValues: [],
+                    categoricalCharacteristicValues: [],
+                },
+            }
+            await client.createProductVariant({ input: variantInput })
+        }
+    }
+
+    emit('close-dialog')
+}
 </script>

@@ -1,0 +1,57 @@
+query getProductsList($first: Int, $skip: Int) {
+    products(first: $first, skip: $skip) {
+        nodes {
+            id
+            defaultVariant {
+                id
+                currentVersion {
+                    name
+                    retailPrice
+                }
+            }
+        }
+        totalCount
+    }
+}
+
+query getProduct($id: ID!) {
+    product(id: $id) {
+        id
+        internalName
+        isPubliclyVisible
+        defaultVariant {
+            id
+            isPubliclyVisible
+            currentVersion {
+                id
+                name
+                description
+                retailPrice
+            }
+        }
+        variants {
+            nodes {
+                id
+                isPubliclyVisible
+                currentVersion {
+                    id
+                    name
+                    description
+                    retailPrice
+                }
+            }
+        }
+    }
+}
+
+mutation createProduct($input: CreateProductInput!) {
+    createProduct(input: $input) {
+        id
+    }
+}
+
+mutation createProductVariant($input: CreateProductVariantInput!) {
+    createProductVariant(input: $input) {
+        id
+    }
+}

@@ -8,7 +8,9 @@
             ></v-img>
         </div>
         <div class="d-flex flex-column ma-2">
-            <router-link :to="{ name: 'Product', params: { productid: productID }}">
+            <router-link
+                :to="{ name: 'Product', params: { productid: productId } }"
+            >
                 <span class="text-body-1">{{ internalName }}</span>
             </router-link>
 
@@ -21,7 +23,7 @@
 import ProductPrice from './ProductPrice.vue'
 
 const props = defineProps({
-    productID: {
+    productId: {
         type: String,
         required: true,
     },
