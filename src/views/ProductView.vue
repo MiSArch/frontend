@@ -121,16 +121,29 @@ import { useClient } from '@/graphql/client'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
 
+/**
+ * The GraphQL client to use for all GraphQL requests.
+ */
 const client = useClient()
+
+/**
+ * The current route (location).
+ */
 const route = useRoute()
 
-// get the product id from the route params
+/**
+ * The product id (taken from the route params).
+ */
 const id = route.params.productid.toString()
 
-// see if the route also contains a product variant id
+/**
+ * The product variant id (taken from the route params if present).
+ */
 const productVariantId = route.params.productvariantid?.toString()
 
-// Gets the product from the catalog service.
+/**
+ * Gets the "entire" product from the catalog service.
+ */
 const product = asyncComputed(
     async () => {
         return client.getProduct({
@@ -141,7 +154,9 @@ const product = asyncComputed(
     { shallow: false }
 )
 
-// Decides which product variant to display initially.
+/**
+ * Decides which product variant to display initially.
+ */
 const productVariant = computed(() => {
     if (!productVariantId) {
         return product?.value?.product?.defaultVariant

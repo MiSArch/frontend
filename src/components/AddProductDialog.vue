@@ -127,6 +127,9 @@ const emit = defineEmits<{
     (event: 'close-dialog'): void
 }>()
 
+/**
+ * The GraphQL client to use for all GraphQL requests.
+ */
 const client = useClient()
 
 const variantTab = ref<number>()
@@ -146,7 +149,10 @@ const defaultVariant = ref<number>()
 const variants = ref<ProductVariant[]>([])
 const tempIdCounter = ref(0)
 
-// Adds a product variant to the product.
+/**
+ * Adds a product variant template to the dialog
+ * so the user can add another product variant.
+ */
 function addVariant() {
     const createdVariant = {
         tempId: tempIdCounter.value++,
@@ -160,7 +166,10 @@ function addVariant() {
     variantTab.value = createdVariant.tempId
 }
 
-// Removes a product variant from the product.
+/**
+ * Removes a product variant from the product.
+ * @param tempId The temporary id of the product variant to remove.
+ */
 function removeVariant(tempId: number) {
     const idx = variants.value.findIndex((v) => v.tempId === tempId)
     if (idx > -1) {
@@ -172,6 +181,10 @@ function removeVariant(tempId: number) {
     }
 }
 
+/**
+ * Transforms a given ProductVariant into a CreateProductInput object.
+ * @param variant The product variant to transform into a CreateProductInput object.
+ */
 function transformVariant(
     variant: ProductVariant
 ): CreateProductInput['defaultVariant'] {
@@ -187,14 +200,14 @@ function transformVariant(
     }
 }
 
-// Saves the newly created product and its variants.
+/**
+ * Saves the product and its variants (to the catalog service).
+ */
 async function save() {
-    // find the default product variant
     const defaultVariantValue = variants.value.find(
         (v) => v.tempId === defaultVariant.value
     )!
 
-    // create the product with only the default variant
     const product = await client.createProduct({
         input: {
             internalName: internalName.value,
@@ -204,11 +217,8 @@ async function save() {
         },
     })
 
-    // read the newly generated product id
     const productId = product.createProduct.id
 
-    // for each product variant that is not the default variant,
-    // add the product variant to the catalog
     for (const variant of variants.value) {
         if (variant.tempId != defaultVariant.value) {
             const variantInput: CreateProductVariantInput = {
@@ -226,7 +236,6 @@ async function save() {
         }
     }
 
-    // notify that the "ADD PRODUCT" dialog should be closed
     emit('close-dialog')
 }
 </script>

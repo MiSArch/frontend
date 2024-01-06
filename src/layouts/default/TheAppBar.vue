@@ -18,16 +18,22 @@
 import AddProductDialog from '@/components/AddProductDialog.vue'
 import { ref } from 'vue'
 
-// This is a boolean value: Whether or not the "ADD PRODUCT" dialog is open.
+/**
+ * Whether or not the "ADD PRODUCT" dialog is open.
+ */
 const addProductDialogOpen = ref(false)
 
-// Opens the "ADD PRODUCT" dialog.
-const openAddProductDialog = () => {
+/**
+ * Opens the "ADD PRODUCT" dialog.
+ */
+function openAddProductDialog() {
     addProductDialogOpen.value = true
 }
 
-// Closes the "ADD PRODUCT" dialog.
-const closeAddProductDialog = () => {
+/**
+ * Closes the "ADD PRODUCT" dialog.
+ */
+function closeAddProductDialog() {
     addProductDialogOpen.value = false
 }
 </script>
