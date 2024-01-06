@@ -124,9 +124,13 @@ import { computed } from 'vue'
 const client = useClient()
 const route = useRoute()
 
+// get the product id from the route params
 const id = route.params.productid.toString()
+
+// see if the route also contains a product variant id
 const productVariantId = route.params.productvariantid?.toString()
 
+// Gets the product from the catalog service.
 const product = asyncComputed(
     async () => {
         return client.getProduct({
@@ -137,6 +141,7 @@ const product = asyncComputed(
     { shallow: false }
 )
 
+// Decides which product variant to display initially.
 const productVariant = computed(() => {
     if (!productVariantId) {
         return product?.value?.product?.defaultVariant

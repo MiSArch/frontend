@@ -29,8 +29,14 @@ import { computed } from 'vue'
 
 const client = useClient()
 
+// The page that gets loaded initially.
 const currentPage = ref(1)
+
+// How many products a single page can contain at max.
 const perPage = ref(5)
+
+// This async operation is supposed to load the first five (see perPage) products
+// of all of the products. Also it "computes" the count of returned products.
 const productAndCount = asyncComputed(
     async () => {
         return client.getProductsList({
@@ -41,6 +47,9 @@ const productAndCount = asyncComputed(
     null,
     { shallow: false }
 )
+
+// This computes how many pages there are
+// depending on the amount of products received via productAndCount.
 const pageCount = computed(() => {
     const totalCount = productAndCount.value?.products?.totalCount
     if (!totalCount) {
@@ -49,5 +58,7 @@ const pageCount = computed(() => {
         return Math.ceil(totalCount / perPage.value)
     }
 })
+
+// These are the actual products received via productAndCount.
 const products = computed(() => productAndCount.value?.products?.nodes ?? [])
 </script>

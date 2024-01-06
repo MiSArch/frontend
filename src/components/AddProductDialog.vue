@@ -146,6 +146,7 @@ const defaultVariant = ref<number>()
 const variants = ref<ProductVariant[]>([])
 const tempIdCounter = ref(0)
 
+// Adds a product variant to the product.
 function addVariant() {
     const createdVariant = {
         tempId: tempIdCounter.value++,
@@ -159,6 +160,7 @@ function addVariant() {
     variantTab.value = createdVariant.tempId
 }
 
+// Removes a product variant from the product.
 function removeVariant(tempId: number) {
     const idx = variants.value.findIndex((v) => v.tempId === tempId)
     if (idx > -1) {
@@ -185,10 +187,14 @@ function transformVariant(
     }
 }
 
+// Saves the newly created product and its variants.
 async function save() {
+    // find the default product variant
     const defaultVariantValue = variants.value.find(
         (v) => v.tempId === defaultVariant.value
     )!
+
+    // create the product with only the default variant
     const product = await client.createProduct({
         input: {
             internalName: internalName.value,
@@ -197,7 +203,12 @@ async function save() {
             defaultVariant: transformVariant(defaultVariantValue),
         },
     })
+
+    // read the newly generated product id
     const productId = product.createProduct.id
+
+    // for each product variant that is not the default variant,
+    // add the product variant to the catalog
     for (const variant of variants.value) {
         if (variant.tempId != defaultVariant.value) {
             const variantInput: CreateProductVariantInput = {
@@ -214,6 +225,8 @@ async function save() {
             await client.createProductVariant({ input: variantInput })
         }
     }
+
+    // notify that the "ADD PRODUCT" dialog should be closed
     emit('close-dialog')
 }
 </script>
