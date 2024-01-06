@@ -166,7 +166,7 @@ const productVariant = computed(() => {
         return product?.value?.product?.defaultVariant
     } else {
         return product?.value?.product?.variants?.nodes?.find(
-            (v) => v.id == productVariantId
+            (v) => v.id == productVariantId.value
         )
     }
 })
