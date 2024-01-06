@@ -134,12 +134,16 @@ const route = useRoute()
 /**
  * The product id (taken from the route params).
  */
-const id = route.params.productid.toString()
+const id = computed(() => {
+    return route.params.productid.toString()
+})
 
 /**
  * The product variant id (taken from the route params if present).
  */
-const productVariantId = route.params.productvariantid?.toString()
+const productVariantId = computed(() => {
+    return route.params.productvariantid?.toString()
+})
 
 /**
  * Gets the "entire" product from the catalog service.
