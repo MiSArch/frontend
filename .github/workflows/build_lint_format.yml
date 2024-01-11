@@ -12,7 +12,6 @@ jobs:
         with:
           node-version: 21
           check-latest: true
-          cache: 'npm'
       - name: Enable corepack
         run: corepack enable
       - name: Install yarn
