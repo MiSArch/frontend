@@ -12,8 +12,10 @@ jobs:
         with:
           node-version: 21
           check-latest: true
-          cache: 'yarn'
-          cache-dependency-path: yarn.lock
+      - name: Enable corepack
+        run: corepack enable
+      - name: Set yarn version to berry
+        run: yarn set version berry
       - name: Install Dependencies
         run: yarn
       - name: Build the Website
@@ -22,3 +24,6 @@ jobs:
         run: yarn lint:check
       - name: Run Formatter
         run: yarn format:check
+      - name: Disable corepack
+        if: always()
+        run: corepack disable
