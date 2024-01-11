@@ -14,8 +14,6 @@ jobs:
           check-latest: true
       - name: Enable corepack
         run: corepack enable
-      - name: Install yarn
-        run: npm install --global yarn
       - name: Set yarn version to berry
         run: yarn set version berry
       - name: Install Dependencies
@@ -29,6 +27,3 @@ jobs:
       - name: Disable corepack
         if: always()
         run: corepack disable
-      - name: Uninstall yarn
-        if: always()
-        run: npm uninstall -g yarn
