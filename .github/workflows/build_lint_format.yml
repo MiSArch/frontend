@@ -12,8 +12,11 @@ jobs:
         with:
           node-version: 21
           check-latest: true
-          cache: 'yarn'
-          cache-dependency-path: yarn.lock
+          cache: 'npm'
+      - name: Enable corepack
+        run: corepack enable
+      - name: Install yarn
+        run: npm install --global yarn@4.0.2
       - name: Install Dependencies
         run: yarn
       - name: Build the Website
@@ -22,3 +25,6 @@ jobs:
         run: yarn lint:check
       - name: Run Formatter
         run: yarn format:check
+      - name: Uninstall yarn
+        if: always()
+        run: npm uninstall -g yarn
