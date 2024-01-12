@@ -14,7 +14,7 @@ query getProductsList($first: Int, $skip: Int) {
     }
 }
 
-query getProduct($id: ID!) {
+query getProduct($id: UUID!) {
     product(id: $id) {
         id
         internalName

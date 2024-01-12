@@ -31,6 +31,10 @@ export type Scalars = {
     Int: { input: number; output: number }
     Float: { input: number; output: number }
     DateTime: { input: any; output: any }
+    FieldSet: { input: any; output: any }
+    UUID: { input: any; output: any }
+    _Any: { input: any; output: any }
+    link__Import: { input: any; output: any }
 }
 
 /** Input to create a CategoricalCategoryCharacteristic for a Category */
@@ -44,7 +48,7 @@ export type CategoricalCategoryCharacteristicInput = {
 /** Input for creating a CategoricalCategoryCharacteristicValue. */
 export type CategoricalCategoryCharacteristicValueInput = {
     /** The id of the CategoryCharacteristic. */
-    characteristicId: Scalars['ID']['input']
+    characteristicId: Scalars['UUID']['input']
     /** The value of the CategoricalCategoryCharacteristicValue. */
     value: Scalars['String']['input']
 }
@@ -57,7 +61,9 @@ export enum CategoryCharacteristicOrderField {
 
 /** CategoryCharacteristic order */
 export type CategoryCharacteristicOrderInput = {
+    /** The direction to order by */
     direction: OrderDirection
+    /** The field to order by */
     field: CategoryCharacteristicOrderField
 }
 
@@ -69,7 +75,9 @@ export enum CategoryCharacteristicValueOrderField {
 
 /** CategoryCharacteristicValue order */
 export type CategoryCharacteristicValueOrderInput = {
+    /** The direction to order by */
     direction: OrderDirection
+    /** The field to order by */
     field: CategoryCharacteristicValueOrderField
 }
 
@@ -81,15 +89,19 @@ export enum CategoryOrderField {
 
 /** Category order */
 export type CategoryOrderInput = {
+    /** The direction to order by */
     direction: OrderDirection
+    /** The field to order by */
     field: CategoryOrderField
 }
 
 /** Input for the createCategoricalCategoryCharacteristic mutation */
 export type CreateCategoricalCategoryCharacteristicInput = {
     /** The Category that the CategoricalCategoryCharacteristicI belongs to */
-    categoryId: Scalars['ID']['input']
+    categoryId: Scalars['UUID']['input']
+    /** The description of the CategoricalCategoryCharacteristic */
     description: Scalars['String']['input']
+    /** The name of the CategoricalCategoryCharacteristic */
     name: Scalars['String']['input']
 }
 
@@ -108,16 +120,19 @@ export type CreateCategoryInput = {
 /** Input for the createNumericalCategoryCharacteristic mutation */
 export type CreateNumericalCategoryCharacteristicInput = {
     /** The Category that the NumericalCategoryCharacteristic belongs to */
-    categoryId: Scalars['ID']['input']
+    categoryId: Scalars['UUID']['input']
+    /** The description of the NumericalCategoryCharacteristic */
     description: Scalars['String']['input']
+    /** The name of the NumericalCategoryCharacteristic */
     name: Scalars['String']['input']
+    /** The unit of the NumericalCategoryCharacteristic */
     unit: Scalars['String']['input']
 }
 
 /** Input for the createProduct mutation */
 export type CreateProductInput = {
     /** The Categories this product is associated with. */
-    categoryIds: Array<Scalars['ID']['input']>
+    categoryIds: Array<Scalars['UUID']['input']>
     /** The default ProductVariant of the Product. */
     defaultVariant: ProductVariantInput
     /** An internal name to identify the Product, not visible to customers. */
@@ -128,20 +143,29 @@ export type CreateProductInput = {
 
 /** Input for the createProductVariant mutation */
 export type CreateProductVariantInput = {
+    /** The initial ProductVariantVersion of the ProductVariant. */
     initialVersion: ProductVariantVersionInput
+    /** If true, the ProductVariant is visible to customers. */
     isPubliclyVisible: Scalars['Boolean']['input']
     /** The id of the Product this ProductVariant belongs to. */
-    productId: Scalars['ID']['input']
+    productId: Scalars['UUID']['input']
 }
 
 /** Input for the createProductVariantVersion mutation */
 export type CreateProductVariantVersionInput = {
+    /** The amount of days for which an instance of the ProductVariant can be returned after purchase */
     canBeReturnedForDays?: InputMaybe<Scalars['Float']['input']>
+    /** The CategoricalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product. */
     categoricalCharacteristicValues: Array<CategoricalCategoryCharacteristicValueInput>
+    /** The description of the ProductVariant. */
     description: Scalars['String']['input']
+    /** The name of the ProductVariant. */
     name: Scalars['String']['input']
+    /** The NumericalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product. */
     numericalCharacteristicValues: Array<NumericalCategoryCharacteristicValueInput>
-    productVariantId: Scalars['ID']['input']
+    /** The id of the ProductVariant this ProductVariantVersion belongs to. */
+    productVariantId: Scalars['UUID']['input']
+    /** The retail price of the ProductVariant. */
     retailPrice: Scalars['Int']['input']
 }
 
@@ -158,7 +182,7 @@ export type NumericalCategoryCharacteristicInput = {
 /** Input for creating a NumericalCategoryCharacteristicValue. */
 export type NumericalCategoryCharacteristicValueInput = {
     /** The id of the CategoryCharacteristic. */
-    characteristicId: Scalars['ID']['input']
+    characteristicId: Scalars['UUID']['input']
     /** The value of the NumericalCategoryCharacteristicValue. */
     value: Scalars['Float']['input']
 }
@@ -179,7 +203,9 @@ export enum ProductOrderField {
 
 /** Product order */
 export type ProductOrderInput = {
+    /** The direction to order by */
     direction: OrderDirection
+    /** The field to order by */
     field: ProductOrderField
 }
 
@@ -199,7 +225,9 @@ export enum ProductVariantOrderField {
 
 /** ProductVariant order */
 export type ProductVariantOrderInput = {
+    /** The direction to order by */
     direction: OrderDirection
+    /** The field to order by */
     field: ProductVariantOrderField
 }
 
@@ -227,7 +255,9 @@ export enum ProductVariantVersionOrderField {
 
 /** ProductVariantVersion order */
 export type ProductVariantVersionOrderInput = {
+    /** The direction to order by */
     direction: OrderDirection
+    /** The field to order by */
     field: ProductVariantVersionOrderField
 }
 
@@ -243,10 +273,10 @@ export type GetProductsListQuery = {
         totalCount: number
         nodes: Array<{
             __typename?: 'Product'
-            id: string
+            id: any
             defaultVariant: {
                 __typename?: 'ProductVariant'
-                id: string
+                id: any
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
                     name: string
@@ -258,23 +288,23 @@ export type GetProductsListQuery = {
 }
 
 export type GetProductQueryVariables = Exact<{
-    id: Scalars['ID']['input']
+    id: Scalars['UUID']['input']
 }>
 
 export type GetProductQuery = {
     __typename?: 'Query'
     product: {
         __typename?: 'Product'
-        id: string
+        id: any
         internalName: string
         isPubliclyVisible: boolean
         defaultVariant: {
             __typename?: 'ProductVariant'
-            id: string
+            id: any
             isPubliclyVisible: boolean
             currentVersion: {
                 __typename?: 'ProductVariantVersion'
-                id: string
+                id: any
                 name: string
                 description: string
                 retailPrice: number
@@ -284,11 +314,11 @@ export type GetProductQuery = {
             __typename?: 'ProductVariantConnection'
             nodes: Array<{
                 __typename?: 'ProductVariant'
-                id: string
+                id: any
                 isPubliclyVisible: boolean
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
-                    id: string
+                    id: any
                     name: string
                     description: string
                     retailPrice: number
@@ -304,7 +334,7 @@ export type CreateProductMutationVariables = Exact<{
 
 export type CreateProductMutation = {
     __typename?: 'Mutation'
-    createProduct: { __typename?: 'Product'; id: string }
+    createProduct: { __typename?: 'Product'; id: any }
 }
 
 export type CreateProductVariantMutationVariables = Exact<{
@@ -313,7 +343,7 @@ export type CreateProductVariantMutationVariables = Exact<{
 
 export type CreateProductVariantMutation = {
     __typename?: 'Mutation'
-    createProductVariant: { __typename?: 'ProductVariant'; id: string }
+    createProductVariant: { __typename?: 'ProductVariant'; id: any }
 }
 
 export const GetProductsListDocument = gql`
@@ -334,7 +364,7 @@ export const GetProductsListDocument = gql`
     }
 `
 export const GetProductDocument = gql`
-    query getProduct($id: ID!) {
+    query getProduct($id: UUID!) {
         product(id: $id) {
             id
             internalName
