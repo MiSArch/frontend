@@ -157,8 +157,8 @@ interface Category {
 }
 
 /**
- * A ProductVariant represents a product variant 
- * with additional information which have to be stored 
+ * A ProductVariant represents a product variant
+ * with additional information which have to be stored
  * as the initial ProductVariantVersion.
  */
 interface ProductVariant {
@@ -193,7 +193,7 @@ const defaultVariant = ref<number>()
 const variants = ref<ProductVariant[]>([])
 
 /**
- * Gets all available categories from the catalog service and 
+ * Gets all available categories from the catalog service and
  * the total count of categories.
  */
 const getAllCategoriesResult = asyncComputed(
