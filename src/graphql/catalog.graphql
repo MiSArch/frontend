@@ -55,3 +55,13 @@ mutation createProductVariant($input: CreateProductVariantInput!) {
         id
     }
 }
+
+query getAllCategories($orderBy: CategoryOrderInput) {
+  categories(orderBy: $orderBy) {
+    nodes {
+      id
+      name
+    }
+    totalCount
+  }
+}

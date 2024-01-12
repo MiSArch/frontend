@@ -346,6 +346,19 @@ export type CreateProductVariantMutation = {
     createProductVariant: { __typename?: 'ProductVariant'; id: any }
 }
 
+export type GetAllCategoriesQueryVariables = Exact<{
+    orderBy?: InputMaybe<CategoryOrderInput>
+}>
+
+export type GetAllCategoriesQuery = {
+    __typename?: 'Query'
+    categories: {
+        __typename?: 'CategoryConnection'
+        totalCount: number
+        nodes: Array<{ __typename?: 'Category'; id: any; name: string }>
+    }
+}
+
 export const GetProductsListDocument = gql`
     query getProductsList($first: Int, $skip: Int) {
         products(first: $first, skip: $skip) {
@@ -405,6 +418,17 @@ export const CreateProductVariantDocument = gql`
     mutation createProductVariant($input: CreateProductVariantInput!) {
         createProductVariant(input: $input) {
             id
+        }
+    }
+`
+export const GetAllCategoriesDocument = gql`
+    query getAllCategories($orderBy: CategoryOrderInput) {
+        categories(orderBy: $orderBy) {
+            nodes {
+                id
+                name
+            }
+            totalCount
         }
     }
 `
@@ -489,6 +513,22 @@ export function getSdk(
                     ),
                 'createProductVariant',
                 'mutation',
+                variables
+            )
+        },
+        getAllCategories(
+            variables?: GetAllCategoriesQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetAllCategoriesQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetAllCategoriesQuery>(
+                        GetAllCategoriesDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getAllCategories',
+                'query',
                 variables
             )
         },
