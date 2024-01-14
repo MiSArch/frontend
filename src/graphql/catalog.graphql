@@ -14,7 +14,7 @@ query getProductsList($first: Int, $skip: Int) {
     }
 }
 
-query getProduct($id: ID!) {
+query getProduct($id: UUID!) {
     product(id: $id) {
         id
         internalName
@@ -54,4 +54,14 @@ mutation createProductVariant($input: CreateProductVariantInput!) {
     createProductVariant(input: $input) {
         id
     }
+}
+
+query getAllCategories($orderBy: CategoryOrderInput) {
+  categories(orderBy: $orderBy) {
+    nodes {
+      id
+      name
+    }
+    totalCount
+  }
 }

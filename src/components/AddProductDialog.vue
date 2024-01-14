@@ -9,18 +9,32 @@
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
                     <v-btn prepend-icon="mdi-content-save" @click="save"
-                        >Add Product</v-btn
+                        >Save</v-btn
                     >
                 </v-toolbar-items>
             </v-toolbar>
             <div class="d-flex flex-column pa-4">
-                <v-switch label="Visible" v-model="visible"></v-switch>
+                <v-switch
+                    color="warning"
+                    hide-details
+                    label="Hide the product from visitors"
+                    v-model="invisible"
+                ></v-switch>
                 <v-text-field
                     clearable
                     label="Internal Product Name"
                     v-model="internalName"
                 >
                 </v-text-field>
+                <v-select
+                    chips
+                    label="Categories"
+                    :items="allCategories"
+                    item-title="name"
+                    item-value="id"
+                    multiple
+                    v-model="selectedCategories"
+                ></v-select>
                 <v-select
                     label="Default Product Variant"
                     :items="variants"
@@ -63,7 +77,12 @@
                         :value="variant.tempId"
                     >
                         <v-card class="pa-8" flat>
-                            <v-switch label="Visible"></v-switch>
+                            <v-switch
+                                color="warning"
+                                hide-details
+                                label="Hide the product variant from visitors"
+                                v-model="variant.invisible"
+                            ></v-switch>
                             <v-text-field
                                 clearable
                                 label="Product Variant Name"
@@ -82,19 +101,12 @@
                                 v-model="variant.retailPrice"
                             >
                             </v-text-field>
-                            <v-text-field clearable label="Actual Price">
-                            </v-text-field>
-                            <v-select
-                                label="Categories"
-                                :items="['Photography', 'Sports', 'Music']"
-                                multiple
-                                variant="solo"
-                            ></v-select>
                             <v-file-input
                                 accept="image/*"
                                 chips
                                 clearable
                                 counter
+                                disabled
                                 label="Add Images"
                                 multiple
                                 show-size
@@ -111,18 +123,58 @@
                     </v-window-item>
                 </v-window>
             </div>
+            <div class="d-flex flex-column align-center justify-end pa-4">
+                <v-alert
+                    closable
+                    v-model="saveFailed"
+                    max-height="240"
+                    max-width="480"
+                    text="An unknown error occurred when trying to save the product or its variants."
+                    title="Could Not Save"
+                    type="error"
+                ></v-alert>
+            </div>
         </v-card>
     </v-dialog>
 </template>
 
 <script lang="ts" setup>
+import { ref } from 'vue'
+import { asyncComputed } from '@vueuse/core'
+import { computed } from 'vue'
 import { useClient } from '@/graphql/client'
 import {
+    CategoryOrderField,
     CreateProductInput,
     CreateProductVariantInput,
+    OrderDirection,
 } from '@/graphql/generated'
-import { ref } from 'vue'
 
+/**
+ * A Category represents a simplified product category.
+ */
+interface Category {
+    id: any
+    name: string
+}
+
+/**
+ * A ProductVariant represents a product variant
+ * with additional information which have to be stored
+ * as the initial ProductVariantVersion.
+ */
+interface ProductVariant {
+    invisible: boolean
+    tempId: number
+    canBeReturnedForDays: number
+    description: string
+    name: string
+    retailPrice: string
+}
+
+/**
+ * The 'close-dialog' event tells the app to close this dialog.
+ */
 const emit = defineEmits<{
     (event: 'close-dialog'): void
 }>()
@@ -132,22 +184,41 @@ const emit = defineEmits<{
  */
 const client = useClient()
 
+const saveFailed = ref(false)
+
 const variantTab = ref<number>()
-
-interface ProductVariant {
-    tempId: number
-    visible: boolean
-    name: string
-    description: string
-    retailPrice: string
-    categories: string[]
-}
-
 const internalName = ref('')
-const visible = ref(false)
+const invisible = ref(false)
+const selectedCategories = ref<any>([])
+const tempIdCounter = ref(0)
 const defaultVariant = ref<number>()
 const variants = ref<ProductVariant[]>([])
-const tempIdCounter = ref(0)
+
+/**
+ * Gets all available categories from the catalog service and
+ * the total count of categories.
+ * The returned categores are expected to be ordered by their names
+ * in ascending order.
+ */
+const getAllCategoriesResult = asyncComputed(
+    async () => {
+        return client.getAllCategories({
+            orderBy: {
+                direction: OrderDirection.Asc,
+                field: CategoryOrderField.Name,
+            },
+        })
+    },
+    null,
+    { shallow: false }
+)
+
+/**
+ * Gets only the categories -- the entities -- from getAllCategoriesResult.
+ */
+const allCategories = computed(
+    () => getAllCategoriesResult.value?.categories?.nodes ?? []
+)
 
 /**
  * Adds a product variant template to the dialog
@@ -155,12 +226,12 @@ const tempIdCounter = ref(0)
  */
 function addVariant() {
     const createdVariant = {
+        invisible: false,
         tempId: tempIdCounter.value++,
-        visible: false,
-        name: '',
+        canBeReturnedForDays: 30,
         description: '',
-        retailPrice: '',
-        categories: [],
+        name: internalName.value ?? '',
+        retailPrice: '0',
     }
     variants.value.push(createdVariant)
     variantTab.value = createdVariant.tempId
@@ -182,60 +253,71 @@ function removeVariant(tempId: number) {
 }
 
 /**
- * Transforms a given ProductVariant into a CreateProductInput object.
+ * Transforms a given ProductVariant into a ProductVariantInput object
+ * which serves as the value for the 'defaultVariant' key of a CreateProductInput.
  * @param variant The product variant to transform into a CreateProductInput object.
  */
 function transformVariant(
     variant: ProductVariant
 ): CreateProductInput['defaultVariant'] {
     return {
-        isPubliclyVisible: variant.visible,
         initialVersion: {
-            name: variant.name,
-            description: variant.description,
-            retailPrice: Number.parseInt(variant.retailPrice),
-            numericalCharacteristicValues: [],
+            canBeReturnedForDays: variant.canBeReturnedForDays,
             categoricalCharacteristicValues: [],
+            description: variant.description,
+            name: variant.name,
+            numericalCharacteristicValues: [],
+            retailPrice: Number.parseInt(variant.retailPrice),
         },
+        isPubliclyVisible: !variant.invisible,
     }
 }
 
 /**
- * Saves the product and its variants (to the catalog service).
+ * Tries to save the product and its variants (to the catalog service).
  */
 async function save() {
-    const defaultVariantValue = variants.value.find(
-        (v) => v.tempId === defaultVariant.value
-    )!
+    saveFailed.value = false
 
-    const product = await client.createProduct({
-        input: {
-            internalName: internalName.value,
-            isPubliclyVisible: visible.value,
-            categoryIds: [],
-            defaultVariant: transformVariant(defaultVariantValue),
-        },
-    })
+    try {
+        const defaultVariantValue = variants.value.find(
+            (v) => v.tempId === defaultVariant.value
+        )!
 
-    const productId = product.createProduct.id
+        const product = await client.createProduct({
+            input: {
+                categoryIds: selectedCategories.value ?? [],
+                defaultVariant: transformVariant(defaultVariantValue),
+                internalName: internalName.value,
+                isPubliclyVisible: !invisible.value,
+            },
+        })
 
-    for (const variant of variants.value) {
-        if (variant.tempId != defaultVariant.value) {
-            const variantInput: CreateProductVariantInput = {
-                productId,
-                isPubliclyVisible: variant.visible,
-                initialVersion: {
-                    name: variant.name,
-                    description: variant.description,
-                    retailPrice: Number.parseInt(variant.retailPrice),
-                    numericalCharacteristicValues: [],
-                    categoricalCharacteristicValues: [],
-                },
+        const productId = product.createProduct.id
+
+        for (const variant of variants.value) {
+            if (variant.tempId != defaultVariant.value) {
+                const variantInput: CreateProductVariantInput = {
+                    productId,
+                    initialVersion: {
+                        canBeReturnedForDays: variant.canBeReturnedForDays,
+                        categoricalCharacteristicValues: [],
+                        description: variant.description,
+                        name: variant.name,
+                        numericalCharacteristicValues: [],
+                        retailPrice: Number.parseInt(variant.retailPrice),
+                    },
+                    isPubliclyVisible: !variant.invisible,
+                }
+                await client.createProductVariant({ input: variantInput })
             }
-            await client.createProductVariant({ input: variantInput })
         }
-    }
 
-    emit('close-dialog')
+        emit('close-dialog')
+    } catch (error) {
+        saveFailed.value = true
+
+        console.error(error)
+    }
 }
 </script>
