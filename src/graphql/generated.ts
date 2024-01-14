@@ -62,9 +62,9 @@ export enum CategoryCharacteristicOrderField {
 /** CategoryCharacteristic order */
 export type CategoryCharacteristicOrderInput = {
     /** The direction to order by */
-    direction: OrderDirection
+    direction?: InputMaybe<OrderDirection>
     /** The field to order by */
-    field: CategoryCharacteristicOrderField
+    field?: InputMaybe<CategoryCharacteristicOrderField>
 }
 
 /** CategoryCharacteristicValue order fields */
@@ -76,23 +76,25 @@ export enum CategoryCharacteristicValueOrderField {
 /** CategoryCharacteristicValue order */
 export type CategoryCharacteristicValueOrderInput = {
     /** The direction to order by */
-    direction: OrderDirection
+    direction?: InputMaybe<OrderDirection>
     /** The field to order by */
-    field: CategoryCharacteristicValueOrderField
+    field?: InputMaybe<CategoryCharacteristicValueOrderField>
 }
 
 /** Category order fields */
 export enum CategoryOrderField {
     /** Order categories by their id */
     Id = 'ID',
+    /** Order categories by their name */
+    Name = 'NAME',
 }
 
 /** Category order */
 export type CategoryOrderInput = {
     /** The direction to order by */
-    direction: OrderDirection
+    direction?: InputMaybe<OrderDirection>
     /** The field to order by */
-    field: CategoryOrderField
+    field?: InputMaybe<CategoryOrderField>
 }
 
 /** Input for the createCategoricalCategoryCharacteristic mutation */
@@ -199,14 +201,16 @@ export enum OrderDirection {
 export enum ProductOrderField {
     /** Order products by their id */
     Id = 'ID',
+    /** Order products by their internal name */
+    InternalName = 'INTERNAL_NAME',
 }
 
 /** Product order */
 export type ProductOrderInput = {
     /** The direction to order by */
-    direction: OrderDirection
+    direction?: InputMaybe<OrderDirection>
     /** The field to order by */
-    field: ProductOrderField
+    field?: InputMaybe<ProductOrderField>
 }
 
 /** Input for creating a product variant */
@@ -226,9 +230,9 @@ export enum ProductVariantOrderField {
 /** ProductVariant order */
 export type ProductVariantOrderInput = {
     /** The direction to order by */
-    direction: OrderDirection
+    direction?: InputMaybe<OrderDirection>
     /** The field to order by */
-    field: ProductVariantOrderField
+    field?: InputMaybe<ProductVariantOrderField>
 }
 
 /** Input for creating a ProductVariantVersion. */
@@ -249,16 +253,20 @@ export type ProductVariantVersionInput = {
 
 /** ProductVariantVersion order fields */
 export enum ProductVariantVersionOrderField {
+    /** Order productVariantVersions by their creation date */
+    CreatedAt = 'CREATED_AT',
     /** Order productVariantVersions by their id */
     Id = 'ID',
+    /** Order productVariantVersions by their version */
+    Version = 'VERSION',
 }
 
 /** ProductVariantVersion order */
 export type ProductVariantVersionOrderInput = {
     /** The direction to order by */
-    direction: OrderDirection
+    direction?: InputMaybe<OrderDirection>
     /** The field to order by */
-    field: ProductVariantVersionOrderField
+    field?: InputMaybe<ProductVariantVersionOrderField>
 }
 
 export type GetProductsListQueryVariables = Exact<{
