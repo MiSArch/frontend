@@ -144,8 +144,10 @@ import { asyncComputed } from '@vueuse/core'
 import { computed } from 'vue'
 import { useClient } from '@/graphql/client'
 import {
+    CategoryOrderField,
     CreateProductInput,
     CreateProductVariantInput,
+    OrderDirection,
 } from '@/graphql/generated'
 
 /**
@@ -195,10 +197,17 @@ const variants = ref<ProductVariant[]>([])
 /**
  * Gets all available categories from the catalog service and
  * the total count of categories.
+ * The returned categores are expected to be ordered by their names
+ * in ascending order.
  */
 const getAllCategoriesResult = asyncComputed(
     async () => {
-        return client.getAllCategories()
+        return client.getAllCategories({
+            orderBy: {
+                direction: OrderDirection.Asc,
+                field: CategoryOrderField.Name,
+            },
+        })
     },
     null,
     { shallow: false }
