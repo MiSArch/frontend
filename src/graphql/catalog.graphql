@@ -16,28 +16,34 @@ query getProductsList($first: Int, $skip: Int) {
 
 query getProduct($id: UUID!) {
     product(id: $id) {
-        id
         internalName
         isPubliclyVisible
-        defaultVariant {
-            id
-            isPubliclyVisible
-            currentVersion {
-                id
+        id
+        categories {
+            nodes {
                 name
+                id
+            }
+        }
+        defaultVariant {
+            isPubliclyVisible
+            id
+            currentVersion {
                 description
+                name
                 retailPrice
+                id
             }
         }
         variants {
             nodes {
-                id
                 isPubliclyVisible
+                id
                 currentVersion {
-                    id
-                    name
                     description
+                    name
                     retailPrice
+                    id
                 }
             }
         }

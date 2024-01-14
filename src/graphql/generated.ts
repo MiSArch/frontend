@@ -303,33 +303,37 @@ export type GetProductQuery = {
     __typename?: 'Query'
     product: {
         __typename?: 'Product'
-        id: any
         internalName: string
         isPubliclyVisible: boolean
+        id: any
+        categories: {
+            __typename?: 'CategoryConnection'
+            nodes: Array<{ __typename?: 'Category'; name: string; id: any }>
+        }
         defaultVariant: {
             __typename?: 'ProductVariant'
-            id: any
             isPubliclyVisible: boolean
+            id: any
             currentVersion: {
                 __typename?: 'ProductVariantVersion'
-                id: any
-                name: string
                 description: string
+                name: string
                 retailPrice: number
+                id: any
             }
         }
         variants: {
             __typename?: 'ProductVariantConnection'
             nodes: Array<{
                 __typename?: 'ProductVariant'
-                id: any
                 isPubliclyVisible: boolean
+                id: any
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
-                    id: any
-                    name: string
                     description: string
+                    name: string
                     retailPrice: number
+                    id: any
                 }
             }>
         }
@@ -387,28 +391,34 @@ export const GetProductsListDocument = gql`
 export const GetProductDocument = gql`
     query getProduct($id: UUID!) {
         product(id: $id) {
-            id
             internalName
             isPubliclyVisible
-            defaultVariant {
-                id
-                isPubliclyVisible
-                currentVersion {
-                    id
+            id
+            categories {
+                nodes {
                     name
+                    id
+                }
+            }
+            defaultVariant {
+                isPubliclyVisible
+                id
+                currentVersion {
                     description
+                    name
                     retailPrice
+                    id
                 }
             }
             variants {
                 nodes {
-                    id
                     isPubliclyVisible
+                    id
                     currentVersion {
-                        id
-                        name
                         description
+                        name
                         retailPrice
+                        id
                     }
                 }
             }

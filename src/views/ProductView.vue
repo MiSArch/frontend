@@ -42,8 +42,12 @@
                     </v-card-item>
                     <v-card-text>
                         <div class="d-flex flex-wrap ga-2">
-                            <v-chip>Dummy Clothing</v-chip>
-                            <v-chip>Dummy T-Shirts</v-chip>
+                            <v-chip
+                                v-for="category in categories"
+                                @click="navigateToCategory(category.id)"
+                            >
+                                {{ category.name }}
+                            </v-chip>
                         </div>
                     </v-card-text>
                     <v-divider></v-divider>
@@ -159,6 +163,13 @@ const product = asyncComputed(
 )
 
 /**
+ * Gets the product categories to which the product belongs.
+ */
+const categories = computed(() => {
+    return product.value?.product?.categories?.nodes ?? []
+})
+
+/**
  * Decides which product variant to display initially.
  */
 const productVariant = computed(() => {
@@ -170,4 +181,8 @@ const productVariant = computed(() => {
         )
     }
 })
+
+function navigateToCategory(id: any) {
+    // TODO Implement navigation to the category view
+}
 </script>
