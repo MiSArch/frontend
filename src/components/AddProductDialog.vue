@@ -31,8 +31,8 @@
                     label="Categories"
                     :items="allCategories"
                     item-title="name"
+                    item-value="id"
                     multiple
-                    return-object
                     v-model="selectedCategories"
                 ></v-select>
                 <v-select
@@ -187,7 +187,7 @@ const saveFailed = ref(false)
 const variantTab = ref<number>()
 const internalName = ref('')
 const invisible = ref(false)
-const selectedCategories = ref<Category[]>([])
+const selectedCategories = ref<any>([])
 const tempIdCounter = ref(0)
 const defaultVariant = ref<number>()
 const variants = ref<ProductVariant[]>([])
@@ -277,10 +277,7 @@ async function save() {
 
         const product = await client.createProduct({
             input: {
-                categoryIds:
-                    selectedCategories.value?.map(
-                        (selectedCategory) => selectedCategory.id
-                    ) ?? [],
+                categoryIds: selectedCategories.value ?? [],
                 defaultVariant: transformVariant(defaultVariantValue),
                 internalName: internalName.value,
                 isPubliclyVisible: !invisible.value,
