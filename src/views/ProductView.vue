@@ -122,7 +122,7 @@
 <script setup lang="ts">
 import { asyncComputed } from '@vueuse/core'
 import { useClient } from '@/graphql/client'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { computed } from 'vue'
 
 /**
@@ -134,6 +134,11 @@ const client = useClient()
  * The current route (location).
  */
 const route = useRoute()
+
+/**
+ * The router.
+ */
+ const router = useRouter()
 
 /**
  * The product id (taken from the route params).
@@ -155,7 +160,7 @@ const productVariantId = computed(() => {
 const product = asyncComputed(
     async () => {
         return client.getProduct({
-            id: route.params.productid.toString(),
+            id: id.value,
         })
     },
     null,
@@ -183,6 +188,11 @@ const productVariant = computed(() => {
 })
 
 function navigateToCategory(id: any) {
-    // TODO Implement navigation to the category view
+    router.push({
+        name: 'Category',
+        params: {
+            categoryid: id
+        }
+    })
 }
 </script>

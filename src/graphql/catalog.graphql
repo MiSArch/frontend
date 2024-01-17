@@ -71,3 +71,11 @@ query getAllCategories($orderBy: CategoryOrderInput) {
     totalCount
   }
 }
+
+query getCategory($id: UUID!) {
+  category(id: $id) {
+    description
+    name
+    id
+  }
+}
