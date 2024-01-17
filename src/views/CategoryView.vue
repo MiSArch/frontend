@@ -6,7 +6,7 @@
     <TheResults />
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import TheResults from '@/components/TheResults.vue'
 import { asyncComputed } from '@vueuse/core'
 import { useClient } from '@/graphql/client'
