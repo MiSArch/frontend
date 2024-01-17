@@ -54,7 +54,7 @@ const emit = defineEmits<{
 }>()
 
 /**
- * Whether or not saving the category failed. 
+ * Whether or not saving the category failed.
  * This property decides whether or not an alert has to be shown to the user.
  */
 const saveFailed = ref(false)
