@@ -138,7 +138,7 @@ const route = useRoute()
 /**
  * The router.
  */
- const router = useRouter()
+const router = useRouter()
 
 /**
  * The product id (taken from the route params).
@@ -191,8 +191,8 @@ function navigateToCategory(id: any) {
     router.push({
         name: 'Category',
         params: {
-            categoryid: id
-        }
+            categoryid: id,
+        },
     })
 }
 </script>

@@ -79,3 +79,9 @@ query getCategory($id: UUID!) {
     id
   }
 }
+
+mutation createCategory($input: CreateCategoryInput!) {
+  createCategory(input: $input) {
+    id
+  }
+}

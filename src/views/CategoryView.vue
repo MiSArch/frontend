@@ -16,7 +16,7 @@ import { computed } from 'vue'
 /**
  * A Category represents a simplified product category.
  */
- interface Category {
+interface Category {
     id: any
     name: string
     description: string
@@ -42,7 +42,7 @@ const id = computed(() => {
 const category = asyncComputed(
     async () => {
         return client.getCategory({
-            id: id.value
+            id: id.value,
         })
     },
     null,
