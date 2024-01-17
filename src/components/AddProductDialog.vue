@@ -184,6 +184,10 @@ const emit = defineEmits<{
  */
 const client = useClient()
 
+/**
+ * Whether or not saving the category failed. 
+ * This property decides whether or not an alert has to be shown to the user.
+ */
 const saveFailed = ref(false)
 
 const variantTab = ref<number>()
