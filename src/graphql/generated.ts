@@ -269,29 +269,74 @@ export type ProductVariantVersionOrderInput = {
     field?: InputMaybe<ProductVariantVersionOrderField>
 }
 
-export type GetProductsListQueryVariables = Exact<{
+export type GetProductsQueryVariables = Exact<{
     first?: InputMaybe<Scalars['Int']['input']>
     skip?: InputMaybe<Scalars['Int']['input']>
+    orderBy?: InputMaybe<ProductOrderInput>
 }>
 
-export type GetProductsListQuery = {
+export type GetProductsQuery = {
     __typename?: 'Query'
     products: {
         __typename?: 'ProductConnection'
+        hasNextPage: boolean
         totalCount: number
         nodes: Array<{
             __typename?: 'Product'
+            internalName: string
+            isPubliclyVisible: boolean
             id: any
             defaultVariant: {
                 __typename?: 'ProductVariant'
+                isPubliclyVisible: boolean
                 id: any
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
                     name: string
                     retailPrice: number
+                    id: any
                 }
             }
         }>
+    }
+}
+
+export type GetCategoryWithAssociatedProductsQueryVariables = Exact<{
+    id: Scalars['UUID']['input']
+    firstProducts?: InputMaybe<Scalars['Int']['input']>
+    skipProducts?: InputMaybe<Scalars['Int']['input']>
+    orderProductsBy?: InputMaybe<ProductOrderInput>
+}>
+
+export type GetCategoryWithAssociatedProductsQuery = {
+    __typename?: 'Query'
+    category: {
+        __typename?: 'Category'
+        description: string
+        name: string
+        id: any
+        products: {
+            __typename?: 'ProductConnection'
+            hasNextPage: boolean
+            totalCount: number
+            nodes: Array<{
+                __typename?: 'Product'
+                internalName: string
+                isPubliclyVisible: boolean
+                id: any
+                defaultVariant: {
+                    __typename?: 'ProductVariant'
+                    isPubliclyVisible: boolean
+                    id: any
+                    currentVersion: {
+                        __typename?: 'ProductVariantVersion'
+                        name: string
+                        retailPrice: number
+                        id: any
+                    }
+                }
+            }>
+        }
     }
 }
 
@@ -394,20 +439,61 @@ export type CreateCategoryMutation = {
     createCategory: { __typename?: 'Category'; id: any }
 }
 
-export const GetProductsListDocument = gql`
-    query getProductsList($first: Int, $skip: Int) {
-        products(first: $first, skip: $skip) {
+export const GetProductsDocument = gql`
+    query getProducts($first: Int, $skip: Int, $orderBy: ProductOrderInput) {
+        products(first: $first, skip: $skip, orderBy: $orderBy) {
+            hasNextPage
             nodes {
+                internalName
+                isPubliclyVisible
                 id
                 defaultVariant {
+                    isPubliclyVisible
                     id
                     currentVersion {
                         name
                         retailPrice
+                        id
                     }
                 }
             }
             totalCount
+        }
+    }
+`
+export const GetCategoryWithAssociatedProductsDocument = gql`
+    query getCategoryWithAssociatedProducts(
+        $id: UUID!
+        $firstProducts: Int
+        $skipProducts: Int
+        $orderProductsBy: ProductOrderInput
+    ) {
+        category(id: $id) {
+            description
+            name
+            id
+            products(
+                first: $firstProducts
+                skip: $skipProducts
+                orderBy: $orderProductsBy
+            ) {
+                hasNextPage
+                nodes {
+                    internalName
+                    isPubliclyVisible
+                    id
+                    defaultVariant {
+                        isPubliclyVisible
+                        id
+                        currentVersion {
+                            name
+                            retailPrice
+                            id
+                        }
+                    }
+                }
+                totalCount
+            }
         }
     }
 `
@@ -509,18 +595,34 @@ export function getSdk(
     withWrapper: SdkFunctionWrapper = defaultWrapper
 ) {
     return {
-        getProductsList(
-            variables?: GetProductsListQueryVariables,
+        getProducts(
+            variables?: GetProductsQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetProductsListQuery> {
+        ): Promise<GetProductsQuery> {
             return withWrapper(
                 (wrappedRequestHeaders) =>
-                    client.request<GetProductsListQuery>(
-                        GetProductsListDocument,
+                    client.request<GetProductsQuery>(
+                        GetProductsDocument,
                         variables,
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
-                'getProductsList',
+                'getProducts',
+                'query',
+                variables
+            )
+        },
+        getCategoryWithAssociatedProducts(
+            variables: GetCategoryWithAssociatedProductsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetCategoryWithAssociatedProductsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetCategoryWithAssociatedProductsQuery>(
+                        GetCategoryWithAssociatedProductsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getCategoryWithAssociatedProducts',
                 'query',
                 variables
             )

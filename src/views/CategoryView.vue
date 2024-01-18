@@ -3,24 +3,15 @@
         <div class="text-h4 pa-4">{{ category?.category.name }}</div>
         <div class="text-body-1 pa-4">{{ category?.category.description }}</div>
     </div>
-    <TheResults />
+    <TheResults :category-id="id" />
 </template>
 
 <script lang="ts" setup>
 import TheResults from '@/components/TheResults.vue'
-import { asyncComputed } from '@vueuse/core'
 import { useClient } from '@/graphql/client'
-import { useRoute } from 'vue-router'
 import { computed } from 'vue'
-
-/**
- * A Category represents a simplified product category.
- */
-interface Category {
-    id: any
-    name: string
-    description: string
-}
+import { useRoute } from 'vue-router'
+import { asyncComputed } from '@vueuse/core'
 
 /**
  * The GraphQL client to use for all GraphQL requests.
@@ -39,6 +30,9 @@ const id = computed(() => {
     return route.params.categoryid.toString()
 })
 
+/**
+ * Gets the category.
+ */
 const category = asyncComputed(
     async () => {
         return client.getCategory({

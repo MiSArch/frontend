@@ -1,17 +1,48 @@
-query getProductsList($first: Int, $skip: Int) {
-    products(first: $first, skip: $skip) {
-        nodes {
-            id
-            defaultVariant {
-                id
-                currentVersion {
-                    name
-                    retailPrice
-                }
-            }
+query getProducts($first: Int, $skip: Int, $orderBy: ProductOrderInput) {
+  products(first: $first, skip: $skip, orderBy: $orderBy) {
+    hasNextPage
+    nodes {
+      internalName
+      isPubliclyVisible
+      id
+      defaultVariant {
+        isPubliclyVisible
+        id
+        currentVersion {
+          name
+          retailPrice
+          id
         }
-        totalCount
+      }
     }
+    totalCount
+  }
+}
+
+query getCategoryWithAssociatedProducts($id: UUID!, $firstProducts: Int, $skipProducts: Int, $orderProductsBy: ProductOrderInput) {
+  category(id: $id) {
+    description
+    name
+    id
+    products(first: $firstProducts, skip: $skipProducts, orderBy: $orderProductsBy) {
+      hasNextPage
+      nodes {
+        internalName
+        isPubliclyVisible
+        id
+        defaultVariant {
+          isPubliclyVisible
+          id
+          currentVersion {
+            name
+            retailPrice
+            id
+          }
+        }
+      }
+      totalCount
+    }
+  }
 }
 
 query getProduct($id: UUID!) {
