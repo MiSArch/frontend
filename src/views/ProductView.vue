@@ -187,6 +187,11 @@ const productVariant = computed(() => {
     }
 })
 
+/**
+ * Navigates to the category to which the given id belongs.
+ * The navigation is done via the Vue Router.
+ * @param id The id of the category to navigate to.
+ */
 function navigateToCategory(id: any) {
     router.push({
         name: 'Category',
