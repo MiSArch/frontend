@@ -11,7 +11,7 @@
             Add Product
         </v-btn>
         <AddCategoryDialog
-            v-model="AddCategoryDialogOpen"
+            v-model="addCategoryDialogOpen"
             @close-addcategorydialog="closeAddCategoryDialog"
         />
         <AddProductDialog
@@ -29,7 +29,7 @@ import { ref } from 'vue'
 /**
  * Whether or not the "ADD CATEGORY" dialog is open.
  */
-const AddCategoryDialogOpen = ref(false)
+const addCategoryDialogOpen = ref(false)
 
 /**
  * Whether or not the "ADD PRODUCT" dialog is open.
@@ -40,14 +40,14 @@ const addProductDialogOpen = ref(false)
  * Opens the "ADD CATEGORY" dialog.
  */
 function openAddCategoryDialog() {
-    AddCategoryDialogOpen.value = true
+    addCategoryDialogOpen.value = true
 }
 
 /**
  * Closes the "ADD CATEGORY" dialog.
  */
 function closeAddCategoryDialog() {
-    AddCategoryDialogOpen.value = false
+    addCategoryDialogOpen.value = false
 }
 
 /**
