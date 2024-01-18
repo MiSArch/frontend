@@ -21,11 +21,18 @@
 </template>
 
 <script lang="ts" setup>
-import { asyncComputed } from '@vueuse/core'
 import ProductSummary from './ProductSummary.vue'
-import { ref } from 'vue'
+import { OrderDirection, ProductOrderField } from '@/graphql/generated'
 import { useClient } from '@/graphql/client'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { asyncComputed } from '@vueuse/core'
+
+/**
+ * The props of this SFC.
+ */
+const props = defineProps({
+    categoryId: String,
+})
 
 /**
  * The GraphQL client to use for all GraphQL requests.
@@ -45,13 +52,34 @@ const perPage = ref(5)
 /**
  * Gets the products of the current page and
  * the total count of all products.
+ * If a categoryId has been passed to this SFC
+ * then only the products of that category are queried.
  */
-const productAndCount = asyncComputed(
+const productConnection = asyncComputed(
     async () => {
-        return client.getProductsList({
-            first: perPage.value,
-            skip: (currentPage.value - 1) * perPage.value,
-        })
+        if (props.categoryId) {
+            var categoryWithAssociatedProducts =
+                await client.getCategoryWithAssociatedProducts({
+                    id: props.categoryId,
+                    firstProducts: perPage.value,
+                    skipProducts: (currentPage.value - 1) * perPage.value,
+                    orderProductsBy: {
+                        direction: OrderDirection.Asc,
+                        field: ProductOrderField.InternalName,
+                    },
+                })
+            return categoryWithAssociatedProducts.category.products
+        } else {
+            var products = await client.getProducts({
+                first: perPage.value,
+                skip: (currentPage.value - 1) * perPage.value,
+                orderBy: {
+                    direction: OrderDirection.Asc,
+                    field: ProductOrderField.InternalName,
+                },
+            })
+            return products.products
+        }
     },
     null,
     { shallow: false }
@@ -62,7 +90,7 @@ const productAndCount = asyncComputed(
  * depending on the maximum number of products a page can contain.
  */
 const pageCount = computed(() => {
-    const totalCount = productAndCount.value?.products?.totalCount
+    const totalCount = productConnection.value?.totalCount
     if (!totalCount) {
         return 0
     } else {
@@ -71,7 +99,7 @@ const pageCount = computed(() => {
 })
 
 /**
- * Gets the products received via productAndCount.
+ * Gets the products received via productConnection.
  */
-const products = computed(() => productAndCount.value?.products?.nodes ?? [])
+const products = computed(() => productConnection.value?.nodes ?? [])
 </script>

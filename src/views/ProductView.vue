@@ -42,8 +42,12 @@
                     </v-card-item>
                     <v-card-text>
                         <div class="d-flex flex-wrap ga-2">
-                            <v-chip>Dummy Clothing</v-chip>
-                            <v-chip>Dummy T-Shirts</v-chip>
+                            <v-chip
+                                v-for="category in categories"
+                                @click="navigateToCategory(category.id)"
+                            >
+                                {{ category.name }}
+                            </v-chip>
                         </div>
                     </v-card-text>
                     <v-divider></v-divider>
@@ -118,7 +122,7 @@
 <script setup lang="ts">
 import { asyncComputed } from '@vueuse/core'
 import { useClient } from '@/graphql/client'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { computed } from 'vue'
 
 /**
@@ -130,6 +134,11 @@ const client = useClient()
  * The current route (location).
  */
 const route = useRoute()
+
+/**
+ * The router.
+ */
+const router = useRouter()
 
 /**
  * The product id (taken from the route params).
@@ -151,12 +160,19 @@ const productVariantId = computed(() => {
 const product = asyncComputed(
     async () => {
         return client.getProduct({
-            id: route.params.productid.toString(),
+            id: id.value,
         })
     },
     null,
     { shallow: false }
 )
+
+/**
+ * Gets the product categories to which the product belongs.
+ */
+const categories = computed(() => {
+    return product.value?.product?.categories?.nodes ?? []
+})
 
 /**
  * Decides which product variant to display initially.
@@ -170,4 +186,18 @@ const productVariant = computed(() => {
         )
     }
 })
+
+/**
+ * Navigates to the category to which the given id belongs.
+ * The navigation is done via the Vue Router.
+ * @param id The id of the category to navigate to.
+ */
+function navigateToCategory(id: any) {
+    router.push({
+        name: 'Category',
+        params: {
+            categoryid: id,
+        },
+    })
+}
 </script>

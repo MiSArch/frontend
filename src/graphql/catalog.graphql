@@ -1,43 +1,80 @@
-query getProductsList($first: Int, $skip: Int) {
-    products(first: $first, skip: $skip) {
-        nodes {
-            id
-            defaultVariant {
-                id
-                currentVersion {
-                    name
-                    retailPrice
-                }
-            }
+query getProducts($first: Int, $skip: Int, $orderBy: ProductOrderInput) {
+  products(first: $first, skip: $skip, orderBy: $orderBy) {
+    hasNextPage
+    nodes {
+      internalName
+      isPubliclyVisible
+      id
+      defaultVariant {
+        isPubliclyVisible
+        id
+        currentVersion {
+          name
+          retailPrice
+          id
         }
-        totalCount
+      }
     }
+    totalCount
+  }
+}
+
+query getCategoryWithAssociatedProducts($id: UUID!, $firstProducts: Int, $skipProducts: Int, $orderProductsBy: ProductOrderInput) {
+  category(id: $id) {
+    description
+    name
+    id
+    products(first: $firstProducts, skip: $skipProducts, orderBy: $orderProductsBy) {
+      hasNextPage
+      nodes {
+        internalName
+        isPubliclyVisible
+        id
+        defaultVariant {
+          isPubliclyVisible
+          id
+          currentVersion {
+            name
+            retailPrice
+            id
+          }
+        }
+      }
+      totalCount
+    }
+  }
 }
 
 query getProduct($id: UUID!) {
     product(id: $id) {
-        id
         internalName
         isPubliclyVisible
-        defaultVariant {
-            id
-            isPubliclyVisible
-            currentVersion {
-                id
+        id
+        categories {
+            nodes {
                 name
+                id
+            }
+        }
+        defaultVariant {
+            isPubliclyVisible
+            id
+            currentVersion {
                 description
+                name
                 retailPrice
+                id
             }
         }
         variants {
             nodes {
-                id
                 isPubliclyVisible
+                id
                 currentVersion {
-                    id
-                    name
                     description
+                    name
                     retailPrice
+                    id
                 }
             }
         }
@@ -63,5 +100,19 @@ query getAllCategories($orderBy: CategoryOrderInput) {
       name
     }
     totalCount
+  }
+}
+
+query getCategory($id: UUID!) {
+  category(id: $id) {
+    description
+    name
+    id
+  }
+}
+
+mutation createCategory($input: CreateCategoryInput!) {
+  createCategory(input: $input) {
+    id
   }
 }
