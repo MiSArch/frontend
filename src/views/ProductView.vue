@@ -178,7 +178,7 @@ const categories = computed(() => {
  * Decides which product variant to display initially.
  */
 const productVariant = computed(() => {
-    if (!productVariantId) {
+    if (!productVariantId.value) {
         return product?.value?.product?.defaultVariant
     } else {
         return product?.value?.product?.variants?.nodes?.find(
