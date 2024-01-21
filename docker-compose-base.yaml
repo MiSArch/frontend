@@ -1,0 +1,20 @@
+services:
+  frontend:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - GATEWAY_ENDPOINT=http://localhost:3500/v1.0/invoke/gateway/method/graphql
+  frontend-dapr:
+    image: "daprio/daprd:edge"
+    command: [
+      "./daprd",
+      "--app-id", "frontend",
+      "--app-port", "80",
+      "--dapr-http-port", "3500",
+      "-placement-host-address", "placement:50006",
+      "--config", "/config.yaml",
+      "--resources-path", "/components"
+    ]
+    network_mode: "service:frontend"
