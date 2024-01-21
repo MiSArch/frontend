@@ -6,12 +6,6 @@ services:
       dockerfile: Dockerfile
     environment:
       - GATEWAY_ENDPOINT=http://localhost:3500/v1.0/invoke/gateway/method/graphql
-    healthcheck:
-      test: wget http://localhost:8080/graphql || exit 1
-      interval: 1s
-      timeout: 10s
-      retries: 20
-      start_period: 3s
   frontend-dapr:
     image: "daprio/daprd:edge"
     command: [
