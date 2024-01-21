@@ -17,7 +17,7 @@ services:
     command: [
       "./daprd",
       "--app-id", "frontend",
-      "--app-port", "8080",
+      "--app-port", "80",
       "--dapr-http-port", "3500",
       "-placement-host-address", "placement:50006",
       "--config", "/config.yaml",
