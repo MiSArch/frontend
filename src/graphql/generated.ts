@@ -34,7 +34,17 @@ export type Scalars = {
     FieldSet: { input: any; output: any }
     UUID: { input: any; output: any }
     _Any: { input: any; output: any }
+    _FieldSet: { input: any; output: any }
     link__Import: { input: any; output: any }
+}
+
+export type AddWishlistInput = {
+    /** Wishlist name. */
+    name: Scalars['String']['input']
+    /** UUIDs of product variants in wishlist. */
+    productVariantIds: Array<Scalars['UUID']['input']>
+    /** UUID of user owning the wishlist. */
+    userId: Scalars['UUID']['input']
 }
 
 /** Input to create a CategoricalCategoryCharacteristic for a Category */
@@ -95,6 +105,24 @@ export type CategoryOrderInput = {
     direction?: InputMaybe<OrderDirection>
     /** The field to order by */
     field?: InputMaybe<CategoryOrderField>
+}
+
+/**
+ * Describes the fields that a foreign types can be ordered by.
+ *
+ * Only the Id valid at the moment.
+ */
+export enum CommonOrderField {
+    /** Orders by "id". */
+    Id = 'ID',
+}
+
+/** Specifies the order of foreign types. */
+export type CommonOrderInput = {
+    /** Order direction of wishlists. */
+    direction?: InputMaybe<OrderDirection>
+    /** Field that wishlists should be ordered by. */
+    field?: InputMaybe<CommonOrderField>
 }
 
 /** Input for the createCategoricalCategoryCharacteristic mutation */
@@ -189,11 +217,11 @@ export type NumericalCategoryCharacteristicValueInput = {
     value: Scalars['Float']['input']
 }
 
-/** Order direction */
+/** GraphQL order direction. */
 export enum OrderDirection {
-    /** Ascending order */
+    /** Ascending order direction. */
     Asc = 'ASC',
-    /** Descending order */
+    /** Descending order direction. */
     Desc = 'DESC',
 }
 
@@ -267,6 +295,42 @@ export type ProductVariantVersionOrderInput = {
     direction?: InputMaybe<OrderDirection>
     /** The field to order by */
     field?: InputMaybe<ProductVariantVersionOrderField>
+}
+
+export type UpdateWishlistInput = {
+    /** UUID of wishlist to update. */
+    id: Scalars['UUID']['input']
+    /** Wishlist name to update */
+    name?: InputMaybe<Scalars['String']['input']>
+    /** product variant UUIDs of wishlist to update */
+    productVariantIds?: InputMaybe<Array<Scalars['UUID']['input']>>
+}
+
+/** Describes the fields that a wishlist can be ordered by. */
+export enum WishlistOrderField {
+    /** Orders by "created_at". */
+    CreatedAt = 'CREATED_AT',
+    /** Orders by "id". */
+    Id = 'ID',
+    /** Orders by "last_updated_at". */
+    LastUpdatedAt = 'LAST_UPDATED_AT',
+    /** Orders by "name". */
+    Name = 'NAME',
+    /** Orders by "user_id". */
+    UserId = 'USER_ID',
+}
+
+/** Specifies the order of wishlists. */
+export type WishlistOrderInput = {
+    /** Order direction of wishlists. */
+    direction?: InputMaybe<OrderDirection>
+    /** Field that wishlists should be ordered by. */
+    field?: InputMaybe<WishlistOrderField>
+}
+
+export enum Link__Purpose {
+    Execution = 'EXECUTION',
+    Security = 'SECURITY',
 }
 
 export type GetProductsQueryVariables = Exact<{
