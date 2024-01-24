@@ -18,6 +18,86 @@
                 </v-text-field>
                 <v-textarea clearable label="Description" v-model="description">
                 </v-textarea>
+                <div class="d-flex">
+                    <v-tabs v-model="currentTab">
+                        <v-tab
+                            v-for="(
+                                categoryCharacteristic, index
+                            ) in categoryCharacteristics"
+                            :key="index"
+                            :value="categoryCharacteristic.tempId"
+                        >
+                            <template v-if="categoryCharacteristic.name">
+                                {{ categoryCharacteristic.name }}
+                            </template>
+                            <template v-else>
+                                Characteristic {{ index }}
+                            </template>
+                        </v-tab>
+                    </v-tabs>
+                    <v-spacer />
+                    <v-btn
+                        icon
+                        @click="addCategoryCharacteristic"
+                        variant="outlined"
+                        color="primary"
+                    >
+                        <v-icon icon="mdi-plus"></v-icon>
+                    </v-btn>
+                </div>
+                <v-window v-model="currentTab">
+                    <v-window-item
+                        v-for="(characteristic, idx) in categoryCharacteristics"
+                        :key="idx"
+                        :value="characteristic.tempId"
+                    >
+                        <v-card class="pa-8" flat>
+                            <v-select
+                                label="Type of Characteristic"
+                                :items="typesOfCategoryCharacteristic"
+                                item-title="name"
+                                item-value="key"
+                                v-model="
+                                    characteristic.typeOfCategoryCharacteristic
+                                "
+                            >
+                            </v-select>
+                            <v-text-field
+                                clearable
+                                label="Name"
+                                v-model="characteristic.name"
+                            >
+                            </v-text-field>
+                            <v-textarea
+                                clearable
+                                label="Description"
+                                v-model="characteristic.description"
+                            >
+                            </v-textarea>
+                            <v-text-field
+                                v-if="
+                                    characteristic.typeOfCategoryCharacteristic ===
+                                    1
+                                "
+                                clearable
+                                label="Unit"
+                                v-model="characteristic.unit"
+                            >
+                            </v-text-field>
+                            <v-card-actions>
+                                <v-btn
+                                    prepend-icon="mdi-close"
+                                    @click="
+                                        removeCategoryCharacteristic(
+                                            characteristic.tempId
+                                        )
+                                    "
+                                    >Remove Characteristic
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-window-item>
+                </v-window>
             </div>
             <div class="d-flex flex-column align-center justify-end pa-4">
                 <v-alert
@@ -38,8 +118,13 @@
 import { useClient } from '@/graphql/client'
 import { ref } from 'vue'
 
-const name = ref('')
-const description = ref('')
+interface CategoryCharacteristic {
+    tempId: number
+    typeOfCategoryCharacteristic: number
+    description: string
+    name: string
+    unit: string
+}
 
 /**
  * The GraphQL client to use for all GraphQL requests.
@@ -52,6 +137,17 @@ const client = useClient()
 const emit = defineEmits<{
     (event: 'close-addcategorydialog'): void
 }>()
+
+const name = ref('')
+const description = ref('')
+
+const categoryCharacteristics = ref<CategoryCharacteristic[]>([])
+const currentTab = ref<number>()
+const tempIdCounter = ref(0)
+const typesOfCategoryCharacteristic = ref([
+    { key: 0, name: 'Categorical' },
+    { key: 1, name: 'Numerical' },
+])
 
 /**
  * Whether or not saving the category failed.
@@ -66,12 +162,45 @@ async function save() {
     try {
         saveFailed.value = false
 
-        const addedCategory = await client.createCategory({
+        const categoricalCharacteristics: {
+            description: string
+            name: string
+        }[] = []
+        const numericalCharacteristics: {
+            description: string
+            name: string
+            unit: string
+        }[] = []
+
+        categoryCharacteristics.value.forEach((categoryCharacteristic) => {
+            if (categoryCharacteristic.typeOfCategoryCharacteristic === 0) {
+                const categoricalCategoryCharacteristicInput = {
+                    description: categoryCharacteristic.description,
+                    name: categoryCharacteristic.name,
+                }
+                categoricalCharacteristics.push(
+                    categoricalCategoryCharacteristicInput
+                )
+            } else {
+                if (categoryCharacteristic.typeOfCategoryCharacteristic === 1) {
+                    const numericalCategoryCharacteristicInput = {
+                        description: categoryCharacteristic.description,
+                        name: categoryCharacteristic.name,
+                        unit: categoryCharacteristic.unit,
+                    }
+                    numericalCharacteristics.push(
+                        numericalCategoryCharacteristicInput
+                    )
+                }
+            }
+        })
+
+        await client.createCategory({
             input: {
-                categoricalCharacteristics: [],
+                categoricalCharacteristics: categoricalCharacteristics,
                 description: description.value,
                 name: name.value,
-                numericalCharacteristics: [],
+                numericalCharacteristics: numericalCharacteristics,
             },
         })
 
@@ -80,6 +209,34 @@ async function save() {
         saveFailed.value = true
 
         console.error(error)
+    }
+}
+
+function addCategoryCharacteristic() {
+    const newCategoryCharacteristic = {
+        tempId: tempIdCounter.value++,
+        typeOfCategoryCharacteristic: 0,
+        description: '',
+        name: '',
+        unit: '',
+    }
+
+    categoryCharacteristics.value.push(newCategoryCharacteristic)
+
+    currentTab.value = newCategoryCharacteristic.tempId
+}
+
+function removeCategoryCharacteristic(tempId: number) {
+    const index = categoryCharacteristics.value.findIndex(
+        (characteristic) => characteristic.tempId === tempId
+    )
+    if (index > -1) {
+        categoryCharacteristics.value.splice(index, 1)
+
+        if (categoryCharacteristics.value.length > 0) {
+            const newIndex = Math.max(0, index - 1)
+            currentTab.value = categoryCharacteristics.value[newIndex].tempId
+        }
     }
 }
 </script>
