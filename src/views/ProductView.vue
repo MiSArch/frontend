@@ -51,20 +51,49 @@
                         </div>
                     </v-card-text>
                     <v-divider></v-divider>
-                    <div class="pa-4">
-                        <v-select
-                            :items="['Dummy Black', 'Dummy White']"
-                            density="compact"
-                            label="Color"
-                            variant="outlined"
-                        ></v-select>
-                        <v-select
-                            :items="['Dummy S', 'Dummy M', 'Dummy L']"
-                            density="compact"
-                            label="Size"
-                            variant="outlined"
-                        ></v-select>
-                    </div>
+                    <v-card-text>
+                        <div class="d-flex flex-column ga-2">
+                            <div
+                                v-if="
+                                    numericalCategoryCharacteristicValues?.length >
+                                    0
+                                "
+                                class="d-flex flex-column ga-2"
+                            >
+                                <div class="text-caption">
+                                    Numerical Characteristics
+                                </div>
+                                <div class="d-flex flex-wrap ga-2">
+                                    <v-chip
+                                        v-for="v in numericalCategoryCharacteristicValues"
+                                    >
+                                        {{ v.characteristic.name }}:
+                                        {{ v.numericalValue }}
+                                    </v-chip>
+                                </div>
+                            </div>
+                            <div
+                                v-if="
+                                    categoricalCategoryCharacteristicValues?.length >
+                                    0
+                                "
+                                class="d-flex flex-column mt-2 ga-2"
+                            >
+                                <v-divider></v-divider>
+                                <div class="text-caption">
+                                    Categorical Characteristics
+                                </div>
+                                <div class="d-flex flex-wrap ga-2">
+                                    <v-chip
+                                        v-for="v in categoricalCategoryCharacteristicValues"
+                                    >
+                                        {{ v.characteristic.name }}:
+                                        {{ v.categoricalValue }}
+                                    </v-chip>
+                                </div>
+                            </div>
+                        </div>
+                    </v-card-text>
                 </v-card>
                 <v-card class="align-self-start">
                     <v-card-item>
@@ -115,15 +144,34 @@
                 :text="productVariant?.currentVersion.description"
             >
             </v-card>
+            <v-card class="mx-4 mb-4" elevation="4">
+                <v-card-item>
+                    <v-card-title> Other Product Variants </v-card-title>
+                </v-card-item>
+                <v-card-text>
+                    <v-list v-for="v in otherProductVariants">
+                        <v-list-item>
+                            <ProductSummary
+                                :product-id="product?.product.id"
+                                :internal-name="v.currentVersion.name"
+                                :price="v.currentVersion.retailPrice"
+                                :retail-price="v.currentVersion.retailPrice"
+                                :product-variant-id="v.id"
+                            />
+                        </v-list-item>
+                    </v-list>
+                </v-card-text>
+            </v-card>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { asyncComputed } from '@vueuse/core'
+import ProductSummary from '@/components/ProductSummary.vue'
 import { useClient } from '@/graphql/client'
+import { asyncComputed } from '@vueuse/core'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { computed } from 'vue'
 
 /**
  * The GraphQL client to use for all GraphQL requests.
@@ -148,13 +196,6 @@ const id = computed(() => {
 })
 
 /**
- * The product variant id (taken from the route params if present).
- */
-const productVariantId = computed(() => {
-    return route.params.productvariantid?.toString()
-})
-
-/**
  * Gets the "entire" product from the catalog service.
  */
 const product = asyncComputed(
@@ -171,20 +212,75 @@ const product = asyncComputed(
  * Gets the product categories to which the product belongs.
  */
 const categories = computed(() => {
-    return product.value?.product?.categories?.nodes ?? []
+    return product.value?.product.categories.nodes ?? []
 })
+
+/**
+ * The id of the product variant that gets displayed on this view.
+ */
+const productVariantId = ref()
 
 /**
  * Decides which product variant to display initially.
  */
 const productVariant = computed(() => {
-    if (!productVariantId.value) {
-        return product?.value?.product?.defaultVariant
+    if (route.params.productvariantid) {
+        productVariantId.value = route.params.productvariantid
     } else {
-        return product?.value?.product?.variants?.nodes?.find(
-            (v) => v.id == productVariantId.value
-        )
+        productVariantId.value = product.value?.product.defaultVariant.id
     }
+
+    return product.value?.product.variants.nodes.find(
+        (variant) => variant.id == productVariantId.value
+    )
+})
+
+/**
+ * The other product variants.
+ * These are listed in the section 'Other Product Variants'.
+ */
+const otherProductVariants = computed(() => {
+    return (
+        product.value?.product.variants.nodes.filter(
+            (variant) => variant.id != productVariantId.value
+        ) ?? []
+    )
+})
+
+/**
+ * The categorical values of the product variant's CategoryCharacteristicValues.
+ */
+const categoricalCategoryCharacteristicValues = computed(() => {
+    return (
+        productVariant.value?.currentVersion.characteristicValues.nodes
+            .filter(
+                (characteristicValue) =>
+                    characteristicValue.__typename ===
+                    'CategoricalCategoryCharacteristicValue'
+            )
+            .map(
+                (categoricalCategoryCharacteristicValue) =>
+                    categoricalCategoryCharacteristicValue as any
+            ) ?? []
+    )
+})
+
+/**
+ * The numerical values of the product variant's CategoryCharacteristicValues.
+ */
+const numericalCategoryCharacteristicValues = computed(() => {
+    return (
+        productVariant.value?.currentVersion.characteristicValues.nodes
+            .filter(
+                (characteristicValue) =>
+                    characteristicValue.__typename ===
+                    'NumericalCategoryCharacteristicValue'
+            )
+            .map(
+                (numericalCategoryCharacteristicValue) =>
+                    numericalCategoryCharacteristicValue as any
+            ) ?? []
+    )
 })
 
 /**

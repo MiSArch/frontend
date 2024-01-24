@@ -8,9 +8,7 @@
             ></v-img>
         </div>
         <div class="d-flex flex-column ma-2">
-            <router-link
-                :to="{ name: 'Product', params: { productid: productId } }"
-            >
+            <router-link :to="link">
                 <span class="text-body-1">{{ internalName }}</span>
             </router-link>
 
@@ -21,6 +19,7 @@
 
 <script lang="ts" setup>
 import ProductPrice from './ProductPrice.vue'
+import { computed } from 'vue'
 
 const props = defineProps({
     productId: {
@@ -39,5 +38,28 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    productVariantId: {
+        type: String,
+        required: false,
+    },
+})
+
+const link = computed(() => {
+    if (props.productVariantId) {
+        return {
+            name: 'Product',
+            params: {
+                productid: props.productId,
+                productvariantid: props.productVariantId,
+            },
+        }
+    } else {
+        return {
+            name: 'Product',
+            params: {
+                productid: props.productId,
+            },
+        }
+    }
 })
 </script>

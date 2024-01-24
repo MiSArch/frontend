@@ -63,6 +63,20 @@ export type CategoricalCategoryCharacteristicValueInput = {
     value: Scalars['String']['input']
 }
 
+/** CategoricalCategoryCharacteristicValue order fields */
+export enum CategoricalCategoryCharacteristicValueOrderField {
+    /** Order CategoricalCategoryCharacteristicValue by their id */
+    Value = 'VALUE',
+}
+
+/** CategoricalCategoryCharacteristicValue order */
+export type CategoricalCategoryCharacteristicValueOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<CategoricalCategoryCharacteristicValueOrderField>
+}
+
 /** CategoryCharacteristic order fields */
 export enum CategoryCharacteristicOrderField {
     /** Order categoryCharacteristics by their id */
@@ -419,30 +433,58 @@ export type GetProductQuery = {
             __typename?: 'CategoryConnection'
             nodes: Array<{ __typename?: 'Category'; name: string; id: any }>
         }
-        defaultVariant: {
-            __typename?: 'ProductVariant'
-            isPubliclyVisible: boolean
-            id: any
-            currentVersion: {
-                __typename?: 'ProductVariantVersion'
-                description: string
-                name: string
-                retailPrice: number
-                id: any
-            }
-        }
+        defaultVariant: { __typename?: 'ProductVariant'; id: any }
         variants: {
             __typename?: 'ProductVariantConnection'
+            hasNextPage: boolean
+            totalCount: number
             nodes: Array<{
                 __typename?: 'ProductVariant'
-                isPubliclyVisible: boolean
                 id: any
+                isPubliclyVisible: boolean
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
                     description: string
+                    id: any
                     name: string
                     retailPrice: number
-                    id: any
+                    characteristicValues: {
+                        __typename?: 'CategoryCharacteristicValueConnection'
+                        hasNextPage: boolean
+                        totalCount: number
+                        nodes: Array<
+                            | {
+                                  __typename: 'CategoricalCategoryCharacteristicValue'
+                                  categoricalValue: string
+                                  characteristic:
+                                      | {
+                                            __typename?: 'CategoricalCategoryCharacteristic'
+                                            id: any
+                                            name: string
+                                        }
+                                      | {
+                                            __typename?: 'NumericalCategoryCharacteristic'
+                                            id: any
+                                            name: string
+                                        }
+                              }
+                            | {
+                                  __typename: 'NumericalCategoryCharacteristicValue'
+                                  numericalValue: number
+                                  characteristic:
+                                      | {
+                                            __typename?: 'CategoricalCategoryCharacteristic'
+                                            id: any
+                                            name: string
+                                        }
+                                      | {
+                                            __typename?: 'NumericalCategoryCharacteristic'
+                                            id: any
+                                            name: string
+                                        }
+                              }
+                        >
+                    }
                 }
             }>
         }
@@ -574,26 +616,38 @@ export const GetProductDocument = gql`
                 }
             }
             defaultVariant {
-                isPubliclyVisible
                 id
-                currentVersion {
-                    description
-                    name
-                    retailPrice
-                    id
-                }
             }
             variants {
+                hasNextPage
                 nodes {
-                    isPubliclyVisible
                     id
                     currentVersion {
+                        characteristicValues {
+                            hasNextPage
+                            nodes {
+                                __typename
+                                characteristic {
+                                    id
+                                    name
+                                }
+                                ... on CategoricalCategoryCharacteristicValue {
+                                    categoricalValue: value
+                                }
+                                ... on NumericalCategoryCharacteristicValue {
+                                    numericalValue: value
+                                }
+                            }
+                            totalCount
+                        }
                         description
+                        id
                         name
                         retailPrice
-                        id
                     }
+                    isPubliclyVisible
                 }
+                totalCount
             }
         }
     }

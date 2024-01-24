@@ -46,39 +46,51 @@ query getCategoryWithAssociatedProducts($id: UUID!, $firstProducts: Int, $skipPr
 }
 
 query getProduct($id: UUID!) {
-    product(id: $id) {
-        internalName
-        isPubliclyVisible
+  product(id: $id) {
+    internalName
+    isPubliclyVisible
+    id
+    categories {
+      nodes {
+        name
         id
-        categories {
-            nodes {
-                name
-                id
-            }
-        }
-        defaultVariant {
-            isPubliclyVisible
-            id
-            currentVersion {
-                description
-                name
-                retailPrice
-                id
-            }
-        }
-        variants {
-            nodes {
-                isPubliclyVisible
-                id
-                currentVersion {
-                    description
-                    name
-                    retailPrice
-                    id
-                }
-            }
-        }
+      }
     }
+    defaultVariant {
+      id
+    }
+    variants {
+      hasNextPage
+      nodes {
+        id
+        currentVersion {
+          characteristicValues {
+            hasNextPage
+            nodes {
+              __typename
+              characteristic {
+                id
+                name
+              }
+              ... on CategoricalCategoryCharacteristicValue {
+                categoricalValue: value
+              }
+              ... on NumericalCategoryCharacteristicValue {
+                numericalValue: value
+              }
+            }
+            totalCount
+          }
+          description
+          id
+          name
+          retailPrice
+        }
+        isPubliclyVisible
+      }
+      totalCount
+    }
+  }
 }
 
 mutation createProduct($input: CreateProductInput!) {
