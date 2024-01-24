@@ -118,6 +118,12 @@
 import { useClient } from '@/graphql/client'
 import { ref } from 'vue'
 
+/**
+ * A CategoryCharacteristic represents a single characteristic
+ * belonging to the category which gets added to the catalog service by this dialog.
+ * Such a characteristic can be a categorical one or a numerical one --
+ * its property typeOfCategoryCharacteristic stores this information.
+ */
 interface CategoryCharacteristic {
     tempId: number
     typeOfCategoryCharacteristic: number
@@ -144,6 +150,13 @@ const description = ref('')
 const categoryCharacteristics = ref<CategoryCharacteristic[]>([])
 const currentTab = ref<number>()
 const tempIdCounter = ref(0)
+
+/**
+ * The two available types of category characteristics.
+ * The 'key' is supposed to be used as the value of the
+ * typeOfCategoryCharacteristic property of a CategoryCharacteristic
+ * (see the interface defined earlier).
+ */
 const typesOfCategoryCharacteristic = ref([
     { key: 0, name: 'Categorical' },
     { key: 1, name: 'Numerical' },
@@ -212,6 +225,10 @@ async function save() {
     }
 }
 
+/**
+ * Adds one template (within a tab) to the dialog
+ * in order for the user to be able to specify another characteristic of the category.
+ */
 function addCategoryCharacteristic() {
     const newCategoryCharacteristic = {
         tempId: tempIdCounter.value++,
@@ -226,6 +243,11 @@ function addCategoryCharacteristic() {
     currentTab.value = newCategoryCharacteristic.tempId
 }
 
+/**
+ * Removes one of the specified category characteristics and
+ * their tab containing the corresponding template.
+ * @param tempId The temporary id of the category characteristic to remove.
+ */
 function removeCategoryCharacteristic(tempId: number) {
     const index = categoryCharacteristics.value.findIndex(
         (characteristic) => characteristic.tempId === tempId
