@@ -50,6 +50,50 @@
                             </v-chip>
                         </div>
                     </v-card-text>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <div class="d-flex flex-column ga-2">
+                            <div
+                                v-if="
+                                    numericalCategoryCharacteristicValues?.length >
+                                    0
+                                "
+                                class="d-flex flex-column ga-2"
+                            >
+                                <div class="text-caption">
+                                    Numerical Characteristics
+                                </div>
+                                <div class="d-flex flex-wrap ga-2">
+                                    <v-chip
+                                        v-for="v in numericalCategoryCharacteristicValues"
+                                    >
+                                        {{ v.characteristic.name }}:
+                                        {{ v.numericalValue }}
+                                    </v-chip>
+                                </div>
+                            </div>
+                            <div
+                                v-if="
+                                    categoricalCategoryCharacteristicValues?.length >
+                                    0
+                                "
+                                class="d-flex flex-column mt-2 ga-2"
+                            >
+                                <v-divider></v-divider>
+                                <div class="text-caption">
+                                    Categorical Characteristics
+                                </div>
+                                <div class="d-flex flex-wrap ga-2">
+                                    <v-chip
+                                        v-for="v in categoricalCategoryCharacteristicValues"
+                                    >
+                                        {{ v.characteristic.name }}:
+                                        {{ v.categoricalValue }}
+                                    </v-chip>
+                                </div>
+                            </div>
+                        </div>
+                    </v-card-text>
                 </v-card>
                 <v-card class="align-self-start">
                     <v-card-item>
@@ -200,6 +244,32 @@ const otherProductVariants = computed(() => {
         product.value?.product.variants.nodes.filter(
             (variant) => variant.id != productVariantId.value
         ) ?? []
+    )
+})
+
+/**
+ * The numerical values of the product variant's CategoryCharacteristicValues.
+ */
+const numericalCategoryCharacteristicValues = computed(() => {
+    return (
+        productVariant.value?.currentVersion.characteristicValues.nodes
+            .map((characteristicValue) => characteristicValue as any)
+            .filter(
+                (characteristicValue) => characteristicValue.numericalValue
+            ) ?? []
+    )
+})
+
+/**
+ * The categorical values of the product variant's CategoryCharacteristicValues.
+ */
+const categoricalCategoryCharacteristicValues = computed(() => {
+    return (
+        productVariant.value?.currentVersion.characteristicValues.nodes
+            .map((characteristicValue) => characteristicValue as any)
+            .filter(
+                (characteristicValue) => characteristicValue.categoricalValue
+            ) ?? []
     )
 })
 
