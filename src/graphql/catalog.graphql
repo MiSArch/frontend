@@ -67,6 +67,7 @@ query getProduct($id: UUID!) {
           characteristicValues {
             hasNextPage
             nodes {
+              __typename
               characteristic {
                 id
                 name

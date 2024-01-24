@@ -248,27 +248,37 @@ const otherProductVariants = computed(() => {
 })
 
 /**
- * The numerical values of the product variant's CategoryCharacteristicValues.
- */
-const numericalCategoryCharacteristicValues = computed(() => {
-    return (
-        productVariant.value?.currentVersion.characteristicValues.nodes
-            .map((characteristicValue) => characteristicValue as any)
-            .filter(
-                (characteristicValue) => characteristicValue.numericalValue
-            ) ?? []
-    )
-})
-
-/**
  * The categorical values of the product variant's CategoryCharacteristicValues.
  */
 const categoricalCategoryCharacteristicValues = computed(() => {
     return (
         productVariant.value?.currentVersion.characteristicValues.nodes
-            .map((characteristicValue) => characteristicValue as any)
             .filter(
-                (characteristicValue) => characteristicValue.categoricalValue
+                (characteristicValue) =>
+                    characteristicValue.__typename ===
+                    'CategoricalCategoryCharacteristicValue'
+            )
+            .map(
+                (categoricalCategoryCharacteristicValue) =>
+                    categoricalCategoryCharacteristicValue as any
+            ) ?? []
+    )
+})
+
+/**
+ * The numerical values of the product variant's CategoryCharacteristicValues.
+ */
+const numericalCategoryCharacteristicValues = computed(() => {
+    return (
+        productVariant.value?.currentVersion.characteristicValues.nodes
+            .filter(
+                (characteristicValue) =>
+                    characteristicValue.__typename ===
+                    'NumericalCategoryCharacteristicValue'
+            )
+            .map(
+                (numericalCategoryCharacteristicValue) =>
+                    numericalCategoryCharacteristicValue as any
             ) ?? []
     )
 })

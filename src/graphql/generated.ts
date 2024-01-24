@@ -454,7 +454,7 @@ export type GetProductQuery = {
                         totalCount: number
                         nodes: Array<
                             | {
-                                  __typename?: 'CategoricalCategoryCharacteristicValue'
+                                  __typename: 'CategoricalCategoryCharacteristicValue'
                                   categoricalValue: string
                                   characteristic:
                                       | {
@@ -469,7 +469,7 @@ export type GetProductQuery = {
                                         }
                               }
                             | {
-                                  __typename?: 'NumericalCategoryCharacteristicValue'
+                                  __typename: 'NumericalCategoryCharacteristicValue'
                                   numericalValue: number
                                   characteristic:
                                       | {
@@ -626,6 +626,7 @@ export const GetProductDocument = gql`
                         characteristicValues {
                             hasNextPage
                             nodes {
+                                __typename
                                 characteristic {
                                     id
                                     name
