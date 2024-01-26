@@ -30,12 +30,18 @@ export type Scalars = {
     Boolean: { input: boolean; output: boolean }
     Int: { input: number; output: number }
     Float: { input: number; output: number }
+    Date: { input: any; output: any }
     DateTime: { input: any; output: any }
     FieldSet: { input: any; output: any }
     UUID: { input: any; output: any }
     _Any: { input: any; output: any }
-    _FieldSet: { input: any; output: any }
-    link__Import: { input: any; output: any }
+}
+
+export type AddShoppingCartItemInput = {
+    /** UUID of user owning the shopping cart. */
+    id: Scalars['UUID']['input']
+    /** ShoppingCartItem in shoppingcart to update */
+    shoppingCartItem: ShoppingCartItemInput
 }
 
 export type AddWishlistInput = {
@@ -133,9 +139,9 @@ export enum CommonOrderField {
 
 /** Specifies the order of foreign types. */
 export type CommonOrderInput = {
-    /** Order direction of wishlists. */
+    /** Order direction of shoppingcarts. */
     direction?: InputMaybe<OrderDirection>
-    /** Field that wishlists should be ordered by. */
+    /** Field that shoppingcarts should be ordered by. */
     field?: InputMaybe<CommonOrderField>
 }
 
@@ -161,6 +167,16 @@ export type CreateCategoryInput = {
     numericalCharacteristics: Array<NumericalCategoryCharacteristicInput>
 }
 
+/** Input for the createNotification mutation */
+export type CreateNotificationInput = {
+    /** body of the notification to create */
+    body: Scalars['String']['input']
+    /** title of the notification to create */
+    title: Scalars['String']['input']
+    /** id of the user the notification should be sent to */
+    userId: Scalars['UUID']['input']
+}
+
 /** Input for the createNumericalCategoryCharacteristic mutation */
 export type CreateNumericalCategoryCharacteristicInput = {
     /** The Category that the NumericalCategoryCharacteristic belongs to */
@@ -183,6 +199,14 @@ export type CreateProductInput = {
     internalName: Scalars['String']['input']
     /** If true, the Product is visible to customers. */
     isPubliclyVisible: Scalars['Boolean']['input']
+}
+
+/** The input of a product item batch creation */
+export type CreateProductItemBatchInput = {
+    /** The number of products to add */
+    number: Scalars['Float']['input']
+    /** The product variant id of the product item */
+    productVariantId: Scalars['UUID']['input']
 }
 
 /** Input for the createProductVariant mutation */
@@ -213,6 +237,37 @@ export type CreateProductVariantVersionInput = {
     retailPrice: Scalars['Int']['input']
 }
 
+export type CreateUserDtoInput = {
+    name: Scalars['String']['input']
+    username: Scalars['String']['input']
+}
+
+/** The gender of a user */
+export enum Gender {
+    /** Diverse gender */
+    Diverse = 'DIVERSE',
+    /** Female gender */
+    Female = 'FEMALE',
+    /** Male gender */
+    Male = 'MALE',
+    /** Other gender */
+    Other = 'OTHER',
+}
+
+/** Notification order fields */
+export enum NotificationOrderField {
+    /** Order notifications by their id */
+    Id = 'ID',
+}
+
+/** Notification order */
+export type NotificationOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<NotificationOrderField>
+}
+
 /** Input to create a characteristic whose values have arithmetic meaning, i.e. '8GB' */
 export type NumericalCategoryCharacteristicInput = {
     /** The description of the NumericalCategoryCharacteristic */
@@ -237,6 +292,20 @@ export enum OrderDirection {
     Asc = 'ASC',
     /** Descending order direction. */
     Desc = 'DESC',
+}
+
+/** Ordering options for product items */
+export type ProductItemOrder = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<ProductItemOrderField>
+}
+
+/** The field to order Product Items by */
+export enum ProductItemOrderField {
+    /** Order Product Items by their ID */
+    Id = 'ID',
 }
 
 /** Product order fields */
@@ -311,6 +380,45 @@ export type ProductVariantVersionOrderInput = {
     field?: InputMaybe<ProductVariantVersionOrderField>
 }
 
+export type ShoppingCartItemInput = {
+    /** Count of items in basket. */
+    count: Scalars['Int']['input']
+    /** Uuid of product variant. */
+    productVariantId: Scalars['UUID']['input']
+}
+
+/** Input for the updateNotification mutation */
+export type UpdateNotificationInput = {
+    /** id of the notification to update */
+    id: Scalars['UUID']['input']
+    /** mark the notification as read/unread */
+    isRead: Scalars['Boolean']['input']
+}
+
+/** The input of a product item update */
+export type UpdateProductItemInput = {
+    /** The product item identifier */
+    id: Scalars['UUID']['input']
+    /** The inventory state of the product item */
+    isInInventory: Scalars['Boolean']['input']
+    /** The product variant id of the product item */
+    productVariantId: Scalars['UUID']['input']
+}
+
+export type UpdateShoppingCartInput = {
+    /** UUID of user owning shopping cart. */
+    id: Scalars['UUID']['input']
+    /** ShoppingCartItems of shoppingcart to update */
+    shoppingCartItems?: InputMaybe<Array<ShoppingCartItemInput>>
+}
+
+export type UpdateShoppingCartItemInput = {
+    /** Count of items in basket. */
+    count: Scalars['Int']['input']
+    /** UUID of shoppingcart item to update. */
+    id: Scalars['UUID']['input']
+}
+
 export type UpdateWishlistInput = {
     /** UUID of wishlist to update. */
     id: Scalars['UUID']['input']
@@ -342,79 +450,238 @@ export type WishlistOrderInput = {
     field?: InputMaybe<WishlistOrderField>
 }
 
-export enum Link__Purpose {
-    Execution = 'EXECUTION',
-    Security = 'SECURITY',
+export type DefaultProductVariantFragment = {
+    __typename?: 'Product'
+    id: any
+    isPubliclyVisible: boolean
+    defaultVariant: {
+        __typename?: 'ProductVariant'
+        id: any
+        isPubliclyVisible: boolean
+        currentVersion: {
+            __typename?: 'ProductVariantVersion'
+            id: any
+            name: string
+            description: string
+            retailPrice: number
+            canBeReturnedForDays?: number | null
+            version: number
+            createdAt: any
+        }
+    }
+    variants: { __typename?: 'ProductVariantConnection'; totalCount: number }
 }
 
-export type GetProductsQueryVariables = Exact<{
+export type CurrentVersionFragment = {
+    __typename?: 'ProductVariantVersion'
+    id: any
+    name: string
+    description: string
+    retailPrice: number
+    canBeReturnedForDays?: number | null
+    version: number
+    createdAt: any
+}
+
+type Characteristic_CategoricalCategoryCharacteristic_Fragment = {
+    __typename: 'CategoricalCategoryCharacteristic'
+    id: any
+    name: string
+    values: {
+        __typename?: 'CategoricalCategoryCharacteristicValueConnection'
+        totalCount: number
+        nodes: Array<{
+            __typename?: 'CategoricalCategoryCharacteristicValue'
+            value: string
+        }>
+    }
+}
+
+type Characteristic_NumericalCategoryCharacteristic_Fragment = {
+    __typename: 'NumericalCategoryCharacteristic'
+    unit: string
+    id: any
+    name: string
+}
+
+export type CharacteristicFragment =
+    | Characteristic_CategoricalCategoryCharacteristic_Fragment
+    | Characteristic_NumericalCategoryCharacteristic_Fragment
+
+export type GetDefaultProductVariantsQueryVariables = Exact<{
     first?: InputMaybe<Scalars['Int']['input']>
     skip?: InputMaybe<Scalars['Int']['input']>
     orderBy?: InputMaybe<ProductOrderInput>
 }>
 
-export type GetProductsQuery = {
+export type GetDefaultProductVariantsQuery = {
     __typename?: 'Query'
     products: {
         __typename?: 'ProductConnection'
-        hasNextPage: boolean
         totalCount: number
+        hasNextPage: boolean
         nodes: Array<{
             __typename?: 'Product'
-            internalName: string
-            isPubliclyVisible: boolean
             id: any
+            isPubliclyVisible: boolean
             defaultVariant: {
                 __typename?: 'ProductVariant'
-                isPubliclyVisible: boolean
                 id: any
+                isPubliclyVisible: boolean
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
-                    name: string
-                    retailPrice: number
                     id: any
+                    name: string
+                    description: string
+                    retailPrice: number
+                    canBeReturnedForDays?: number | null
+                    version: number
+                    createdAt: any
                 }
+            }
+            variants: {
+                __typename?: 'ProductVariantConnection'
+                totalCount: number
             }
         }>
     }
 }
 
-export type GetCategoryWithAssociatedProductsQueryVariables = Exact<{
-    id: Scalars['UUID']['input']
-    firstProducts?: InputMaybe<Scalars['Int']['input']>
-    skipProducts?: InputMaybe<Scalars['Int']['input']>
-    orderProductsBy?: InputMaybe<ProductOrderInput>
-}>
+export type GetCategoryWithCharacteristicsAndDefaultProductVariantsQueryVariables =
+    Exact<{
+        id: Scalars['UUID']['input']
+        firstProducts?: InputMaybe<Scalars['Int']['input']>
+        skipProducts?: InputMaybe<Scalars['Int']['input']>
+        orderProductsBy?: InputMaybe<ProductOrderInput>
+    }>
 
-export type GetCategoryWithAssociatedProductsQuery = {
+export type GetCategoryWithCharacteristicsAndDefaultProductVariantsQuery = {
     __typename?: 'Query'
     category: {
         __typename?: 'Category'
-        description: string
-        name: string
         id: any
+        name: string
+        description: string
+        characteristics: {
+            __typename?: 'CategoryCharacteristicConnection'
+            totalCount: number
+            nodes: Array<
+                | {
+                      __typename: 'CategoricalCategoryCharacteristic'
+                      id: any
+                      name: string
+                      values: {
+                          __typename?: 'CategoricalCategoryCharacteristicValueConnection'
+                          totalCount: number
+                          nodes: Array<{
+                              __typename?: 'CategoricalCategoryCharacteristicValue'
+                              value: string
+                          }>
+                      }
+                  }
+                | {
+                      __typename: 'NumericalCategoryCharacteristic'
+                      unit: string
+                      id: any
+                      name: string
+                  }
+            >
+        }
         products: {
             __typename?: 'ProductConnection'
-            hasNextPage: boolean
             totalCount: number
+            hasNextPage: boolean
             nodes: Array<{
                 __typename?: 'Product'
-                internalName: string
-                isPubliclyVisible: boolean
                 id: any
+                isPubliclyVisible: boolean
                 defaultVariant: {
                     __typename?: 'ProductVariant'
-                    isPubliclyVisible: boolean
                     id: any
+                    isPubliclyVisible: boolean
                     currentVersion: {
                         __typename?: 'ProductVariantVersion'
-                        name: string
-                        retailPrice: number
                         id: any
+                        name: string
+                        description: string
+                        retailPrice: number
+                        canBeReturnedForDays?: number | null
+                        version: number
+                        createdAt: any
                     }
+                }
+                variants: {
+                    __typename?: 'ProductVariantConnection'
+                    totalCount: number
                 }
             }>
         }
+    }
+}
+
+export type GetCategoriesWithTotalCountOfProductsQueryVariables = Exact<{
+    first?: InputMaybe<Scalars['Int']['input']>
+    skip?: InputMaybe<Scalars['Int']['input']>
+    orderBy?: InputMaybe<CategoryOrderInput>
+}>
+
+export type GetCategoriesWithTotalCountOfProductsQuery = {
+    __typename?: 'Query'
+    categories: {
+        __typename?: 'CategoryConnection'
+        totalCount: number
+        hasNextPage: boolean
+        nodes: Array<{
+            __typename?: 'Category'
+            id: any
+            name: string
+            products: { __typename?: 'ProductConnection'; totalCount: number }
+        }>
+    }
+}
+
+export type GetCategoriesWithCharacteristicsQueryVariables = Exact<{
+    first?: InputMaybe<Scalars['Int']['input']>
+    skip?: InputMaybe<Scalars['Int']['input']>
+    orderBy?: InputMaybe<CategoryOrderInput>
+}>
+
+export type GetCategoriesWithCharacteristicsQuery = {
+    __typename?: 'Query'
+    categories: {
+        __typename?: 'CategoryConnection'
+        totalCount: number
+        hasNextPage: boolean
+        nodes: Array<{
+            __typename?: 'Category'
+            id: any
+            name: string
+            characteristics: {
+                __typename?: 'CategoryCharacteristicConnection'
+                totalCount: number
+                nodes: Array<
+                    | {
+                          __typename: 'CategoricalCategoryCharacteristic'
+                          id: any
+                          name: string
+                          values: {
+                              __typename?: 'CategoricalCategoryCharacteristicValueConnection'
+                              totalCount: number
+                              nodes: Array<{
+                                  __typename?: 'CategoricalCategoryCharacteristicValue'
+                                  value: string
+                              }>
+                          }
+                      }
+                    | {
+                          __typename: 'NumericalCategoryCharacteristic'
+                          unit: string
+                          id: any
+                          name: string
+                      }
+                >
+            }
+        }>
     }
 }
 
@@ -426,17 +693,12 @@ export type GetProductQuery = {
     __typename?: 'Query'
     product: {
         __typename?: 'Product'
-        internalName: string
-        isPubliclyVisible: boolean
         id: any
-        categories: {
-            __typename?: 'CategoryConnection'
-            nodes: Array<{ __typename?: 'Category'; name: string; id: any }>
-        }
+        isPubliclyVisible: boolean
+        internalName: string
         defaultVariant: { __typename?: 'ProductVariant'; id: any }
         variants: {
             __typename?: 'ProductVariantConnection'
-            hasNextPage: boolean
             totalCount: number
             nodes: Array<{
                 __typename?: 'ProductVariant'
@@ -444,13 +706,14 @@ export type GetProductQuery = {
                 isPubliclyVisible: boolean
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
-                    description: string
                     id: any
                     name: string
+                    description: string
                     retailPrice: number
+                    version: number
+                    createdAt: any
                     characteristicValues: {
                         __typename?: 'CategoryCharacteristicValueConnection'
-                        hasNextPage: boolean
                         totalCount: number
                         nodes: Array<
                             | {
@@ -461,11 +724,19 @@ export type GetProductQuery = {
                                             __typename?: 'CategoricalCategoryCharacteristic'
                                             id: any
                                             name: string
+                                            category: {
+                                                __typename?: 'Category'
+                                                id: any
+                                            }
                                         }
                                       | {
                                             __typename?: 'NumericalCategoryCharacteristic'
                                             id: any
                                             name: string
+                                            category: {
+                                                __typename?: 'Category'
+                                                id: any
+                                            }
                                         }
                               }
                             | {
@@ -476,17 +747,30 @@ export type GetProductQuery = {
                                             __typename?: 'CategoricalCategoryCharacteristic'
                                             id: any
                                             name: string
+                                            category: {
+                                                __typename?: 'Category'
+                                                id: any
+                                            }
                                         }
                                       | {
                                             __typename?: 'NumericalCategoryCharacteristic'
                                             id: any
                                             name: string
+                                            category: {
+                                                __typename?: 'Category'
+                                                id: any
+                                            }
                                         }
                               }
                         >
                     }
                 }
             }>
+        }
+        categories: {
+            __typename?: 'CategoryConnection'
+            totalCount: number
+            nodes: Array<{ __typename?: 'Category'; id: any; name: string }>
         }
     }
 }
@@ -509,29 +793,14 @@ export type CreateProductVariantMutation = {
     createProductVariant: { __typename?: 'ProductVariant'; id: any }
 }
 
-export type GetAllCategoriesQueryVariables = Exact<{
-    orderBy?: InputMaybe<CategoryOrderInput>
+export type CreateNewProductVariantVersionMutationVariables = Exact<{
+    input: CreateProductVariantVersionInput
 }>
 
-export type GetAllCategoriesQuery = {
-    __typename?: 'Query'
-    categories: {
-        __typename?: 'CategoryConnection'
-        totalCount: number
-        nodes: Array<{ __typename?: 'Category'; id: any; name: string }>
-    }
-}
-
-export type GetCategoryQueryVariables = Exact<{
-    id: Scalars['UUID']['input']
-}>
-
-export type GetCategoryQuery = {
-    __typename?: 'Query'
-    category: {
-        __typename?: 'Category'
-        description: string
-        name: string
+export type CreateNewProductVariantVersionMutation = {
+    __typename?: 'Mutation'
+    createProductVariantVersion: {
+        __typename?: 'ProductVariantVersion'
         id: any
     }
 }
@@ -545,91 +814,198 @@ export type CreateCategoryMutation = {
     createCategory: { __typename?: 'Category'; id: any }
 }
 
-export const GetProductsDocument = gql`
-    query getProducts($first: Int, $skip: Int, $orderBy: ProductOrderInput) {
-        products(first: $first, skip: $skip, orderBy: $orderBy) {
-            hasNextPage
-            nodes {
-                internalName
-                isPubliclyVisible
-                id
-                defaultVariant {
-                    isPubliclyVisible
-                    id
-                    currentVersion {
-                        name
-                        retailPrice
-                        id
-                    }
-                }
+export type CreateCategoricalCategoryCharacteristicMutationVariables = Exact<{
+    input: CreateCategoricalCategoryCharacteristicInput
+}>
+
+export type CreateCategoricalCategoryCharacteristicMutation = {
+    __typename?: 'Mutation'
+    createCategoricalCategoryCharacteristic: {
+        __typename?: 'CategoricalCategoryCharacteristic'
+        id: any
+    }
+}
+
+export type CreateNumericalCategoryCharacteristicMutationVariables = Exact<{
+    input: CreateNumericalCategoryCharacteristicInput
+}>
+
+export type CreateNumericalCategoryCharacteristicMutation = {
+    __typename?: 'Mutation'
+    createNumericalCategoryCharacteristic: {
+        __typename?: 'NumericalCategoryCharacteristic'
+        id: any
+    }
+}
+
+export const CurrentVersionFragmentDoc = gql`
+    fragment currentVersion on ProductVariantVersion {
+        id
+        name
+        description
+        retailPrice
+        canBeReturnedForDays
+        version
+        createdAt
+    }
+`
+export const DefaultProductVariantFragmentDoc = gql`
+    fragment defaultProductVariant on Product {
+        id
+        isPubliclyVisible
+        defaultVariant {
+            id
+            isPubliclyVisible
+            currentVersion {
+                ...currentVersion
             }
+        }
+        variants {
             totalCount
         }
     }
+    ${CurrentVersionFragmentDoc}
 `
-export const GetCategoryWithAssociatedProductsDocument = gql`
-    query getCategoryWithAssociatedProducts(
+export const CharacteristicFragmentDoc = gql`
+    fragment characteristic on CategoryCharacteristic {
+        __typename
+        id
+        name
+        ... on CategoricalCategoryCharacteristic {
+            values {
+                totalCount
+                nodes {
+                    value
+                }
+            }
+        }
+        ... on NumericalCategoryCharacteristic {
+            unit
+        }
+    }
+`
+export const GetDefaultProductVariantsDocument = gql`
+    query getDefaultProductVariants(
+        $first: Int
+        $skip: Int
+        $orderBy: ProductOrderInput
+    ) {
+        products(first: $first, skip: $skip, orderBy: $orderBy) {
+            totalCount
+            hasNextPage
+            nodes {
+                ...defaultProductVariant
+            }
+        }
+    }
+    ${DefaultProductVariantFragmentDoc}
+`
+export const GetCategoryWithCharacteristicsAndDefaultProductVariantsDocument = gql`
+    query getCategoryWithCharacteristicsAndDefaultProductVariants(
         $id: UUID!
         $firstProducts: Int
         $skipProducts: Int
         $orderProductsBy: ProductOrderInput
     ) {
         category(id: $id) {
-            description
-            name
             id
+            name
+            description
+            characteristics {
+                totalCount
+                nodes {
+                    ...characteristic
+                }
+            }
             products(
                 first: $firstProducts
                 skip: $skipProducts
                 orderBy: $orderProductsBy
             ) {
+                totalCount
                 hasNextPage
                 nodes {
-                    internalName
-                    isPubliclyVisible
-                    id
-                    defaultVariant {
-                        isPubliclyVisible
-                        id
-                        currentVersion {
-                            name
-                            retailPrice
-                            id
-                        }
-                    }
+                    ...defaultProductVariant
                 }
-                totalCount
+            }
+        }
+    }
+    ${CharacteristicFragmentDoc}
+    ${DefaultProductVariantFragmentDoc}
+`
+export const GetCategoriesWithTotalCountOfProductsDocument = gql`
+    query getCategoriesWithTotalCountOfProducts(
+        $first: Int
+        $skip: Int
+        $orderBy: CategoryOrderInput
+    ) {
+        categories(first: $first, skip: $skip, orderBy: $orderBy) {
+            totalCount
+            hasNextPage
+            nodes {
+                id
+                name
+                products {
+                    totalCount
+                }
             }
         }
     }
 `
+export const GetCategoriesWithCharacteristicsDocument = gql`
+    query getCategoriesWithCharacteristics(
+        $first: Int
+        $skip: Int
+        $orderBy: CategoryOrderInput
+    ) {
+        categories(first: $first, skip: $skip, orderBy: $orderBy) {
+            totalCount
+            hasNextPage
+            nodes {
+                id
+                name
+                characteristics {
+                    totalCount
+                    nodes {
+                        ...characteristic
+                    }
+                }
+            }
+        }
+    }
+    ${CharacteristicFragmentDoc}
+`
 export const GetProductDocument = gql`
     query getProduct($id: UUID!) {
         product(id: $id) {
-            internalName
-            isPubliclyVisible
             id
-            categories {
-                nodes {
-                    name
-                    id
-                }
-            }
+            isPubliclyVisible
+            internalName
             defaultVariant {
                 id
             }
             variants {
-                hasNextPage
+                totalCount
                 nodes {
                     id
+                    isPubliclyVisible
                     currentVersion {
+                        id
+                        name
+                        description
+                        retailPrice
+                        version
+                        createdAt
                         characteristicValues {
-                            hasNextPage
+                            totalCount
                             nodes {
                                 __typename
                                 characteristic {
                                     id
                                     name
+                                    category {
+                                        id
+                                    }
                                 }
                                 ... on CategoricalCategoryCharacteristicValue {
                                     categoricalValue: value
@@ -638,16 +1014,16 @@ export const GetProductDocument = gql`
                                     numericalValue: value
                                 }
                             }
-                            totalCount
                         }
-                        description
-                        id
-                        name
-                        retailPrice
                     }
-                    isPubliclyVisible
                 }
+            }
+            categories {
                 totalCount
+                nodes {
+                    id
+                    name
+                }
             }
         }
     }
@@ -666,22 +1042,11 @@ export const CreateProductVariantDocument = gql`
         }
     }
 `
-export const GetAllCategoriesDocument = gql`
-    query getAllCategories($orderBy: CategoryOrderInput) {
-        categories(orderBy: $orderBy) {
-            nodes {
-                id
-                name
-            }
-            totalCount
-        }
-    }
-`
-export const GetCategoryDocument = gql`
-    query getCategory($id: UUID!) {
-        category(id: $id) {
-            description
-            name
+export const CreateNewProductVariantVersionDocument = gql`
+    mutation createNewProductVariantVersion(
+        $input: CreateProductVariantVersionInput!
+    ) {
+        createProductVariantVersion(input: $input) {
             id
         }
     }
@@ -689,6 +1054,24 @@ export const GetCategoryDocument = gql`
 export const CreateCategoryDocument = gql`
     mutation createCategory($input: CreateCategoryInput!) {
         createCategory(input: $input) {
+            id
+        }
+    }
+`
+export const CreateCategoricalCategoryCharacteristicDocument = gql`
+    mutation createCategoricalCategoryCharacteristic(
+        $input: CreateCategoricalCategoryCharacteristicInput!
+    ) {
+        createCategoricalCategoryCharacteristic(input: $input) {
+            id
+        }
+    }
+`
+export const CreateNumericalCategoryCharacteristicDocument = gql`
+    mutation createNumericalCategoryCharacteristic(
+        $input: CreateNumericalCategoryCharacteristicInput!
+    ) {
+        createNumericalCategoryCharacteristic(input: $input) {
             id
         }
     }
@@ -713,34 +1096,66 @@ export function getSdk(
     withWrapper: SdkFunctionWrapper = defaultWrapper
 ) {
     return {
-        getProducts(
-            variables?: GetProductsQueryVariables,
+        getDefaultProductVariants(
+            variables?: GetDefaultProductVariantsQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetProductsQuery> {
+        ): Promise<GetDefaultProductVariantsQuery> {
             return withWrapper(
                 (wrappedRequestHeaders) =>
-                    client.request<GetProductsQuery>(
-                        GetProductsDocument,
+                    client.request<GetDefaultProductVariantsQuery>(
+                        GetDefaultProductVariantsDocument,
                         variables,
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
-                'getProducts',
+                'getDefaultProductVariants',
                 'query',
                 variables
             )
         },
-        getCategoryWithAssociatedProducts(
-            variables: GetCategoryWithAssociatedProductsQueryVariables,
+        getCategoryWithCharacteristicsAndDefaultProductVariants(
+            variables: GetCategoryWithCharacteristicsAndDefaultProductVariantsQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetCategoryWithAssociatedProductsQuery> {
+        ): Promise<GetCategoryWithCharacteristicsAndDefaultProductVariantsQuery> {
             return withWrapper(
                 (wrappedRequestHeaders) =>
-                    client.request<GetCategoryWithAssociatedProductsQuery>(
-                        GetCategoryWithAssociatedProductsDocument,
+                    client.request<GetCategoryWithCharacteristicsAndDefaultProductVariantsQuery>(
+                        GetCategoryWithCharacteristicsAndDefaultProductVariantsDocument,
                         variables,
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
-                'getCategoryWithAssociatedProducts',
+                'getCategoryWithCharacteristicsAndDefaultProductVariants',
+                'query',
+                variables
+            )
+        },
+        getCategoriesWithTotalCountOfProducts(
+            variables?: GetCategoriesWithTotalCountOfProductsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetCategoriesWithTotalCountOfProductsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetCategoriesWithTotalCountOfProductsQuery>(
+                        GetCategoriesWithTotalCountOfProductsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getCategoriesWithTotalCountOfProducts',
+                'query',
+                variables
+            )
+        },
+        getCategoriesWithCharacteristics(
+            variables?: GetCategoriesWithCharacteristicsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetCategoriesWithCharacteristicsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetCategoriesWithCharacteristicsQuery>(
+                        GetCategoriesWithCharacteristicsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getCategoriesWithCharacteristics',
                 'query',
                 variables
             )
@@ -793,35 +1208,19 @@ export function getSdk(
                 variables
             )
         },
-        getAllCategories(
-            variables?: GetAllCategoriesQueryVariables,
+        createNewProductVariantVersion(
+            variables: CreateNewProductVariantVersionMutationVariables,
             requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetAllCategoriesQuery> {
+        ): Promise<CreateNewProductVariantVersionMutation> {
             return withWrapper(
                 (wrappedRequestHeaders) =>
-                    client.request<GetAllCategoriesQuery>(
-                        GetAllCategoriesDocument,
+                    client.request<CreateNewProductVariantVersionMutation>(
+                        CreateNewProductVariantVersionDocument,
                         variables,
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
-                'getAllCategories',
-                'query',
-                variables
-            )
-        },
-        getCategory(
-            variables: GetCategoryQueryVariables,
-            requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetCategoryQuery> {
-            return withWrapper(
-                (wrappedRequestHeaders) =>
-                    client.request<GetCategoryQuery>(
-                        GetCategoryDocument,
-                        variables,
-                        { ...requestHeaders, ...wrappedRequestHeaders }
-                    ),
-                'getCategory',
-                'query',
+                'createNewProductVariantVersion',
+                'mutation',
                 variables
             )
         },
@@ -837,6 +1236,38 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'createCategory',
+                'mutation',
+                variables
+            )
+        },
+        createCategoricalCategoryCharacteristic(
+            variables: CreateCategoricalCategoryCharacteristicMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateCategoricalCategoryCharacteristicMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateCategoricalCategoryCharacteristicMutation>(
+                        CreateCategoricalCategoryCharacteristicDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createCategoricalCategoryCharacteristic',
+                'mutation',
+                variables
+            )
+        },
+        createNumericalCategoryCharacteristic(
+            variables: CreateNumericalCategoryCharacteristicMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateNumericalCategoryCharacteristicMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateNumericalCategoryCharacteristicMutation>(
+                        CreateNumericalCategoryCharacteristicDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createNumericalCategoryCharacteristic',
                 'mutation',
                 variables
             )

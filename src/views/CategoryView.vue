@@ -35,7 +35,7 @@ const id = computed(() => {
  */
 const category = asyncComputed(
     async () => {
-        return client.getCategory({
+        return client.getCategoryWithCharacteristicsAndDefaultProductVariants({
             id: id.value,
         })
     },

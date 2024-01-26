@@ -52,7 +52,7 @@ const client = useClient()
  */
 const getAllCategoriesResult = asyncComputed(
     async () => {
-        return client.getAllCategories({
+        return client.getCategoriesWithTotalCountOfProducts({
             orderBy: {
                 direction: OrderDirection.Asc,
                 field: CategoryOrderField.Name,

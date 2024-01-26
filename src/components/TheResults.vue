@@ -4,6 +4,7 @@
             <v-list-item>
                 <ProductSummary
                     :product-id="product.id"
+                    :product-variant-id="product.defaultVariant.id"
                     :internal-name="product.defaultVariant.currentVersion.name"
                     :price="product.defaultVariant.currentVersion.retailPrice"
                     :retail-price="
@@ -59,18 +60,20 @@ const productConnection = asyncComputed(
     async () => {
         if (props.categoryId) {
             var categoryWithAssociatedProducts =
-                await client.getCategoryWithAssociatedProducts({
-                    id: props.categoryId,
-                    firstProducts: perPage.value,
-                    skipProducts: (currentPage.value - 1) * perPage.value,
-                    orderProductsBy: {
-                        direction: OrderDirection.Asc,
-                        field: ProductOrderField.InternalName,
-                    },
-                })
+                await client.getCategoryWithCharacteristicsAndDefaultProductVariants(
+                    {
+                        id: props.categoryId,
+                        firstProducts: perPage.value,
+                        skipProducts: (currentPage.value - 1) * perPage.value,
+                        orderProductsBy: {
+                            direction: OrderDirection.Asc,
+                            field: ProductOrderField.InternalName,
+                        },
+                    }
+                )
             return categoryWithAssociatedProducts.category.products
         } else {
-            var products = await client.getProducts({
+            var products = await client.getDefaultProductVariants({
                 first: perPage.value,
                 skip: (currentPage.value - 1) * perPage.value,
                 orderBy: {
