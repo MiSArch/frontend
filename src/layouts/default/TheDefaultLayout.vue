@@ -26,7 +26,13 @@
                 </v-list-group>
             </v-list>
         </v-navigation-drawer>
-        <v-navigation-drawer class="bg-grey-lighten-4" expand-on-hover floating location="right" rail>
+        <v-navigation-drawer
+            class="bg-grey-lighten-4"
+            expand-on-hover
+            floating
+            location="right"
+            rail
+        >
             <v-list density="default" nav>
                 <v-list-item
                     prepend-icon="mdi-playlist-edit"
