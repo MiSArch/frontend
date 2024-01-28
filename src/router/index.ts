@@ -29,6 +29,16 @@ const routes = [
                 name: 'Category',
                 component: () => import('@/views/CategoryView.vue'),
             },
+            {
+                path: 'manage-products',
+                name: 'Manage Products',
+                component: () => import('@/views/ManageProductsView.vue'),
+            },
+            {
+                path: 'manage-categories',
+                name: 'Manage Categories',
+                component: () => import('@/views/ManageCategoriesView.vue'),
+            },
         ],
     },
 ]

@@ -1,7 +1,7 @@
 <template>
     <v-app>
         <TheAppBar />
-        <v-navigation-drawer location="start">
+        <v-navigation-drawer location="start" floating>
             <v-list density="compact" nav>
                 <v-list-item
                     title="All Products"
@@ -24,6 +24,26 @@
                         }"
                     ></v-list-item>
                 </v-list-group>
+            </v-list>
+        </v-navigation-drawer>
+        <v-navigation-drawer
+            class="bg-grey-lighten-4"
+            expand-on-hover
+            floating
+            location="right"
+            rail
+        >
+            <v-list density="default" nav>
+                <v-list-item
+                    prepend-icon="mdi-playlist-edit"
+                    title="Manage Products"
+                    :to="{ name: 'Manage Products' }"
+                ></v-list-item>
+                <v-list-item
+                    prepend-icon="mdi-view-dashboard-edit"
+                    title="Manage Categories"
+                    :to="{ name: 'Manage Categories' }"
+                ></v-list-item>
             </v-list>
         </v-navigation-drawer>
         <TheViewPlaceholder />
