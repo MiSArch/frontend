@@ -1,76 +1,148 @@
-query getProducts($first: Int, $skip: Int, $orderBy: ProductOrderInput) {
-  products(first: $first, skip: $skip, orderBy: $orderBy) {
-    hasNextPage
-    nodes {
-      internalName
-      isPubliclyVisible
-      id
-      defaultVariant {
-        isPubliclyVisible
-        id
-        currentVersion {
-          name
-          retailPrice
-          id
-        }
-      }
+# Fragments:
+
+fragment defaultProductVariant on Product {
+  id
+  isPubliclyVisible
+  defaultVariant {
+    id
+    isPubliclyVisible
+    currentVersion {
+      ...currentVersion
     }
+  }
+  variants {
     totalCount
   }
 }
 
-query getCategoryWithAssociatedProducts($id: UUID!, $firstProducts: Int, $skipProducts: Int, $orderProductsBy: ProductOrderInput) {
-  category(id: $id) {
-    description
-    name
-    id
-    products(first: $firstProducts, skip: $skipProducts, orderBy: $orderProductsBy) {
-      hasNextPage
-      nodes {
-        internalName
-        isPubliclyVisible
-        id
-        defaultVariant {
-          isPubliclyVisible
-          id
-          currentVersion {
-            name
-            retailPrice
-            id
-          }
-        }
-      }
+fragment currentVersion on ProductVariantVersion {
+  id
+  name
+  description
+  retailPrice
+  canBeReturnedForDays
+  version
+  createdAt
+}
+
+fragment characteristic on CategoryCharacteristic {
+  __typename
+  id
+  name
+  ... on CategoricalCategoryCharacteristic {
+    values {
       totalCount
+      nodes {
+        value
+      }
+    }
+  }
+  ... on NumericalCategoryCharacteristic {
+    unit
+  }
+}
+
+# Queries:
+
+# Gets all of the products. However, only their default product variants.
+query getDefaultProductVariants($first: Int, $skip: Int, $orderBy: ProductOrderInput) {
+  products(first: $first, skip: $skip, orderBy: $orderBy) {
+    totalCount
+    hasNextPage
+    nodes {
+      ... defaultProductVariant
     }
   }
 }
 
-query getProduct($id: UUID!) {
-  product(id: $id) {
-    internalName
-    isPubliclyVisible
+# Gets a single category. 
+# Of that category, it gets the category's characteristics and 
+# all of the category's default product variants.
+query getCategoryWithCharacteristicsAndDefaultProductVariants($id: UUID!, $firstProducts: Int, $skipProducts: Int, $orderProductsBy: ProductOrderInput) {
+  category(id: $id) {
     id
-    categories {
+    name
+    description
+    characteristics {
+      totalCount
       nodes {
-        name
-        id
+        ... characteristic
       }
     }
+    products(first: $firstProducts, skip: $skipProducts, orderBy: $orderProductsBy) {
+      totalCount
+      hasNextPage
+      nodes {
+        ... defaultProductVariant
+      }
+    }
+  }
+}
+
+# Gets all of the categories and their individual total count of products.
+query getCategoriesWithTotalCountOfProducts($first: Int, $skip: Int, $orderBy: CategoryOrderInput) {
+  categories(first: $first, skip: $skip, orderBy: $orderBy) {
+    totalCount
+    hasNextPage
+    nodes {
+      id
+      name
+      products {
+        totalCount
+      }
+    }
+  }
+}
+
+# Gets all of the categories and their individual category characteristics.
+query getCategoriesWithCharacteristics($first: Int, $skip: Int, $orderBy: CategoryOrderInput) {
+  categories(first: $first, skip: $skip, orderBy: $orderBy) {
+    totalCount
+    hasNextPage
+    nodes {
+      id
+      name
+      characteristics {
+        totalCount
+        nodes {
+          ... characteristic
+        }
+      }
+    }
+  }
+}
+
+# Gets a single product.
+query getProduct($id: UUID!) {
+  product(id: $id) {
+    id
+    isPubliclyVisible
+    internalName
     defaultVariant {
       id
     }
     variants {
-      hasNextPage
+      totalCount
       nodes {
         id
+        isPubliclyVisible
         currentVersion {
+          id
+          name
+          description
+          retailPrice
+          version
+          createdAt
           characteristicValues {
-            hasNextPage
+            totalCount
             nodes {
               __typename
               characteristic {
                 id
                 name
+                category {
+                  id
+                }
               }
               ... on CategoricalCategoryCharacteristicValue {
                 categoricalValue: value
@@ -79,19 +151,21 @@ query getProduct($id: UUID!) {
                 numericalValue: value
               }
             }
-            totalCount
           }
-          description
-          id
-          name
-          retailPrice
         }
-        isPubliclyVisible
       }
+    }
+    categories {
       totalCount
+      nodes {
+        id
+        name
+      }
     }
   }
 }
+
+# Mutations:
 
 mutation createProduct($input: CreateProductInput!) {
     createProduct(input: $input) {
@@ -105,26 +179,26 @@ mutation createProductVariant($input: CreateProductVariantInput!) {
     }
 }
 
-query getAllCategories($orderBy: CategoryOrderInput) {
-  categories(orderBy: $orderBy) {
-    nodes {
-      id
-      name
-    }
-    totalCount
-  }
-}
-
-query getCategory($id: UUID!) {
-  category(id: $id) {
-    description
-    name
+mutation createNewProductVariantVersion($input: CreateProductVariantVersionInput!) {
+  createProductVariantVersion(input: $input) {
     id
   }
 }
 
 mutation createCategory($input: CreateCategoryInput!) {
   createCategory(input: $input) {
+    id
+  }
+}
+
+mutation createCategoricalCategoryCharacteristic($input: CreateCategoricalCategoryCharacteristicInput!) {
+  createCategoricalCategoryCharacteristic(input: $input) {
+    id
+  }
+}
+
+mutation createNumericalCategoryCharacteristic($input: CreateNumericalCategoryCharacteristicInput!) {
+  createNumericalCategoryCharacteristic(input: $input) {
     id
   }
 }

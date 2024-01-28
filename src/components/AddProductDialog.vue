@@ -206,7 +206,7 @@ const variants = ref<ProductVariant[]>([])
  */
 const getAllCategoriesResult = asyncComputed(
     async () => {
-        return client.getAllCategories({
+        return client.getCategoriesWithCharacteristics({
             orderBy: {
                 direction: OrderDirection.Asc,
                 field: CategoryOrderField.Name,
