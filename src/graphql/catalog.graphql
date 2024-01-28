@@ -55,7 +55,7 @@ query getDefaultProductVariants($first: Int, $skip: Int, $orderBy: ProductOrderI
   }
 }
 
-# Gets a singel category. 
+# Gets a single category. 
 # Of that category, it gets the category's characteristics and 
 # all of the category's default product variants.
 query getCategoryWithCharacteristicsAndDefaultProductVariants($id: UUID!, $firstProducts: Int, $skipProducts: Int, $orderProductsBy: ProductOrderInput) {
