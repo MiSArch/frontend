@@ -710,6 +710,7 @@ export type GetProductQuery = {
                     name: string
                     description: string
                     retailPrice: number
+                    canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
                     characteristicValues: {
@@ -994,6 +995,7 @@ export const GetProductDocument = gql`
                         name
                         description
                         retailPrice
+                        canBeReturnedForDays
                         version
                         createdAt
                         characteristicValues {
