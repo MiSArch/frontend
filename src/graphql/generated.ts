@@ -635,7 +635,22 @@ export type GetCategoriesWithTotalCountOfProductsQuery = {
             __typename?: 'Category'
             id: any
             name: string
-            products: { __typename?: 'ProductConnection'; totalCount: number }
+            products: {
+                __typename?: 'ProductConnection'
+                totalCount: number
+                nodes: Array<{
+                    __typename?: 'Product'
+                    isPubliclyVisible: boolean
+                    variants: {
+                        __typename?: 'ProductVariantConnection'
+                        totalCount: number
+                        nodes: Array<{
+                            __typename?: 'ProductVariant'
+                            isPubliclyVisible: boolean
+                        }>
+                    }
+                }>
+            }
         }>
     }
 }
@@ -948,6 +963,15 @@ export const GetCategoriesWithTotalCountOfProductsDocument = gql`
                 name
                 products {
                     totalCount
+                    nodes {
+                        isPubliclyVisible
+                        variants {
+                            totalCount
+                            nodes {
+                                isPubliclyVisible
+                            }
+                        }
+                    }
                 }
             }
         }

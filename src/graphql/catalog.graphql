@@ -79,7 +79,8 @@ query getCategoryWithCharacteristicsAndDefaultProductVariants($id: UUID!, $first
   }
 }
 
-# Gets all of the categories and their individual total count of products.
+# Gets all categories and their individual total count of products and all of a category's products. 
+# Note that a product only comes with information regarding its public visibility and its variants' public visibility.
 query getCategoriesWithTotalCountOfProducts($first: Int, $skip: Int, $orderBy: CategoryOrderInput) {
   categories(first: $first, skip: $skip, orderBy: $orderBy) {
     totalCount
@@ -89,6 +90,15 @@ query getCategoriesWithTotalCountOfProducts($first: Int, $skip: Int, $orderBy: C
       name
       products {
         totalCount
+        nodes {
+          isPubliclyVisible
+          variants {
+            totalCount
+            nodes {
+              isPubliclyVisible
+            }
+          }
+        }
       }
     }
   }
