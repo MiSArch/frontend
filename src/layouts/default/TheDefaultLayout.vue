@@ -8,7 +8,10 @@
                     :to="{ name: 'Products' }"
                 ></v-list-item>
                 <v-divider class="mb-1"></v-divider>
-                <v-list-group value="Categories">
+                <v-list-group
+                    v-if="hasAtLeastOneCategoryWithAtLeastOneVisibleProduct"
+                    value="Categories"
+                >
                     <template v-slot:activator="{ props }">
                         <v-list-item
                             v-bind="props"
@@ -16,7 +19,7 @@
                         ></v-list-item>
                     </template>
                     <v-list-item
-                        v-for="category in allCategories"
+                        v-for="category in categoriesWithAtLeastOneVisibleProduct"
                         :title="category.name"
                         :to="{
                             name: 'Category',
@@ -70,7 +73,7 @@ const client = useClient()
  * The returned categores are expected to be ordered by their names
  * in ascending order.
  */
-const getAllCategoriesResult = asyncComputed(
+const categoriesWithTotalCountOfProducts = asyncComputed(
     async () => {
         return client.getCategoriesWithTotalCountOfProducts({
             orderBy: {
@@ -84,9 +87,52 @@ const getAllCategoriesResult = asyncComputed(
 )
 
 /**
- * Gets only the categories -- the entities -- from getAllCategoriesResult.
+ * Filters the loaded categories (see the const categoriesWithTotalCountOfProducts)
+ * to only include categories that have at least one visible product.
+ * A product is considered visible if the product is publicly visible and
+ * it has at least one visible product variant.
  */
-const allCategories = computed(
-    () => getAllCategoriesResult.value?.categories?.nodes ?? []
-)
+const categoriesWithAtLeastOneVisibleProduct = computed(() => {
+    if (categoriesWithTotalCountOfProducts.value == null) {
+        return []
+    }
+
+    const totalCountOfCategories =
+        categoriesWithTotalCountOfProducts.value.categories.totalCount
+    if (totalCountOfCategories == 0) {
+        return []
+    }
+
+    return categoriesWithTotalCountOfProducts.value.categories.nodes.filter(
+        (category) =>
+            category.products.nodes.filter(
+                (product) =>
+                    product.isPubliclyVisible &&
+                    product.variants.nodes.filter(
+                        (variant) => variant.isPubliclyVisible
+                    ).length > 0
+            ).length > 0
+    )
+})
+
+/**
+ * Whether or not there is at least one category
+ * that has at least one visible product.
+ */
+const hasAtLeastOneCategoryWithAtLeastOneVisibleProduct = computed(() => {
+    if (categoriesWithTotalCountOfProducts.value == null) {
+        return false
+    }
+
+    const totalCountOfCategories =
+        categoriesWithTotalCountOfProducts.value.categories.totalCount
+    if (totalCountOfCategories == 0) {
+        return false
+    }
+
+    return (
+        categoriesWithAtLeastOneVisibleProduct &&
+        categoriesWithAtLeastOneVisibleProduct.value.length > 0
+    )
+})
 </script>
