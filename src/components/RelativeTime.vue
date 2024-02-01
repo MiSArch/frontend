@@ -72,9 +72,9 @@ function formatRelativeTime(from: Date, to: Date): string {
  *
  * @param {Date} date - The Date object representing the absolute date and time.
  * @returns {string} A formatted string representing the given Date object.
- * 
+ *
  * @throws {Error} Throws an error if the formatting process encounters an issue.
- * 
+ *
  * @example
  * const currentDate = new Date();
  * const formattedTime = formatAbsoluteTime(currentDate);
@@ -92,11 +92,11 @@ function formatAbsoluteTime(date: Date): string {
  *
  * @param {Date} date - The Date object to be checked for validity.
  * @returns {boolean} Returns true if the provided Date is valid, otherwise returns false.
- * 
+ *
  * @example
  * const validDate = new Date('2022-01-15');
  * const isValid = dateIsValid(validDate); // Returns true
- * 
+ *
  * const invalidDate = new Date('invalid date');
  * const isValid = dateIsValid(invalidDate); // Returns false
  */
