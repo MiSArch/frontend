@@ -1,15 +1,32 @@
 <template>
     <div class="d-flex flex-column ga-4">
         <div>
-            <v-btn
-                class="mx-4"
-                prepend-icon="mdi-arrow-left"
-                :to="{ name: 'Storefront' }"
-            >
-                Back
-            </v-btn>
+            <v-toolbar class="bg-grey-lighten-4" density="compact">
+                <v-btn icon="mdi-arrow-left" @click="router.back()"></v-btn>
+                <v-spacer></v-spacer>
+            </v-toolbar>
+            <v-card class="bg-grey-lighten-4" rounded="0" variant="flat">
+                <v-card-item>
+                    <v-card-title
+                        >Product Variant Version
+                        {{
+                            productVariant?.currentVersion.version
+                        }}</v-card-title
+                    >
+                    <v-card-subtitle>{{
+                        productVariant?.currentVersion.id
+                    }}</v-card-subtitle>
+                </v-card-item>
+                <v-card-text>
+                    <div v-if="productVariant?.currentVersion.createdAt">
+                        Created
+                        <RelativeTime
+                            :time="productVariant?.currentVersion.createdAt"
+                        />
+                    </div>
+                </v-card-text>
+            </v-card>
         </div>
-        <v-divider></v-divider>
         <div class="d-flex flex-column ga-4">
             <div class="d-flex mx-4 ga-4">
                 <v-sheet border>
@@ -50,50 +67,55 @@
                             </v-chip>
                         </div>
                     </v-card-text>
-                    <v-divider></v-divider>
-                    <v-card-text>
-                        <div class="d-flex flex-column ga-2">
-                            <div
-                                v-if="
-                                    numericalCategoryCharacteristicValues?.length >
-                                    0
-                                "
-                                class="d-flex flex-column ga-2"
-                            >
-                                <div class="text-caption">
-                                    Numerical Characteristics
+                    <div
+                        v-if="
+                            hasAnyCategoricalCategoryCharacteristicValues ||
+                            hasAnyCategoricalCategoryCharacteristicValues
+                        "
+                    >
+                        <v-divider></v-divider>
+                        <v-card-text>
+                            <div class="d-flex flex-column ga-2">
+                                <div
+                                    v-if="
+                                        hasAnyNumericalCategoryCharacteristicValues
+                                    "
+                                    class="d-flex flex-column ga-2"
+                                >
+                                    <div class="text-caption">
+                                        Numerical Characteristics
+                                    </div>
+                                    <div class="d-flex flex-wrap ga-2">
+                                        <v-chip
+                                            v-for="v in numericalCategoryCharacteristicValues"
+                                        >
+                                            {{ v.characteristic.name }}:
+                                            {{ v.numericalValue }}
+                                        </v-chip>
+                                    </div>
                                 </div>
-                                <div class="d-flex flex-wrap ga-2">
-                                    <v-chip
-                                        v-for="v in numericalCategoryCharacteristicValues"
-                                    >
-                                        {{ v.characteristic.name }}:
-                                        {{ v.numericalValue }}
-                                    </v-chip>
+                                <div
+                                    v-if="
+                                        hasAnyCategoricalCategoryCharacteristicValues
+                                    "
+                                    class="d-flex flex-column mt-2 ga-2"
+                                >
+                                    <v-divider></v-divider>
+                                    <div class="text-caption">
+                                        Categorical Characteristics
+                                    </div>
+                                    <div class="d-flex flex-wrap ga-2">
+                                        <v-chip
+                                            v-for="v in categoricalCategoryCharacteristicValues"
+                                        >
+                                            {{ v.characteristic.name }}:
+                                            {{ v.categoricalValue }}
+                                        </v-chip>
+                                    </div>
                                 </div>
                             </div>
-                            <div
-                                v-if="
-                                    categoricalCategoryCharacteristicValues?.length >
-                                    0
-                                "
-                                class="d-flex flex-column mt-2 ga-2"
-                            >
-                                <v-divider></v-divider>
-                                <div class="text-caption">
-                                    Categorical Characteristics
-                                </div>
-                                <div class="d-flex flex-wrap ga-2">
-                                    <v-chip
-                                        v-for="v in categoricalCategoryCharacteristicValues"
-                                    >
-                                        {{ v.characteristic.name }}:
-                                        {{ v.categoricalValue }}
-                                    </v-chip>
-                                </div>
-                            </div>
-                        </div>
-                    </v-card-text>
+                        </v-card-text>
+                    </div>
                 </v-card>
                 <v-card class="align-self-start">
                     <v-card-item>
@@ -131,11 +153,27 @@
                     </v-card-actions>
                 </v-card>
                 <v-spacer></v-spacer>
-                <v-card
-                    disabled
-                    title="Shipping"
-                    text="3 Working Days"
-                ></v-card>
+                <v-card class="align-self-start">
+                    <v-card-items>
+                        <v-card-title>Shipping</v-card-title>
+                    </v-card-items>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <v-container>
+                            <v-row align="start" no-gutters>
+                                <v-col>Returns:</v-col>
+                                <v-col
+                                    >Returnable within
+                                    {{
+                                        productVariant?.currentVersion
+                                            .canBeReturnedForDays
+                                    }}
+                                    days of receipt.</v-col
+                                >
+                            </v-row>
+                        </v-container>
+                    </v-card-text>
+                </v-card>
             </div>
             <v-card
                 class="mx-4"
@@ -168,6 +206,7 @@
 
 <script setup lang="ts">
 import ProductSummary from '@/components/ProductSummary.vue'
+import RelativeTime from '@/components/RelativeTime.vue'
 import { useClient } from '@/graphql/client'
 import { asyncComputed } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -266,6 +305,13 @@ const categoricalCategoryCharacteristicValues = computed(() => {
 })
 
 /**
+ * Whether or not there are any -- meaning more than one -- categorical category characteristic values.
+ */
+const hasAnyCategoricalCategoryCharacteristicValues = computed(() => {
+    return categoricalCategoryCharacteristicValues.value.length > 0
+})
+
+/**
  * The numerical values of the product variant's CategoryCharacteristicValues.
  */
 const numericalCategoryCharacteristicValues = computed(() => {
@@ -281,6 +327,13 @@ const numericalCategoryCharacteristicValues = computed(() => {
                     numericalCategoryCharacteristicValue as any
             ) ?? []
     )
+})
+
+/**
+ * Whether or not there are any -- meaning more than one -- numerical category characteristic values.
+ */
+const hasAnyNumericalCategoryCharacteristicValues = computed(() => {
+    return numericalCategoryCharacteristicValues.value.length > 0
 })
 
 /**
