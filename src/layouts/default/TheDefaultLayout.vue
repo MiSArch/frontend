@@ -30,7 +30,7 @@
             </v-list>
         </v-navigation-drawer>
         <v-navigation-drawer
-            class="bg-grey-lighten-4"
+            class="bg-grey-lighten-3"
             expand-on-hover
             floating
             location="right"
