@@ -30,6 +30,11 @@ const routes = [
                 component: () => import('@/views/CategoryView.vue'),
             },
             {
+                path: 'wishlists',
+                name: 'Wishlists',
+                component: () => import('@/views/WishlistsView.vue'),
+            },
+            {
                 path: 'manage-products',
                 name: 'Manage Products',
                 component: () => import('@/views/ManageProductsView.vue'),
