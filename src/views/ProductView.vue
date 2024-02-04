@@ -1,21 +1,87 @@
 <template>
     <div class="d-flex flex-column ga-4">
         <div>
-            <v-toolbar class="bg-grey-lighten-4" density="compact">
+            <v-toolbar class="bg-grey-lighten-3" density="comfortable">
                 <v-btn icon="mdi-arrow-left" @click="router.back()"></v-btn>
-                <v-spacer></v-spacer>
             </v-toolbar>
+            <v-card class="bg-grey-lighten-3" rounded="0" variant="flat">
+                <v-card-item>
+                    <v-card-title class="mr-1">
+                        Product: {{ product?.product.internalName }}
+                    </v-card-title>
+
+                    <v-card-subtitle
+                        >ID: {{ product?.product.id }}</v-card-subtitle
+                    >
+                </v-card-item>
+                <v-card-text>
+                    <v-switch
+                        color="warning"
+                        density="comfortable"
+                        hide-details
+                        readonly
+                        :label="
+                            productIsHidden
+                                ? 'The product is hidden from customers.'
+                                : 'The product is publicly visible to customers.'
+                        "
+                        v-model="productIsHidden"
+                    ></v-switch>
+                    <p>
+                        Number of variants:
+                        {{ product?.product.variants.totalCount }}
+                    </p>
+                </v-card-text>
+            </v-card>
             <v-card class="bg-grey-lighten-4" rounded="0" variant="flat">
                 <v-card-item>
                     <v-card-title
-                        >Product Variant Version
+                        >Variant:
+                        {{ productVariant?.currentVersion.name }}</v-card-title
+                    >
+                    <v-card-subtitle
+                        >ID: {{ productVariant?.id }}</v-card-subtitle
+                    >
+                </v-card-item>
+                <v-card-text>
+                    <v-switch
+                        color="warning"
+                        density="comfortable"
+                        hide-details="auto"
+                        hint="As the product is hidden, this value is irrelevant."
+                        :label="
+                            productVariantIsHidden
+                                ? 'The product variant is hidden from customers.'
+                                : 'The product variant is publicly visible to customers.'
+                        "
+                        :persistent-hint="productIsHidden"
+                        readonly
+                        v-model="productVariantIsHidden"
+                    ></v-switch>
+                </v-card-text>
+                <div
+                    v-if="
+                        productVariant?.id == product?.product.defaultVariant.id
+                    "
+                >
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <v-chip color="primary"> Default Variant </v-chip>
+                    </v-card-text>
+                </div>
+            </v-card>
+            <v-card class="bg-grey-lighten-5" rounded="0" variant="flat">
+                <v-card-item>
+                    <v-card-title
+                        >Variant Version:
                         {{
                             productVariant?.currentVersion.version
                         }}</v-card-title
                     >
-                    <v-card-subtitle>{{
-                        productVariant?.currentVersion.id
-                    }}</v-card-subtitle>
+                    <v-card-subtitle
+                        >ID:
+                        {{ productVariant?.currentVersion.id }}</v-card-subtitle
+                    >
                 </v-card-item>
                 <v-card-text>
                     <div v-if="productVariant?.currentVersion.createdAt">
@@ -248,6 +314,19 @@ const product = asyncComputed(
 )
 
 /**
+ * Whether or not the product is hidden from the customer.
+ * The default value is false if the product
+ * has not been loaded yet or could not be loaded.
+ */
+const productIsHidden = computed(() => {
+    if (product.value == null) {
+        return false
+    } else {
+        return !product.value.product.isPubliclyVisible
+    }
+})
+
+/**
  * Gets the product categories to which the product belongs.
  */
 const categories = computed(() => {
@@ -272,6 +351,19 @@ const productVariant = computed(() => {
     return product.value?.product.variants.nodes.find(
         (variant) => variant.id == productVariantId.value
     )
+})
+
+/**
+ * Whether or not the current product variant is hidden from the customer.
+ * The default value is false if the product variant
+ * has not been loaded yet or could not be loaded.
+ */
+const productVariantIsHidden = computed(() => {
+    if (productVariant.value == null) {
+        return false
+    } else {
+        return !productVariant.value.isPubliclyVisible
+    }
 })
 
 /**
