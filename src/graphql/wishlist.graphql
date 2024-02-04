@@ -1,0 +1,38 @@
+# Fragments:
+
+fragment wishlist on Wishlist {
+  id
+  name
+  createdAt
+  lastUpdatedAt
+  productVariants {
+    totalCount
+  }
+}
+
+# Queries:
+
+query getUserWithWishlists($userId: UUID!, $firstWishlists: Int, $skipWishlist: Int, $orderWishlistsBy: WishlistOrderInput) {
+  user(id: $userId) {
+    id
+    wishlists(first: $firstWishlists, skip: $skipWishlist, orderBy: $orderWishlistsBy) {
+      totalCount
+      hasNextPage
+      nodes {
+        ... wishlist
+      }
+    }
+  }
+}
+
+# Mutations:
+
+mutation addWishlist($input: AddWishlistInput!) {
+  addWishlist(input: $input) {
+    ... wishlist
+  }
+}
+
+mutation deleteWishlist($id: UUID!) {
+  deleteWishlist(id: $id)
+}

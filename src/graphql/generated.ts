@@ -32,9 +32,7 @@ export type Scalars = {
     Float: { input: number; output: number }
     Date: { input: any; output: any }
     DateTime: { input: any; output: any }
-    FieldSet: { input: any; output: any }
     UUID: { input: any; output: any }
-    _Any: { input: any; output: any }
 }
 
 export type AddShoppingCartItemInput = {
@@ -286,11 +284,11 @@ export type NumericalCategoryCharacteristicValueInput = {
     value: Scalars['Float']['input']
 }
 
-/** GraphQL order direction. */
+/** Order direction */
 export enum OrderDirection {
-    /** Ascending order direction. */
+    /** Ascending order */
     Asc = 'ASC',
-    /** Descending order direction. */
+    /** Descending order */
     Desc = 'DESC',
 }
 
@@ -854,6 +852,77 @@ export type CreateNumericalCategoryCharacteristicMutation = {
     }
 }
 
+export type WishlistFragment = {
+    __typename?: 'Wishlist'
+    id: any
+    name: string
+    createdAt: any
+    lastUpdatedAt: any
+    productVariants: {
+        __typename?: 'ProductVariantConnection'
+        totalCount: number
+    }
+}
+
+export type GetUserWithWishlistsQueryVariables = Exact<{
+    userId: Scalars['UUID']['input']
+    firstWishlists?: InputMaybe<Scalars['Int']['input']>
+    skipWishlist?: InputMaybe<Scalars['Int']['input']>
+    orderWishlistsBy?: InputMaybe<WishlistOrderInput>
+}>
+
+export type GetUserWithWishlistsQuery = {
+    __typename?: 'Query'
+    user: {
+        __typename?: 'User'
+        id: any
+        wishlists: {
+            __typename?: 'WishlistConnection'
+            totalCount: number
+            hasNextPage: boolean
+            nodes: Array<{
+                __typename?: 'Wishlist'
+                id: any
+                name: string
+                createdAt: any
+                lastUpdatedAt: any
+                productVariants: {
+                    __typename?: 'ProductVariantConnection'
+                    totalCount: number
+                }
+            }>
+        }
+    }
+}
+
+export type AddWishlistMutationVariables = Exact<{
+    input: AddWishlistInput
+}>
+
+export type AddWishlistMutation = {
+    __typename?: 'Mutation'
+    addWishlist: {
+        __typename?: 'Wishlist'
+        id: any
+        name: string
+        createdAt: any
+        lastUpdatedAt: any
+        productVariants: {
+            __typename?: 'ProductVariantConnection'
+            totalCount: number
+        }
+    }
+}
+
+export type DeleteWishlistMutationVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type DeleteWishlistMutation = {
+    __typename?: 'Mutation'
+    deleteWishlist: boolean
+}
+
 export const CurrentVersionFragmentDoc = gql`
     fragment currentVersion on ProductVariantVersion {
         id
@@ -897,6 +966,17 @@ export const CharacteristicFragmentDoc = gql`
         }
         ... on NumericalCategoryCharacteristic {
             unit
+        }
+    }
+`
+export const WishlistFragmentDoc = gql`
+    fragment wishlist on Wishlist {
+        id
+        name
+        createdAt
+        lastUpdatedAt
+        productVariants {
+            totalCount
         }
     }
 `
@@ -1102,6 +1182,43 @@ export const CreateNumericalCategoryCharacteristicDocument = gql`
         }
     }
 `
+export const GetUserWithWishlistsDocument = gql`
+    query getUserWithWishlists(
+        $userId: UUID!
+        $firstWishlists: Int
+        $skipWishlist: Int
+        $orderWishlistsBy: WishlistOrderInput
+    ) {
+        user(id: $userId) {
+            id
+            wishlists(
+                first: $firstWishlists
+                skip: $skipWishlist
+                orderBy: $orderWishlistsBy
+            ) {
+                totalCount
+                hasNextPage
+                nodes {
+                    ...wishlist
+                }
+            }
+        }
+    }
+    ${WishlistFragmentDoc}
+`
+export const AddWishlistDocument = gql`
+    mutation addWishlist($input: AddWishlistInput!) {
+        addWishlist(input: $input) {
+            ...wishlist
+        }
+    }
+    ${WishlistFragmentDoc}
+`
+export const DeleteWishlistDocument = gql`
+    mutation deleteWishlist($id: UUID!) {
+        deleteWishlist(id: $id)
+    }
+`
 
 export type SdkFunctionWrapper = <T>(
     action: (requestHeaders?: Record<string, string>) => Promise<T>,
@@ -1294,6 +1411,54 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'createNumericalCategoryCharacteristic',
+                'mutation',
+                variables
+            )
+        },
+        getUserWithWishlists(
+            variables: GetUserWithWishlistsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetUserWithWishlistsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetUserWithWishlistsQuery>(
+                        GetUserWithWishlistsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getUserWithWishlists',
+                'query',
+                variables
+            )
+        },
+        addWishlist(
+            variables: AddWishlistMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<AddWishlistMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<AddWishlistMutation>(
+                        AddWishlistDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'addWishlist',
+                'mutation',
+                variables
+            )
+        },
+        deleteWishlist(
+            variables: DeleteWishlistMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<DeleteWishlistMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<DeleteWishlistMutation>(
+                        DeleteWishlistDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'deleteWishlist',
                 'mutation',
                 variables
             )
