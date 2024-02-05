@@ -864,6 +864,19 @@ export type WishlistFragment = {
     }
 }
 
+export type WishlistWithProductVariantsFragment = {
+    __typename?: 'Wishlist'
+    id: any
+    name: string
+    createdAt: any
+    lastUpdatedAt: any
+    productVariants: {
+        __typename?: 'ProductVariantConnection'
+        totalCount: number
+        nodes: Array<{ __typename?: 'ProductVariant'; id: any }>
+    }
+}
+
 export type GetUserWithWishlistsQueryVariables = Exact<{
     userId: Scalars['UUID']['input']
     firstWishlists?: InputMaybe<Scalars['Int']['input']>
@@ -889,6 +902,38 @@ export type GetUserWithWishlistsQuery = {
                 productVariants: {
                     __typename?: 'ProductVariantConnection'
                     totalCount: number
+                }
+            }>
+        }
+    }
+}
+
+export type GetUserWithWishlistsWithProductVariantsQueryVariables = Exact<{
+    userId: Scalars['UUID']['input']
+    firstWishlists?: InputMaybe<Scalars['Int']['input']>
+    skipWishlist?: InputMaybe<Scalars['Int']['input']>
+    orderWishlistsBy?: InputMaybe<WishlistOrderInput>
+}>
+
+export type GetUserWithWishlistsWithProductVariantsQuery = {
+    __typename?: 'Query'
+    user: {
+        __typename?: 'User'
+        id: any
+        wishlists: {
+            __typename?: 'WishlistConnection'
+            totalCount: number
+            hasNextPage: boolean
+            nodes: Array<{
+                __typename?: 'Wishlist'
+                id: any
+                name: string
+                createdAt: any
+                lastUpdatedAt: any
+                productVariants: {
+                    __typename?: 'ProductVariantConnection'
+                    totalCount: number
+                    nodes: Array<{ __typename?: 'ProductVariant'; id: any }>
                 }
             }>
         }
@@ -921,6 +966,15 @@ export type DeleteWishlistMutationVariables = Exact<{
 export type DeleteWishlistMutation = {
     __typename?: 'Mutation'
     deleteWishlist: boolean
+}
+
+export type UpdateWishlistMutationVariables = Exact<{
+    input: UpdateWishlistInput
+}>
+
+export type UpdateWishlistMutation = {
+    __typename?: 'Mutation'
+    updateWishlist: { __typename?: 'Wishlist'; id: any }
 }
 
 export const CurrentVersionFragmentDoc = gql`
@@ -977,6 +1031,20 @@ export const WishlistFragmentDoc = gql`
         lastUpdatedAt
         productVariants {
             totalCount
+        }
+    }
+`
+export const WishlistWithProductVariantsFragmentDoc = gql`
+    fragment wishlistWithProductVariants on Wishlist {
+        id
+        name
+        createdAt
+        lastUpdatedAt
+        productVariants {
+            totalCount
+            nodes {
+                id
+            }
         }
     }
 `
@@ -1206,6 +1274,30 @@ export const GetUserWithWishlistsDocument = gql`
     }
     ${WishlistFragmentDoc}
 `
+export const GetUserWithWishlistsWithProductVariantsDocument = gql`
+    query getUserWithWishlistsWithProductVariants(
+        $userId: UUID!
+        $firstWishlists: Int
+        $skipWishlist: Int
+        $orderWishlistsBy: WishlistOrderInput
+    ) {
+        user(id: $userId) {
+            id
+            wishlists(
+                first: $firstWishlists
+                skip: $skipWishlist
+                orderBy: $orderWishlistsBy
+            ) {
+                totalCount
+                hasNextPage
+                nodes {
+                    ...wishlistWithProductVariants
+                }
+            }
+        }
+    }
+    ${WishlistWithProductVariantsFragmentDoc}
+`
 export const AddWishlistDocument = gql`
     mutation addWishlist($input: AddWishlistInput!) {
         addWishlist(input: $input) {
@@ -1217,6 +1309,13 @@ export const AddWishlistDocument = gql`
 export const DeleteWishlistDocument = gql`
     mutation deleteWishlist($id: UUID!) {
         deleteWishlist(id: $id)
+    }
+`
+export const UpdateWishlistDocument = gql`
+    mutation updateWishlist($input: UpdateWishlistInput!) {
+        updateWishlist(input: $input) {
+            id
+        }
     }
 `
 
@@ -1431,6 +1530,22 @@ export function getSdk(
                 variables
             )
         },
+        getUserWithWishlistsWithProductVariants(
+            variables: GetUserWithWishlistsWithProductVariantsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetUserWithWishlistsWithProductVariantsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetUserWithWishlistsWithProductVariantsQuery>(
+                        GetUserWithWishlistsWithProductVariantsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getUserWithWishlistsWithProductVariants',
+                'query',
+                variables
+            )
+        },
         addWishlist(
             variables: AddWishlistMutationVariables,
             requestHeaders?: GraphQLClientRequestHeaders
@@ -1459,6 +1574,22 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'deleteWishlist',
+                'mutation',
+                variables
+            )
+        },
+        updateWishlist(
+            variables: UpdateWishlistMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<UpdateWishlistMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<UpdateWishlistMutation>(
+                        UpdateWishlistDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'updateWishlist',
                 'mutation',
                 variables
             )
