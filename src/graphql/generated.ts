@@ -32,9 +32,7 @@ export type Scalars = {
     Float: { input: number; output: number }
     Date: { input: any; output: any }
     DateTime: { input: any; output: any }
-    FieldSet: { input: any; output: any }
     UUID: { input: any; output: any }
-    _Any: { input: any; output: any }
 }
 
 export type AddShoppingCartItemInput = {
@@ -235,11 +233,26 @@ export type CreateProductVariantVersionInput = {
     productVariantId: Scalars['UUID']['input']
     /** The retail price of the ProductVariant. */
     retailPrice: Scalars['Int']['input']
+    /** The associated TaxRate */
+    taxRateId: Scalars['UUID']['input']
 }
 
-export type CreateUserDtoInput = {
+/** Input for the createTaxRate mutation */
+export type CreateTaxRateInput = {
+    /** The description of the created TaxRate */
+    description: Scalars['String']['input']
+    /** The initial version of the created TaxRate */
+    initialVersion: TaxRateVersionInput
+    /** The name of the created TaxRate */
     name: Scalars['String']['input']
-    username: Scalars['String']['input']
+}
+
+/** Input for the createTaxRateVersion mutation */
+export type CreateTaxRateVersionInput = {
+    /** The rate of the created TaxRateVersion */
+    rate: Scalars['Float']['input']
+    /** The id of the TaxRate the created TaxRateVersion belongs to */
+    taxRateId: Scalars['UUID']['input']
 }
 
 /** The gender of a user */
@@ -286,11 +299,11 @@ export type NumericalCategoryCharacteristicValueInput = {
     value: Scalars['Float']['input']
 }
 
-/** GraphQL order direction. */
+/** Order direction */
 export enum OrderDirection {
-    /** Ascending order direction. */
+    /** Ascending order */
     Asc = 'ASC',
-    /** Descending order direction. */
+    /** Descending order */
     Desc = 'DESC',
 }
 
@@ -360,6 +373,8 @@ export type ProductVariantVersionInput = {
     numericalCharacteristicValues: Array<NumericalCategoryCharacteristicValueInput>
     /** The retail price of the ProductVariant. */
     retailPrice: Scalars['Int']['input']
+    /** The associated TaxRate */
+    taxRateId: Scalars['UUID']['input']
 }
 
 /** ProductVariantVersion order fields */
@@ -387,12 +402,62 @@ export type ShoppingCartItemInput = {
     productVariantId: Scalars['UUID']['input']
 }
 
+/** TaxRate order fields */
+export enum TaxRateOrderField {
+    /** Order TaxRates by their id */
+    Id = 'ID',
+    /** Order TaxRates by their name */
+    Name = 'NAME',
+}
+
+/** TaxRate order */
+export type TaxRateOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<TaxRateOrderField>
+}
+
+/** Input for creating a TaxRateVersion */
+export type TaxRateVersionInput = {
+    /** The rate of the created TaxRateVersion */
+    rate: Scalars['Float']['input']
+}
+
+/** TaxRateVersion order fields */
+export enum TaxRateVersionOrderField {
+    /** Order TaxRateVersions by their creation date */
+    CreatedAt = 'CREATED_AT',
+    /** Order TaxRateVersions by their id */
+    Id = 'ID',
+    /** Order TaxRateVersions by their version */
+    Version = 'VERSION',
+}
+
+/** TaxRateVersion order */
+export type TaxRateVersionOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<TaxRateVersionOrderField>
+}
+
 /** Input for the updateNotification mutation */
 export type UpdateNotificationInput = {
     /** id of the notification to update */
     id: Scalars['UUID']['input']
     /** mark the notification as read/unread */
     isRead: Scalars['Boolean']['input']
+}
+
+/** Input for the updateProduct mutation. */
+export type UpdateProductInput = {
+    /** UUID of the product to be updated */
+    id: Scalars['UUID']['input']
+    /** If present, new value for internalName */
+    internalName?: InputMaybe<Scalars['String']['input']>
+    /** If present, new value for isPubliclyVisible */
+    isPubliclyVisible?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** The input of a product item update */
@@ -403,6 +468,14 @@ export type UpdateProductItemInput = {
     isInInventory: Scalars['Boolean']['input']
     /** The product variant id of the product item */
     productVariantId: Scalars['UUID']['input']
+}
+
+/** Input for the updateProductVariant mutation. */
+export type UpdateProductVariantInput = {
+    /** UUID of the product variant to be updated */
+    id: Scalars['UUID']['input']
+    /** If present, new value for isPubliclyVisible */
+    isPubliclyVisible?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export type UpdateShoppingCartInput = {
@@ -419,6 +492,16 @@ export type UpdateShoppingCartItemInput = {
     id: Scalars['UUID']['input']
 }
 
+/** Input for the updateTaxRate mutation */
+export type UpdateTaxRateInput = {
+    /** If provided, the new description of the TaxRate */
+    description?: InputMaybe<Scalars['String']['input']>
+    /** The id of the TaxRate to update */
+    id: Scalars['UUID']['input']
+    /** If provided, the new name of the TaxRate */
+    name?: InputMaybe<Scalars['String']['input']>
+}
+
 export type UpdateWishlistInput = {
     /** UUID of wishlist to update. */
     id: Scalars['UUID']['input']
@@ -426,6 +509,22 @@ export type UpdateWishlistInput = {
     name?: InputMaybe<Scalars['String']['input']>
     /** product variant UUIDs of wishlist to update */
     productVariantIds?: InputMaybe<Array<Scalars['UUID']['input']>>
+}
+
+/** User order fields */
+export enum UserOrderField {
+    /** Order users by their id */
+    Id = 'ID',
+    /** Order users by their username */
+    Username = 'USERNAME',
+}
+
+/** User order */
+export type UserOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<UserOrderField>
 }
 
 /** Describes the fields that a wishlist can be ordered by. */
@@ -728,6 +827,19 @@ export type GetProductQuery = {
                     canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
+                    taxRate: {
+                        __typename?: 'TaxRate'
+                        id: any
+                        name: string
+                        description: string
+                        currentVersion: {
+                            __typename?: 'TaxRateVersion'
+                            id: any
+                            rate: number
+                            version: number
+                            createdAt: any
+                        }
+                    }
                     characteristicValues: {
                         __typename?: 'CategoryCharacteristicValueConnection'
                         totalCount: number
@@ -854,6 +966,158 @@ export type CreateNumericalCategoryCharacteristicMutation = {
     }
 }
 
+export type TaxRateVersionFragment = {
+    __typename?: 'TaxRateVersion'
+    id: any
+    rate: number
+    version: number
+    createdAt: any
+}
+
+export type GetTaxRatesQueryVariables = Exact<{
+    first?: InputMaybe<Scalars['Int']['input']>
+    skip?: InputMaybe<Scalars['Int']['input']>
+    orderBy?: InputMaybe<TaxRateOrderInput>
+}>
+
+export type GetTaxRatesQuery = {
+    __typename?: 'Query'
+    taxRates: {
+        __typename?: 'TaxRateConnection'
+        totalCount: number
+        hasNextPage: boolean
+        nodes: Array<{
+            __typename?: 'TaxRate'
+            id: any
+            name: string
+            description: string
+        }>
+    }
+}
+
+export type GetTaxRatesWithVersionsQueryVariables = Exact<{
+    first?: InputMaybe<Scalars['Int']['input']>
+    skip?: InputMaybe<Scalars['Int']['input']>
+    orderBy?: InputMaybe<TaxRateOrderInput>
+}>
+
+export type GetTaxRatesWithVersionsQuery = {
+    __typename?: 'Query'
+    taxRates: {
+        __typename?: 'TaxRateConnection'
+        totalCount: number
+        hasNextPage: boolean
+        nodes: Array<{
+            __typename?: 'TaxRate'
+            id: any
+            name: string
+            description: string
+            currentVersion: { __typename?: 'TaxRateVersion'; id: any }
+            versions: {
+                __typename?: 'TaxRateVersionConnection'
+                totalCount: number
+                nodes: Array<{
+                    __typename?: 'TaxRateVersion'
+                    id: any
+                    rate: number
+                    version: number
+                    createdAt: any
+                }>
+            }
+        }>
+    }
+}
+
+export type GetTaxRatesWithCurrentVersionQueryVariables = Exact<{
+    first?: InputMaybe<Scalars['Int']['input']>
+    skip?: InputMaybe<Scalars['Int']['input']>
+    orderBy?: InputMaybe<TaxRateOrderInput>
+}>
+
+export type GetTaxRatesWithCurrentVersionQuery = {
+    __typename?: 'Query'
+    taxRates: {
+        __typename?: 'TaxRateConnection'
+        totalCount: number
+        hasNextPage: boolean
+        nodes: Array<{
+            __typename?: 'TaxRate'
+            id: any
+            name: string
+            description: string
+            currentVersion: {
+                __typename?: 'TaxRateVersion'
+                id: any
+                rate: number
+                version: number
+                createdAt: any
+            }
+        }>
+    }
+}
+
+export type GetTaxRateQueryVariables = Exact<{
+    id: Scalars['UUID']['input']
+    firstVersions?: InputMaybe<Scalars['Int']['input']>
+    skipVersion?: InputMaybe<Scalars['Int']['input']>
+    orderByVersions?: InputMaybe<TaxRateVersionOrderInput>
+}>
+
+export type GetTaxRateQuery = {
+    __typename?: 'Query'
+    taxRate: {
+        __typename?: 'TaxRate'
+        id: any
+        name: string
+        description: string
+        currentVersion: {
+            __typename?: 'TaxRateVersion'
+            id: any
+            rate: number
+            version: number
+            createdAt: any
+        }
+        versions: {
+            __typename?: 'TaxRateVersionConnection'
+            totalCount: number
+            nodes: Array<{
+                __typename?: 'TaxRateVersion'
+                id: any
+                rate: number
+                version: number
+                createdAt: any
+            }>
+        }
+    }
+}
+
+export type CreateTaxRateMutationVariables = Exact<{
+    input: CreateTaxRateInput
+}>
+
+export type CreateTaxRateMutation = {
+    __typename?: 'Mutation'
+    createTaxRate: { __typename?: 'TaxRate'; id: any }
+}
+
+export type CreateTaxRateVersionMutationVariables = Exact<{
+    input: CreateTaxRateVersionInput
+}>
+
+export type CreateTaxRateVersionMutation = {
+    __typename?: 'Mutation'
+    createTaxRateVersion: { __typename?: 'TaxRateVersion'; id: any }
+}
+
+export type UpdateTaxRateMutationVariables = Exact<{
+    input: UpdateTaxRateInput
+}>
+
+export type UpdateTaxRateMutation = {
+    __typename?: 'Mutation'
+    updateTaxRate: { __typename?: 'TaxRate'; id: any }
+}
+
 export const CurrentVersionFragmentDoc = gql`
     fragment currentVersion on ProductVariantVersion {
         id
@@ -898,6 +1162,14 @@ export const CharacteristicFragmentDoc = gql`
         ... on NumericalCategoryCharacteristic {
             unit
         }
+    }
+`
+export const TaxRateVersionFragmentDoc = gql`
+    fragment taxRateVersion on TaxRateVersion {
+        id
+        rate
+        version
+        createdAt
     }
 `
 export const GetDefaultProductVariantsDocument = gql`
@@ -1020,6 +1292,17 @@ export const GetProductDocument = gql`
                         description
                         retailPrice
                         canBeReturnedForDays
+                        taxRate {
+                            id
+                            name
+                            description
+                            currentVersion {
+                                id
+                                rate
+                                version
+                                createdAt
+                            }
+                        }
                         version
                         createdAt
                         characteristicValues {
@@ -1098,6 +1381,116 @@ export const CreateNumericalCategoryCharacteristicDocument = gql`
         $input: CreateNumericalCategoryCharacteristicInput!
     ) {
         createNumericalCategoryCharacteristic(input: $input) {
+            id
+        }
+    }
+`
+export const GetTaxRatesDocument = gql`
+    query getTaxRates($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
+        taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
+            totalCount
+            hasNextPage
+            nodes {
+                id
+                name
+                description
+            }
+        }
+    }
+`
+export const GetTaxRatesWithVersionsDocument = gql`
+    query getTaxRatesWithVersions(
+        $first: Int
+        $skip: Int
+        $orderBy: TaxRateOrderInput
+    ) {
+        taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
+            totalCount
+            hasNextPage
+            nodes {
+                id
+                name
+                description
+                currentVersion {
+                    id
+                }
+                versions {
+                    totalCount
+                    nodes {
+                        ...taxRateVersion
+                    }
+                }
+            }
+        }
+    }
+    ${TaxRateVersionFragmentDoc}
+`
+export const GetTaxRatesWithCurrentVersionDocument = gql`
+    query getTaxRatesWithCurrentVersion(
+        $first: Int
+        $skip: Int
+        $orderBy: TaxRateOrderInput
+    ) {
+        taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
+            totalCount
+            hasNextPage
+            nodes {
+                id
+                name
+                description
+                currentVersion {
+                    ...taxRateVersion
+                }
+            }
+        }
+    }
+    ${TaxRateVersionFragmentDoc}
+`
+export const GetTaxRateDocument = gql`
+    query getTaxRate(
+        $id: UUID!
+        $firstVersions: Int
+        $skipVersion: Int
+        $orderByVersions: TaxRateVersionOrderInput
+    ) {
+        taxRate(id: $id) {
+            id
+            name
+            description
+            currentVersion {
+                ...taxRateVersion
+            }
+            versions(
+                first: $firstVersions
+                skip: $skipVersion
+                orderBy: $orderByVersions
+            ) {
+                totalCount
+                nodes {
+                    ...taxRateVersion
+                }
+            }
+        }
+    }
+    ${TaxRateVersionFragmentDoc}
+`
+export const CreateTaxRateDocument = gql`
+    mutation createTaxRate($input: CreateTaxRateInput!) {
+        createTaxRate(input: $input) {
+            id
+        }
+    }
+`
+export const CreateTaxRateVersionDocument = gql`
+    mutation createTaxRateVersion($input: CreateTaxRateVersionInput!) {
+        createTaxRateVersion(input: $input) {
+            id
+        }
+    }
+`
+export const UpdateTaxRateDocument = gql`
+    mutation updateTaxRate($input: UpdateTaxRateInput!) {
+        updateTaxRate(input: $input) {
             id
         }
     }
@@ -1294,6 +1687,118 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'createNumericalCategoryCharacteristic',
+                'mutation',
+                variables
+            )
+        },
+        getTaxRates(
+            variables?: GetTaxRatesQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetTaxRatesQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetTaxRatesQuery>(
+                        GetTaxRatesDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getTaxRates',
+                'query',
+                variables
+            )
+        },
+        getTaxRatesWithVersions(
+            variables?: GetTaxRatesWithVersionsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetTaxRatesWithVersionsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetTaxRatesWithVersionsQuery>(
+                        GetTaxRatesWithVersionsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getTaxRatesWithVersions',
+                'query',
+                variables
+            )
+        },
+        getTaxRatesWithCurrentVersion(
+            variables?: GetTaxRatesWithCurrentVersionQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetTaxRatesWithCurrentVersionQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetTaxRatesWithCurrentVersionQuery>(
+                        GetTaxRatesWithCurrentVersionDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getTaxRatesWithCurrentVersion',
+                'query',
+                variables
+            )
+        },
+        getTaxRate(
+            variables: GetTaxRateQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetTaxRateQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetTaxRateQuery>(
+                        GetTaxRateDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getTaxRate',
+                'query',
+                variables
+            )
+        },
+        createTaxRate(
+            variables: CreateTaxRateMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateTaxRateMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateTaxRateMutation>(
+                        CreateTaxRateDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createTaxRate',
+                'mutation',
+                variables
+            )
+        },
+        createTaxRateVersion(
+            variables: CreateTaxRateVersionMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateTaxRateVersionMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateTaxRateVersionMutation>(
+                        CreateTaxRateVersionDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createTaxRateVersion',
+                'mutation',
+                variables
+            )
+        },
+        updateTaxRate(
+            variables: UpdateTaxRateMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<UpdateTaxRateMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<UpdateTaxRateMutation>(
+                        UpdateTaxRateDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'updateTaxRate',
                 'mutation',
                 variables
             )

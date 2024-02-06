@@ -91,6 +91,20 @@
                         />
                     </div>
                 </v-card-text>
+                <v-divider class="mx-4"></v-divider>
+                <v-card-text>
+                    <v-chip
+                        @click="
+                            navigateToTaxRate(
+                                productVariant?.currentVersion.taxRate.id
+                            )
+                        "
+                        >Tax Rate:
+                        {{
+                            productVariant?.currentVersion.taxRate.name
+                        }}</v-chip
+                    >
+                </v-card-text>
             </v-card>
         </div>
         <div class="d-flex flex-column ga-4">
@@ -438,6 +452,20 @@ function navigateToCategory(id: any) {
         name: 'Category',
         params: {
             categoryid: id,
+        },
+    })
+}
+
+/**
+ * Navigates to the tax rate to which the given ID belongs.
+ * The navigation is done via the Vue Router.
+ * @param id The ID of the category to navigate to.
+ */
+function navigateToTaxRate(id: any) {
+    router.push({
+        name: 'Tax Rate',
+        params: {
+            taxrateid: id,
         },
     })
 }

@@ -1,0 +1,103 @@
+# Fragments:
+
+fragment taxRateVersion on TaxRateVersion {
+  id
+  rate
+  version
+  createdAt
+}
+
+# Queries:
+
+# Gets all of the tax rates without any related entities.
+query getTaxRates($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
+    taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
+        totalCount
+        hasNextPage
+        nodes {
+            id
+            name
+            description
+        }
+    }
+}
+
+# Gets all of the tax rates including their versions and
+# the ID of the current version.
+query getTaxRatesWithVersions($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
+    taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
+        totalCount
+        hasNextPage
+        nodes {
+            id
+            name
+            description
+            currentVersion {
+                id
+            }
+            versions {
+                totalCount
+                nodes {
+                    ... taxRateVersion
+                }
+            }
+        }
+    }
+}
+
+# Gets all of the tax rates including the entire current tax rate version entity (of the type TaxRateVersion).
+query getTaxRatesWithCurrentVersion($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
+    taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
+        totalCount
+        hasNextPage
+        nodes {
+            id
+            name
+            description
+            currentVersion {
+                ... taxRateVersion
+            }
+        }
+    }
+}
+
+# Gets a single tax rate including its related TaxRateVersions (currentVersion and versions).
+query getTaxRate($id: UUID!, $firstVersions: Int, $skipVersion: Int, $orderByVersions: TaxRateVersionOrderInput) {
+  taxRate(id: $id) {
+    id
+    name
+    description
+    currentVersion {
+      ...taxRateVersion
+    }
+    versions(first: $firstVersions, skip: $skipVersion, orderBy: $orderByVersions) {
+      totalCount
+      nodes {
+        ...taxRateVersion
+      }
+    }
+  }
+}
+
+# Mutations:
+
+# Creates a single tax rate.
+mutation createTaxRate($input: CreateTaxRateInput!) {
+  createTaxRate(input: $input) {
+    id
+  }
+}
+
+# Creates a single tax rate version.
+mutation createTaxRateVersion($input: CreateTaxRateVersionInput!) {
+  createTaxRateVersion(input: $input) {
+    id
+  }
+}
+
+# Updates an existing tax rate.
+mutation updateTaxRate($input: UpdateTaxRateInput!) {
+  updateTaxRate(input: $input) {
+    id
+  }
+}

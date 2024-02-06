@@ -142,6 +142,17 @@ query getProduct($id: UUID!) {
           description
           retailPrice
           canBeReturnedForDays
+          taxRate {
+            id
+            name
+            description
+            currentVersion {
+              id
+              rate
+              version
+              createdAt
+            }
+          }
           version
           createdAt
           characteristicValues {

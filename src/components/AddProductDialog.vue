@@ -101,6 +101,14 @@
                                 v-model="variant.retailPrice"
                             >
                             </v-text-field>
+                            <v-select
+                                chips
+                                label="Tax Rate"
+                                :items="allTaxRates?.taxRates.nodes"
+                                item-title="name"
+                                item-value="id"
+                                v-model="variant.taxRateId"
+                            ></v-select>
                             <v-file-input
                                 accept="image/*"
                                 chips
@@ -170,6 +178,7 @@ interface ProductVariant {
     description: string
     name: string
     retailPrice: string
+    taxRateId: string | undefined
 }
 
 /**
@@ -225,6 +234,17 @@ const allCategories = computed(
 )
 
 /**
+ * The available tax rates.
+ */
+const allTaxRates = asyncComputed(
+    async () => {
+        return client.getTaxRates()
+    },
+    null,
+    { shallow: false }
+)
+
+/**
  * Adds a product variant template to the dialog
  * so the user can add another product variant.
  */
@@ -236,6 +256,7 @@ function addVariant() {
         description: '',
         name: internalName.value ?? '',
         retailPrice: '0',
+        taxRateId: undefined,
     }
     variants.value.push(createdVariant)
     variantTab.value = createdVariant.tempId
@@ -272,6 +293,7 @@ function transformVariant(
             name: variant.name,
             numericalCharacteristicValues: [],
             retailPrice: Number.parseInt(variant.retailPrice),
+            taxRateId: variant.taxRateId,
         },
         isPubliclyVisible: !variant.invisible,
     }
@@ -310,6 +332,7 @@ async function save() {
                         name: variant.name,
                         numericalCharacteristicValues: [],
                         retailPrice: Number.parseInt(variant.retailPrice),
+                        taxRateId: variant.taxRateId,
                     },
                     isPubliclyVisible: !variant.invisible,
                 }
