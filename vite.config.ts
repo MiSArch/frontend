@@ -54,9 +54,9 @@ export default defineConfig({
                 secure: false,
                 ignorePath: false,
                 headers: {
-                    "X-Forwarded-Host": "localhost:3000",
-                    "X-Forwarded-Proto": "http",
-                }
+                    'X-Forwarded-Host': 'localhost:3000',
+                    'X-Forwarded-Proto': 'http',
+                },
             },
         },
     },
