@@ -9,6 +9,10 @@ export const useAppStore = defineStore('app', {
         isLoggedIn: false,
     }),
     actions: {
+        /**
+         * Initialize the Keycloak adapter.
+         * Also silently checks the SSO session.
+         */
         async initLogin() {
             const keycloak = new Keycloak({
                 url: '/keycloak',
@@ -29,6 +33,9 @@ export const useAppStore = defineStore('app', {
                 console.error('Failed to initialize adapter:', error)
             }
         },
+        /**
+         * Logs the user in.
+         */
         async login() {
             try {
                 await this.keycloak?.login({
@@ -38,6 +45,9 @@ export const useAppStore = defineStore('app', {
                 console.error('Failed to login:', error)
             }
         },
+        /**
+         * Logs the user out.
+         */
         async logout() {
             try {
                 await this.keycloak?.logout({

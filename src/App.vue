@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useAppStore } from './store/app';
+import { useAppStore } from './store/app'
 
-const store = useAppStore();
-store.initLogin();
+const store = useAppStore()
+store.initLogin()
 </script>
