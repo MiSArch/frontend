@@ -27,6 +27,10 @@
                         }"
                     ></v-list-item>
                 </v-list-group>
+                <v-list-item
+                    title="Wishlists"
+                    :to="{ name: 'Wishlists' }"
+                ></v-list-item>
             </v-list>
         </v-navigation-drawer>
         <v-navigation-drawer

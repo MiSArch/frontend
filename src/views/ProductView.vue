@@ -108,6 +108,15 @@
             </v-card>
         </div>
         <div class="d-flex flex-column ga-4">
+            <v-alert
+                class="mx-4"
+                closable
+                density="comfortable"
+                text="An error occurred when trying to update the wishlists."
+                title="Could not update wishlists"
+                type="error"
+                v-model="updatingWishlistFailed"
+            ></v-alert>
             <div class="d-flex mx-4 ga-4">
                 <v-sheet border>
                     <v-carousel cycle show-arrows="hover">
@@ -197,7 +206,7 @@
                         </v-card-text>
                     </div>
                 </v-card>
-                <v-card class="align-self-start">
+                <v-card class="align-self-start" min-width="264">
                     <v-card-item>
                         <v-card-title
                             >{{
@@ -231,12 +240,44 @@
                             >Add To Cart</v-btn
                         >
                     </v-card-actions>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                        <v-btn
+                            prepend-icon="mdi-plus"
+                            @click="openAddToWishlistDialog"
+                            >Add To Wishlist</v-btn
+                        >
+                        <v-spacer></v-spacer>
+                        <v-btn
+                            :icon="
+                                showWishlistsExpansion
+                                    ? 'mdi-chevron-up'
+                                    : 'mdi-chevron-down'
+                            "
+                            @click="
+                                showWishlistsExpansion = !showWishlistsExpansion
+                            "
+                        ></v-btn>
+                    </v-card-actions>
+                    <v-expand-transition>
+                        <div v-show="showWishlistsExpansion">
+                            <v-divider class="mx-2"></v-divider>
+                            <v-card-actions>
+                                <v-btn
+                                    density="compact"
+                                    prepend-icon="mdi-open-in-new"
+                                    @click="goToWishlists"
+                                    >Go To Wishlists</v-btn
+                                >
+                            </v-card-actions>
+                        </div>
+                    </v-expand-transition>
                 </v-card>
                 <v-spacer></v-spacer>
                 <v-card class="align-self-start">
-                    <v-card-items>
+                    <v-card-item>
                         <v-card-title>Shipping</v-card-title>
-                    </v-card-items>
+                    </v-card-item>
                     <v-divider></v-divider>
                     <v-card-text>
                         <v-container>
@@ -282,12 +323,21 @@
             </v-card>
         </div>
     </div>
+    <AddToWishlistDialog
+        :product-variant-id="productVariantId"
+        v-model="addToWishlistDialogOpen"
+        @close-addtowishlistdialog="closeAddToWishlistDialog"
+        @update-wishlists="updateWishlists"
+        @go-to-wishlists="goToWishlists"
+    />
 </template>
 
 <script setup lang="ts">
+import AddToWishlistDialog from '@/components/AddToWishlistDialog.vue'
 import ProductSummary from '@/components/ProductSummary.vue'
 import RelativeTime from '@/components/RelativeTime.vue'
 import { useClient } from '@/graphql/client'
+import { UpdateWishlistInput } from '@/graphql/generated'
 import { asyncComputed } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -467,6 +517,63 @@ function navigateToTaxRate(id: any) {
         params: {
             taxrateid: id,
         },
+    })
+}
+
+const showWishlistsExpansion = ref(false)
+
+/**
+ * Whether or not the "ADD TO WISHLIST" dialog is open.
+ */
+const addToWishlistDialogOpen = ref(false)
+
+/**
+ * Opens the "ADD TO WISHLIST" dialog.
+ */
+function openAddToWishlistDialog() {
+    addToWishlistDialogOpen.value = true
+}
+
+/**
+ * Closes the "ADD TO WISHLIST" dialog.
+ */
+function closeAddToWishlistDialog() {
+    addToWishlistDialogOpen.value = false
+}
+
+/**
+ * Whether or not updating the wishlists failed.
+ * This property decides whether or not an alert has to be shown to the user.
+ */
+const updatingWishlistFailed = ref(false)
+
+/**
+ * Tries to update the given wishlists.
+ * @param input The wishlists that have to be updated.
+ */
+async function updateWishlists(input: UpdateWishlistInput[]) {
+    closeAddToWishlistDialog()
+
+    updatingWishlistFailed.value = false
+    input.forEach(async (updateWishlistInput) => {
+        try {
+            await client.updateWishlist({
+                input: updateWishlistInput,
+            })
+        } catch (error) {
+            updatingWishlistFailed.value = true
+
+            console.error(error)
+        }
+    })
+}
+
+/**
+ * Navigates to the wishlists.
+ */
+function goToWishlists() {
+    router.push({
+        name: 'Wishlists',
     })
 }
 </script>
