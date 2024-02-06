@@ -47,6 +47,11 @@
                     title="Manage Categories"
                     :to="{ name: 'Manage Categories' }"
                 ></v-list-item>
+                <v-list-item
+                    prepend-icon="mdi-file-percent"
+                    title="Manage Tax Rates"
+                    :to="{ name: 'Manage Tax Rates' }"
+                ></v-list-item>
             </v-list>
         </v-navigation-drawer>
         <TheViewPlaceholder />

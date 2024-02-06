@@ -39,6 +39,16 @@ const routes = [
                 name: 'Manage Categories',
                 component: () => import('@/views/ManageCategoriesView.vue'),
             },
+            {
+                path: 'manage-tax-rates',
+                name: 'Manage Tax Rates',
+                component: () => import('@/views/ManageTaxRatesView.vue'),
+            },
+            {
+                path: 'tax-rates/:taxrateid',
+                name: 'Tax Rate',
+                component: () => import('@/views/TaxRateView.vue'),
+            },
         ],
     },
 ]
