@@ -1,0 +1,8 @@
+# Queries:
+
+# Gets the current user -- as of now, only the user's ID.
+query getCurrentUser {
+  currentUser {
+    id
+  }
+}
