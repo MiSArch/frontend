@@ -18,6 +18,7 @@
         "core-js": "^3.29.0",
         "graphql": "^16.8.1",
         "graphql-request": "^6.1.0",
+        "keycloak-js": "^23.0.6",
         "pinia": "^2.0.0",
         "roboto-fontface": "*",
         "vue": "^3.2.0",
