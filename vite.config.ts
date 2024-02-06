@@ -48,6 +48,16 @@ export default defineConfig({
                 ws: true,
                 ignorePath: true,
             },
+            '/keycloak': {
+                target: 'http://localhost:8081',
+                changeOrigin: true,
+                secure: false,
+                ignorePath: false,
+                headers: {
+                    "X-Forwarded-Host": "localhost:3000",
+                    "X-Forwarded-Proto": "http",
+                }
+            },
         },
     },
 })
