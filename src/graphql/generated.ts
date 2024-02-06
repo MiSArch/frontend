@@ -1118,6 +1118,13 @@ export type UpdateTaxRateMutation = {
     updateTaxRate: { __typename?: 'TaxRate'; id: any }
 }
 
+export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetCurrentUserQuery = {
+    __typename?: 'Query'
+    currentUser?: { __typename?: 'User'; id: any } | null
+}
+
 export const CurrentVersionFragmentDoc = gql`
     fragment currentVersion on ProductVariantVersion {
         id
@@ -1495,6 +1502,13 @@ export const UpdateTaxRateDocument = gql`
         }
     }
 `
+export const GetCurrentUserDocument = gql`
+    query getCurrentUser {
+        currentUser {
+            id
+        }
+    }
+`
 
 export type SdkFunctionWrapper = <T>(
     action: (requestHeaders?: Record<string, string>) => Promise<T>,
@@ -1800,6 +1814,22 @@ export function getSdk(
                     ),
                 'updateTaxRate',
                 'mutation',
+                variables
+            )
+        },
+        getCurrentUser(
+            variables?: GetCurrentUserQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetCurrentUserQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetCurrentUserQuery>(
+                        GetCurrentUserDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getCurrentUser',
+                'query',
                 variables
             )
         },
