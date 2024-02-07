@@ -1125,6 +1125,169 @@ export type GetCurrentUserQuery = {
     currentUser?: { __typename?: 'User'; id: any } | null
 }
 
+export type WishlistFragment = {
+    __typename?: 'Wishlist'
+    id: any
+    name: string
+    createdAt: any
+    lastUpdatedAt: any
+    productVariants: {
+        __typename?: 'ProductVariantConnection'
+        totalCount: number
+    }
+}
+
+export type WishlistWithProductVariantsFragment = {
+    __typename?: 'Wishlist'
+    id: any
+    name: string
+    createdAt: any
+    lastUpdatedAt: any
+    productVariants: {
+        __typename?: 'ProductVariantConnection'
+        totalCount: number
+        nodes: Array<{ __typename?: 'ProductVariant'; id: any }>
+    }
+}
+
+export type GetUserWithWishlistsQueryVariables = Exact<{
+    userId: Scalars['UUID']['input']
+    firstWishlists?: InputMaybe<Scalars['Int']['input']>
+    skipWishlist?: InputMaybe<Scalars['Int']['input']>
+    orderWishlistsBy?: InputMaybe<WishlistOrderInput>
+}>
+
+export type GetUserWithWishlistsQuery = {
+    __typename?: 'Query'
+    user: {
+        __typename?: 'User'
+        id: any
+        wishlists: {
+            __typename?: 'WishlistConnection'
+            totalCount: number
+            hasNextPage: boolean
+            nodes: Array<{
+                __typename?: 'Wishlist'
+                id: any
+                name: string
+                createdAt: any
+                lastUpdatedAt: any
+                productVariants: {
+                    __typename?: 'ProductVariantConnection'
+                    totalCount: number
+                }
+            }>
+        }
+    }
+}
+
+export type GetUserWithWishlistsWithProductVariantsQueryVariables = Exact<{
+    userId: Scalars['UUID']['input']
+    firstWishlists?: InputMaybe<Scalars['Int']['input']>
+    skipWishlist?: InputMaybe<Scalars['Int']['input']>
+    orderWishlistsBy?: InputMaybe<WishlistOrderInput>
+}>
+
+export type GetUserWithWishlistsWithProductVariantsQuery = {
+    __typename?: 'Query'
+    user: {
+        __typename?: 'User'
+        id: any
+        wishlists: {
+            __typename?: 'WishlistConnection'
+            totalCount: number
+            hasNextPage: boolean
+            nodes: Array<{
+                __typename?: 'Wishlist'
+                id: any
+                name: string
+                createdAt: any
+                lastUpdatedAt: any
+                productVariants: {
+                    __typename?: 'ProductVariantConnection'
+                    totalCount: number
+                    nodes: Array<{ __typename?: 'ProductVariant'; id: any }>
+                }
+            }>
+        }
+    }
+}
+
+export type GetWishlistQueryVariables = Exact<{
+    id: Scalars['UUID']['input']
+    firstProductVariants?: InputMaybe<Scalars['Int']['input']>
+    skipProductVariants?: InputMaybe<Scalars['Int']['input']>
+    orderProductVariantsBy?: InputMaybe<CommonOrderInput>
+}>
+
+export type GetWishlistQuery = {
+    __typename?: 'Query'
+    wishlist: {
+        __typename?: 'Wishlist'
+        id: any
+        name: string
+        createdAt: any
+        lastUpdatedAt: any
+        productVariants: {
+            __typename?: 'ProductVariantConnection'
+            totalCount: number
+            nodes: Array<{
+                __typename?: 'ProductVariant'
+                id: any
+                isPubliclyVisible: boolean
+                currentVersion: {
+                    __typename?: 'ProductVariantVersion'
+                    id: any
+                    name: string
+                    description: string
+                    retailPrice: number
+                    canBeReturnedForDays?: number | null
+                    version: number
+                    createdAt: any
+                }
+                product: { __typename?: 'Product'; id: any }
+            }>
+        }
+    }
+}
+
+export type AddWishlistMutationVariables = Exact<{
+    input: AddWishlistInput
+}>
+
+export type AddWishlistMutation = {
+    __typename?: 'Mutation'
+    addWishlist: {
+        __typename?: 'Wishlist'
+        id: any
+        name: string
+        createdAt: any
+        lastUpdatedAt: any
+        productVariants: {
+            __typename?: 'ProductVariantConnection'
+            totalCount: number
+        }
+    }
+}
+
+export type DeleteWishlistMutationVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type DeleteWishlistMutation = {
+    __typename?: 'Mutation'
+    deleteWishlist: boolean
+}
+
+export type UpdateWishlistMutationVariables = Exact<{
+    input: UpdateWishlistInput
+}>
+
+export type UpdateWishlistMutation = {
+    __typename?: 'Mutation'
+    updateWishlist: { __typename?: 'Wishlist'; id: any }
+}
+
 export const CurrentVersionFragmentDoc = gql`
     fragment currentVersion on ProductVariantVersion {
         id
@@ -1177,6 +1340,31 @@ export const TaxRateVersionFragmentDoc = gql`
         rate
         version
         createdAt
+    }
+`
+export const WishlistFragmentDoc = gql`
+    fragment wishlist on Wishlist {
+        id
+        name
+        createdAt
+        lastUpdatedAt
+        productVariants {
+            totalCount
+        }
+    }
+`
+export const WishlistWithProductVariantsFragmentDoc = gql`
+    fragment wishlistWithProductVariants on Wishlist {
+        id
+        name
+        createdAt
+        lastUpdatedAt
+        productVariants {
+            totalCount
+            nodes {
+                id
+            }
+        }
     }
 `
 export const GetDefaultProductVariantsDocument = gql`
@@ -1509,6 +1697,112 @@ export const GetCurrentUserDocument = gql`
         }
     }
 `
+export const GetUserWithWishlistsDocument = gql`
+    query getUserWithWishlists(
+        $userId: UUID!
+        $firstWishlists: Int
+        $skipWishlist: Int
+        $orderWishlistsBy: WishlistOrderInput
+    ) {
+        user(id: $userId) {
+            id
+            wishlists(
+                first: $firstWishlists
+                skip: $skipWishlist
+                orderBy: $orderWishlistsBy
+            ) {
+                totalCount
+                hasNextPage
+                nodes {
+                    ...wishlist
+                }
+            }
+        }
+    }
+    ${WishlistFragmentDoc}
+`
+export const GetUserWithWishlistsWithProductVariantsDocument = gql`
+    query getUserWithWishlistsWithProductVariants(
+        $userId: UUID!
+        $firstWishlists: Int
+        $skipWishlist: Int
+        $orderWishlistsBy: WishlistOrderInput
+    ) {
+        user(id: $userId) {
+            id
+            wishlists(
+                first: $firstWishlists
+                skip: $skipWishlist
+                orderBy: $orderWishlistsBy
+            ) {
+                totalCount
+                hasNextPage
+                nodes {
+                    ...wishlistWithProductVariants
+                }
+            }
+        }
+    }
+    ${WishlistWithProductVariantsFragmentDoc}
+`
+export const GetWishlistDocument = gql`
+    query getWishlist(
+        $id: UUID!
+        $firstProductVariants: Int
+        $skipProductVariants: Int
+        $orderProductVariantsBy: CommonOrderInput
+    ) {
+        wishlist(id: $id) {
+            id
+            name
+            createdAt
+            lastUpdatedAt
+            productVariants(
+                first: $firstProductVariants
+                skip: $skipProductVariants
+                orderBy: $orderProductVariantsBy
+            ) {
+                totalCount
+                nodes {
+                    id
+                    isPubliclyVisible
+                    currentVersion {
+                        id
+                        name
+                        description
+                        retailPrice
+                        canBeReturnedForDays
+                        version
+                        createdAt
+                    }
+                    product {
+                        id
+                    }
+                }
+            }
+        }
+    }
+`
+export const AddWishlistDocument = gql`
+    mutation addWishlist($input: AddWishlistInput!) {
+        addWishlist(input: $input) {
+            ...wishlist
+        }
+    }
+    ${WishlistFragmentDoc}
+`
+export const DeleteWishlistDocument = gql`
+    mutation deleteWishlist($id: UUID!) {
+        deleteWishlist(id: $id)
+    }
+`
+export const UpdateWishlistDocument = gql`
+    mutation updateWishlist($input: UpdateWishlistInput!) {
+        updateWishlist(input: $input) {
+            id
+        }
+    }
+`
 
 export type SdkFunctionWrapper = <T>(
     action: (requestHeaders?: Record<string, string>) => Promise<T>,
@@ -1830,6 +2124,102 @@ export function getSdk(
                     ),
                 'getCurrentUser',
                 'query',
+                variables
+            )
+        },
+        getUserWithWishlists(
+            variables: GetUserWithWishlistsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetUserWithWishlistsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetUserWithWishlistsQuery>(
+                        GetUserWithWishlistsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getUserWithWishlists',
+                'query',
+                variables
+            )
+        },
+        getUserWithWishlistsWithProductVariants(
+            variables: GetUserWithWishlistsWithProductVariantsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetUserWithWishlistsWithProductVariantsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetUserWithWishlistsWithProductVariantsQuery>(
+                        GetUserWithWishlistsWithProductVariantsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getUserWithWishlistsWithProductVariants',
+                'query',
+                variables
+            )
+        },
+        getWishlist(
+            variables: GetWishlistQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetWishlistQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetWishlistQuery>(
+                        GetWishlistDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getWishlist',
+                'query',
+                variables
+            )
+        },
+        addWishlist(
+            variables: AddWishlistMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<AddWishlistMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<AddWishlistMutation>(
+                        AddWishlistDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'addWishlist',
+                'mutation',
+                variables
+            )
+        },
+        deleteWishlist(
+            variables: DeleteWishlistMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<DeleteWishlistMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<DeleteWishlistMutation>(
+                        DeleteWishlistDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'deleteWishlist',
+                'mutation',
+                variables
+            )
+        },
+        updateWishlist(
+            variables: UpdateWishlistMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<UpdateWishlistMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<UpdateWishlistMutation>(
+                        UpdateWishlistDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'updateWishlist',
+                'mutation',
                 variables
             )
         },
