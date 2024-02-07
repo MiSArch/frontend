@@ -520,6 +520,9 @@ function navigateToTaxRate(id: any) {
     })
 }
 
+/**
+ * Whether or not the expansion panel regarding the wishlists is open.
+ */
 const showWishlistsExpansion = ref(false)
 
 /**
