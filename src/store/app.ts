@@ -5,11 +5,29 @@ import Keycloak from 'keycloak-js'
 import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
 
+/**
+ * Interface representing a notification to be displayed.
+ *
+ * @property {string} text - The main text content of the notification.
+ * @property {string | undefined} [title] - Optional title for the notification.
+ * @property {'success' | 'info' | 'warning' | 'error' | undefined} [type] - Type of notification (success, info, warning, error).
+ * @property {'default' | 'comfortable' | 'compact' | undefined} [density] - Density of the notification (default, comfortable, compact).
+ * @property {boolean | undefined} [closable] - Indicates whether the notification is closable.
+ */
+export interface Notification {
+    text: string
+    title?: string
+    type?: 'success' | 'info' | 'warning' | 'error'
+    density?: 'default' | 'comfortable' | 'compact'
+    closable?: boolean
+}
+
 export const useAppStore = defineStore('app', {
     state: () => ({
         keycloak: null as Keycloak | null,
         isLoggedIn: false,
         currentUserId: null as string | null | undefined,
+        queuedNotifications: [] as Notification[],
     }),
     getters: {
         token(): string | undefined {
@@ -80,6 +98,25 @@ export const useAppStore = defineStore('app', {
             } catch (error) {
                 console.error('Failed to logout:', error)
             }
+        },
+        /**
+         * Adds the given notification to the notification queue.
+         * @param notification The notification to add to the queue.
+         */
+        pushNotification(notification: Notification) {
+            this.queuedNotifications = [
+                ...this.queuedNotifications,
+                notification,
+            ]
+        },
+        /**
+         * Pops all of the currently queued notifications.
+         * @returns A snapshot of the currently queued notifications, right before the queue gets emptied.
+         */
+        popAllNotifications(): Notification[] {
+            const snapshotOfQueuedNotifications = this.queuedNotifications
+            this.queuedNotifications = []
+            return snapshotOfQueuedNotifications
         },
     },
 })

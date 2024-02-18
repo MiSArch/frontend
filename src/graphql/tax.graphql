@@ -22,29 +22,6 @@ query getTaxRates($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
     }
 }
 
-# Gets all of the tax rates including their versions and
-# the ID of the current version.
-query getTaxRatesWithVersions($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
-    taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
-        totalCount
-        hasNextPage
-        nodes {
-            id
-            name
-            description
-            currentVersion {
-                id
-            }
-            versions {
-                totalCount
-                nodes {
-                    ... taxRateVersion
-                }
-            }
-        }
-    }
-}
-
 # Gets all of the tax rates including the entire current tax rate version entity (of the type TaxRateVersion).
 query getTaxRatesWithCurrentVersion($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
     taxRates(first: $first, skip: $skip, orderBy: $orderBy) {

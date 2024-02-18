@@ -115,6 +115,11 @@ import {
     OrderDirection,
     TaxRateVersionOrderField,
 } from '@/graphql/generated'
+import { errorMessages } from '@/strings/errorMessages'
+import {
+    pushErrorNotification,
+    pushErrorNotificationIfNecessary,
+} from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -169,7 +174,10 @@ const taxRate = asyncComputed(
         })
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) => pushErrorNotification(errorMessages.getTaxRate, e),
+        shallow: false,
+    }
 )
 
 /**
@@ -204,11 +212,6 @@ function closeAddTaxRateVersionDialog() {
 }
 
 /**
- * Whether or not adding a new tax rate version failed.
- */
-const addingTaxRateVersionFailed = ref(false)
-
-/**
  * Closes the 'ADD TAX RATE VERSION' dialog and
  * then tries to request the creation of a new tax rate version
  * according to the given CreateTaxRateVersionInput.
@@ -218,17 +221,12 @@ const addingTaxRateVersionFailed = ref(false)
 async function addTaxRateVersion(input: CreateTaxRateVersionInput) {
     closeAddTaxRateVersionDialog()
 
-    addingTaxRateVersionFailed.value = false
-    try {
-        await client.createTaxRateVersion({
+    await pushErrorNotificationIfNecessary(() => {
+        return client.createTaxRateVersion({
             input: input,
         })
+    }, errorMessages.createTaxRateVersion)
 
-        reevaluateTaxRate()
-    } catch (error) {
-        addingTaxRateVersionFailed.value = true
-
-        console.error(error)
-    }
+    reevaluateTaxRate()
 }
 </script>

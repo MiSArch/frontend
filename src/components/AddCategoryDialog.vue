@@ -99,23 +99,14 @@
                     </v-window-item>
                 </v-window>
             </div>
-            <div class="d-flex flex-column align-center justify-end pa-4">
-                <v-alert
-                    closable
-                    v-model="saveFailed"
-                    max-height="240"
-                    max-width="480"
-                    text="An unknown error occurred when trying to save the category."
-                    title="Could Not Save"
-                    type="error"
-                ></v-alert>
-            </div>
         </v-card>
     </v-dialog>
 </template>
 
 <script lang="ts" setup>
 import { useClient } from '@/graphql/client'
+import { errorMessages } from '@/strings/errorMessages'
+import { pushErrorNotificationIfNecessary } from '@/util/errorHandler'
 import { ref } from 'vue'
 
 /**
@@ -163,52 +154,44 @@ const typesOfCategoryCharacteristic = ref([
 ])
 
 /**
- * Whether or not saving the category failed.
- * This property decides whether or not an alert has to be shown to the user.
- */
-const saveFailed = ref(false)
-
-/**
  * Tries to save the category.
  */
 async function save() {
-    try {
-        saveFailed.value = false
+    const categoricalCharacteristics: {
+        description: string
+        name: string
+    }[] = []
+    const numericalCharacteristics: {
+        description: string
+        name: string
+        unit: string
+    }[] = []
 
-        const categoricalCharacteristics: {
-            description: string
-            name: string
-        }[] = []
-        const numericalCharacteristics: {
-            description: string
-            name: string
-            unit: string
-        }[] = []
-
-        categoryCharacteristics.value.forEach((categoryCharacteristic) => {
-            if (categoryCharacteristic.typeOfCategoryCharacteristic === 0) {
-                const categoricalCategoryCharacteristicInput = {
+    categoryCharacteristics.value.forEach((categoryCharacteristic) => {
+        if (categoryCharacteristic.typeOfCategoryCharacteristic === 0) {
+            const categoricalCategoryCharacteristicInput = {
+                description: categoryCharacteristic.description,
+                name: categoryCharacteristic.name,
+            }
+            categoricalCharacteristics.push(
+                categoricalCategoryCharacteristicInput
+            )
+        } else {
+            if (categoryCharacteristic.typeOfCategoryCharacteristic === 1) {
+                const numericalCategoryCharacteristicInput = {
                     description: categoryCharacteristic.description,
                     name: categoryCharacteristic.name,
+                    unit: categoryCharacteristic.unit,
                 }
-                categoricalCharacteristics.push(
-                    categoricalCategoryCharacteristicInput
+                numericalCharacteristics.push(
+                    numericalCategoryCharacteristicInput
                 )
-            } else {
-                if (categoryCharacteristic.typeOfCategoryCharacteristic === 1) {
-                    const numericalCategoryCharacteristicInput = {
-                        description: categoryCharacteristic.description,
-                        name: categoryCharacteristic.name,
-                        unit: categoryCharacteristic.unit,
-                    }
-                    numericalCharacteristics.push(
-                        numericalCategoryCharacteristicInput
-                    )
-                }
             }
-        })
+        }
+    })
 
-        await client.createCategory({
+    await pushErrorNotificationIfNecessary(() => {
+        return client.createCategory({
             input: {
                 categoricalCharacteristics: categoricalCharacteristics,
                 description: description.value,
@@ -216,13 +199,9 @@ async function save() {
                 numericalCharacteristics: numericalCharacteristics,
             },
         })
+    }, errorMessages.createCategory)
 
-        emit('close-addcategorydialog')
-    } catch (error) {
-        saveFailed.value = true
-
-        console.error(error)
-    }
+    emit('close-addcategorydialog')
 }
 
 /**

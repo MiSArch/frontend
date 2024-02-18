@@ -9,9 +9,11 @@
 <script lang="ts" setup>
 import TheResults from '@/components/TheResults.vue'
 import { useClient } from '@/graphql/client'
+import { pushErrorNotification } from '@/util/errorHandler'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { asyncComputed } from '@vueuse/core'
+import { errorMessages } from '@/strings/errorMessages'
 
 /**
  * The GraphQL client to use for all GraphQL requests.
@@ -40,6 +42,13 @@ const category = asyncComputed(
         })
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getCategoryWithCharacteristicsAndDefaultProductVariants,
+                e
+            ),
+        shallow: false,
+    }
 )
 </script>

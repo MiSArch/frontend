@@ -131,25 +131,11 @@
                     </v-window-item>
                 </v-window>
             </div>
-            <div class="d-flex flex-column align-center justify-end pa-4">
-                <v-alert
-                    closable
-                    v-model="saveFailed"
-                    max-height="240"
-                    max-width="480"
-                    text="An unknown error occurred when trying to save the product or its variants."
-                    title="Could Not Save"
-                    type="error"
-                ></v-alert>
-            </div>
         </v-card>
     </v-dialog>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-import { asyncComputed } from '@vueuse/core'
-import { computed } from 'vue'
 import { useClient } from '@/graphql/client'
 import {
     CategoryOrderField,
@@ -157,6 +143,13 @@ import {
     CreateProductVariantInput,
     OrderDirection,
 } from '@/graphql/generated'
+import { errorMessages } from '@/strings/errorMessages'
+import {
+    pushErrorNotification,
+    pushErrorNotificationIfNecessary,
+} from '@/util/errorHandler'
+import { asyncComputed } from '@vueuse/core'
+import { computed, ref } from 'vue'
 
 /**
  * A Category represents a simplified product category.
@@ -193,12 +186,6 @@ const emit = defineEmits<{
  */
 const client = useClient()
 
-/**
- * Whether or not saving the category failed.
- * This property decides whether or not an alert has to be shown to the user.
- */
-const saveFailed = ref(false)
-
 const variantTab = ref<number>()
 const internalName = ref('')
 const invisible = ref(false)
@@ -223,7 +210,14 @@ const getAllCategoriesResult = asyncComputed(
         })
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getCategoriesWithCharacteristics,
+                e
+            ),
+        shallow: false,
+    }
 )
 
 /**
@@ -241,7 +235,10 @@ const allTaxRates = asyncComputed(
         return client.getTaxRates()
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) => pushErrorNotification(errorMessages.getTaxRates, e),
+        shallow: false,
+    }
 )
 
 /**
@@ -303,14 +300,12 @@ function transformVariant(
  * Tries to save the product and its variants (to the catalog service).
  */
 async function save() {
-    saveFailed.value = false
+    const defaultVariantValue = variants.value.find(
+        (v) => v.tempId === defaultVariant.value
+    )!
 
-    try {
-        const defaultVariantValue = variants.value.find(
-            (v) => v.tempId === defaultVariant.value
-        )!
-
-        const product = await client.createProduct({
+    const product = await pushErrorNotificationIfNecessary(() => {
+        return client.createProduct({
             input: {
                 categoryIds: selectedCategories.value ?? [],
                 defaultVariant: transformVariant(defaultVariantValue),
@@ -318,33 +313,31 @@ async function save() {
                 isPubliclyVisible: !invisible.value,
             },
         })
+    }, errorMessages.createProduct)
 
-        const productId = product.createProduct.id
+    const productId = product.createProduct.id
 
-        for (const variant of variants.value) {
-            if (variant.tempId != defaultVariant.value) {
-                const variantInput: CreateProductVariantInput = {
-                    productId,
-                    initialVersion: {
-                        canBeReturnedForDays: variant.canBeReturnedForDays,
-                        categoricalCharacteristicValues: [],
-                        description: variant.description,
-                        name: variant.name,
-                        numericalCharacteristicValues: [],
-                        retailPrice: Number.parseInt(variant.retailPrice),
-                        taxRateId: variant.taxRateId,
-                    },
-                    isPubliclyVisible: !variant.invisible,
-                }
-                await client.createProductVariant({ input: variantInput })
+    for (const variant of variants.value) {
+        if (variant.tempId != defaultVariant.value) {
+            const variantInput: CreateProductVariantInput = {
+                productId,
+                initialVersion: {
+                    canBeReturnedForDays: variant.canBeReturnedForDays,
+                    categoricalCharacteristicValues: [],
+                    description: variant.description,
+                    name: variant.name,
+                    numericalCharacteristicValues: [],
+                    retailPrice: Number.parseInt(variant.retailPrice),
+                    taxRateId: variant.taxRateId,
+                },
+                isPubliclyVisible: !variant.invisible,
             }
+            await pushErrorNotificationIfNecessary(() => {
+                return client.createProductVariant({ input: variantInput })
+            }, errorMessages.createProductVariant)
         }
-
-        emit('close-dialog')
-    } catch (error) {
-        saveFailed.value = true
-
-        console.error(error)
     }
+
+    emit('close-dialog')
 }
 </script>

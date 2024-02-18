@@ -65,10 +65,11 @@
 <script lang="ts" setup>
 import TheAppBar from './TheAppBar.vue'
 import TheViewPlaceholder from './TheViewPlaceholder.vue'
-
 import { useClient } from '@/graphql/client'
 import { CategoryOrderField, OrderDirection } from '@/graphql/generated'
-import { computed } from 'vue'
+import { errorMessages } from '@/strings/errorMessages'
+import { pushErrorNotification } from '@/util/errorHandler'
+import { computed, ref } from 'vue'
 import { asyncComputed } from '@vueuse/core'
 
 /**
@@ -84,7 +85,7 @@ const client = useClient()
  */
 const categoriesWithTotalCountOfProducts = asyncComputed(
     async () => {
-        return client.getCategoriesWithTotalCountOfProducts({
+        return await client.getCategoriesWithTotalCountOfProducts({
             orderBy: {
                 direction: OrderDirection.Asc,
                 field: CategoryOrderField.Name,
@@ -92,7 +93,14 @@ const categoriesWithTotalCountOfProducts = asyncComputed(
         })
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getCategoriesWithTotalCountOfProducts,
+                e
+            ),
+        shallow: true,
+    }
 )
 
 /**
