@@ -6,7 +6,7 @@ import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
 
 /**
- * The user roles of the Keycloak realm 
+ * The user roles of the Keycloak realm
  * that are relevant to the frontend.
  */
 export enum UserRole {
@@ -38,9 +38,9 @@ export const useAppStore = defineStore('app', {
          * Also silently checks the SSO session.
          * If the user is logged in,
          * this action gets the current user and
-         * then stores its ID in store.currentUserId. 
-         * Additionally, this method gets the user roles of 
-         * the logged in user and saves them in the store. 
+         * then stores its ID in store.currentUserId.
+         * Additionally, this method gets the user roles of
+         * the logged in user and saves them in the store.
          * The 'highest' user role becomes the active user role.
          */
         async initLogin(logToken?: boolean) {
@@ -59,7 +59,7 @@ export const useAppStore = defineStore('app', {
 
                 this.keycloak = keycloak
                 this.isLoggedIn = authenticated
-                
+
                 if (logToken === true) {
                     console.log('Token', keycloak.token)
                 }
@@ -72,37 +72,56 @@ export const useAppStore = defineStore('app', {
                     const currentUser = await useClient().getCurrentUser()
                     this.currentUserId = currentUser.currentUser?.id
                 } catch (error) {
-                    console.error('Failed to get the user and determine their user ID:', error)
+                    console.error(
+                        'Failed to get the user and determine their user ID:',
+                        error
+                    )
                 }
 
                 try {
                     const keycloakRealmAccess = keycloak.realmAccess
-                    if (keycloakRealmAccess === null || keycloakRealmAccess === undefined) {
-                        throw new Error('The property realmAccess of the initialized Keycloak instance is either null or undefined.')
-                    }
-                    else {
+                    if (
+                        keycloakRealmAccess === null ||
+                        keycloakRealmAccess === undefined
+                    ) {
+                        throw new Error(
+                            'The property realmAccess of the initialized Keycloak instance is either null or undefined.'
+                        )
+                    } else {
                         const roles = keycloak.realmAccess?.roles
                         if (roles === undefined) {
                             return
                         } else {
-                            var additionalUserRoles: UserRole[] = []
-                            if (roles.includes(UserRole.Employee.toLowerCase())) {
+                            const additionalUserRoles: UserRole[] = []
+                            if (
+                                roles.includes(UserRole.Employee.toLowerCase())
+                            ) {
                                 additionalUserRoles.push(UserRole.Employee)
                                 this.activeUserRole = UserRole.Employee
                             }
-                            if (roles.includes(UserRole.SiteAdmin.toLowerCase())) {
+                            if (
+                                roles.includes(UserRole.SiteAdmin.toLowerCase())
+                            ) {
                                 additionalUserRoles.push(UserRole.SiteAdmin)
                                 this.activeUserRole = UserRole.SiteAdmin
                             }
 
-                            this.userRolesOfCurrentUser.push(...additionalUserRoles)
+                            this.userRolesOfCurrentUser.push(
+                                ...additionalUserRoles
+                            )
 
                             console.log(this.userRolesOfCurrentUser)
-                            console.log('Active user role:', this.activeUserRole)
+                            console.log(
+                                'Active user role:',
+                                this.activeUserRole
+                            )
                         }
                     }
                 } catch (error) {
-                    console.error('Failed to determine the roles of the user:', error)
+                    console.error(
+                        'Failed to determine the roles of the user:',
+                        error
+                    )
                 }
             }
         },
@@ -122,7 +141,7 @@ export const useAppStore = defineStore('app', {
          * Logs the user out.
          * Before the user is actually logged out,
          * this action resets the ID of the current user
-         * stored in store.currentUserId to null to prevent the ID from being leaked. 
+         * stored in store.currentUserId to null to prevent the ID from being leaked.
          * Resets the user roles of the current user to the default role 'Buyer'.
          */
         async logout() {

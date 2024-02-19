@@ -32,7 +32,7 @@
 import SwitchUserRoleDialog from '@/components/SwitchUserRoleDialog.vue'
 import { useAppStore } from '@/store/app'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 
 const store = useAppStore()
 
@@ -58,7 +58,7 @@ function closeSwitchUserRoleDialog(navigateToStorefront?: boolean) {
 
     if (navigateToStorefront === true) {
         router.push({
-            name: 'Storefront'
+            name: 'Storefront',
         })
     }
 }

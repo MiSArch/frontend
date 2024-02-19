@@ -1,9 +1,9 @@
 import { UserRole } from '@/store/app'
 
 /**
- * For each route of the application, 
- * a boolean property exists 
- * 'saying' whether or not the corresponding route 
+ * For each route of the application,
+ * a boolean property exists
+ * 'saying' whether or not the corresponding route
  * can be accessed by the user that has these access rights.
  */
 export interface AccessRights {

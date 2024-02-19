@@ -37,7 +37,7 @@ const { activeUserRole, userRolesOfCurrentUser } = storeToRefs(useAppStore())
 /**
  * The emits of this dialog:
  * close -- The dialog has to be closed.
- * close-and-navigate-to-storefront -- The dialog has to be closed and 
+ * close-and-navigate-to-storefront -- The dialog has to be closed and
  *   the user must be redirected to the 'Storefront'.
  */
 const emit = defineEmits<{
@@ -60,7 +60,7 @@ function resetViewModel(): boolean {
 
         return true
     }
-    
+
     return false
 }
 
@@ -75,8 +75,7 @@ function close(haveViewModelReset?: boolean) {
 
     if (hasChanges.value) {
         emit('close-and-navigate-to-storefront')
-    }
-    else {
+    } else {
         emit('close')
     }
 }

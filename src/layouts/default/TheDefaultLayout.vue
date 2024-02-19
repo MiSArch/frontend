@@ -85,16 +85,14 @@ const { activeUserRole } = storeToRefs(store)
 /**
  * Whether or not the active user role is 'Buyer'.
  */
- const activeUserRoleIsBuyer = computed(() => {
-    return (
-        activeUserRole.value == UserRole.Buyer
-    )
+const activeUserRoleIsBuyer = computed(() => {
+    return activeUserRole.value == UserRole.Buyer
 })
 
 /**
  * Whether or not the active user role is either 'Employee' or 'Administrator'.
  */
- const activeUserRoleIsEitherEmployeeOrSiteAdmin = computed(() => {
+const activeUserRoleIsEitherEmployeeOrSiteAdmin = computed(() => {
     return (
         activeUserRole.value == UserRole.Employee ||
         activeUserRole.value == UserRole.SiteAdmin
