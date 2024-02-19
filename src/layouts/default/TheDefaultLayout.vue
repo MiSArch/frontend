@@ -1,7 +1,11 @@
 <template>
     <v-app>
         <TheAppBar />
-        <v-navigation-drawer location="start" floating>
+        <v-navigation-drawer
+            v-if="activeUserRoleIsBuyer"
+            location="start"
+            floating
+        >
             <v-list density="compact" nav>
                 <v-list-item
                     title="All Products"
@@ -34,6 +38,7 @@
             </v-list>
         </v-navigation-drawer>
         <v-navigation-drawer
+            v-if="activeUserRoleIsEitherEmployeeOrSiteAdmin"
             class="bg-grey-lighten-3"
             expand-on-hover
             floating
@@ -68,8 +73,33 @@ import TheViewPlaceholder from './TheViewPlaceholder.vue'
 
 import { useClient } from '@/graphql/client'
 import { CategoryOrderField, OrderDirection } from '@/graphql/generated'
-import { computed } from 'vue'
+import { UserRole, useAppStore } from '@/store/app'
 import { asyncComputed } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
+import { computed, ref } from 'vue'
+
+const store = useAppStore()
+
+const { activeUserRole } = storeToRefs(store)
+
+/**
+ * Whether or not the active user role is 'Buyer'.
+ */
+ const activeUserRoleIsBuyer = computed(() => {
+    return (
+        activeUserRole.value == UserRole.Buyer
+    )
+})
+
+/**
+ * Whether or not the active user role is either 'Employee' or 'Administrator'.
+ */
+ const activeUserRoleIsEitherEmployeeOrSiteAdmin = computed(() => {
+    return (
+        activeUserRole.value == UserRole.Employee ||
+        activeUserRole.value == UserRole.SiteAdmin
+    )
+})
 
 /**
  * The GraphQL client to use for all GraphQL requests.

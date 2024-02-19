@@ -6,5 +6,7 @@
 import { useAppStore } from './store/app'
 
 const store = useAppStore()
-store.initLogin()
+
+const logToken = process.env.NODE_ENV === 'development'
+store.initLogin(logToken)
 </script>
