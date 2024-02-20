@@ -26,7 +26,9 @@
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn prepend-icon="mdi-close" @click="close">Close</v-btn>
+                <v-btn prepend-icon="mdi-close" @click="close(true)"
+                    >Close</v-btn
+                >
             </v-card-actions>
         </v-card>
     </v-dialog>
@@ -40,14 +42,13 @@ import { ref } from 'vue'
 const { activeUserRole, userRolesOfCurrentUser } = storeToRefs(useAppStore())
 
 /**
- * The emits of this dialog:
- * close -- The dialog has to be closed.
- * close-and-navigate-to-storefront -- The dialog has to be closed and
- *   the user must be redirected to the 'Storefront'.
+ * Type-based declaration of emitted events:
+ * close: The dialog should be closed and
+ * depending on the argument for the boolean parameter 'navigateToStorefront',
+ * the user should be redirected to the storefront.
  */
 const emit = defineEmits<{
-    (event: 'close'): void
-    (event: 'close-and-navigate-to-storefront'): void
+    (event: 'close', navigateToStorefront: boolean): void
 }>()
 
 /**
@@ -56,8 +57,8 @@ const emit = defineEmits<{
 const hasChanges = ref(false)
 
 /**
- * Resets the view model and returns whether it was reset.
- * @returns {boolean} - Indicates whether the view model was reset.
+ * Resets the view model to its initial state.
+ * @returns Whether or not the view model was reset.
  */
 function resetViewModel(): boolean {
     if (hasChanges.value) {
@@ -71,17 +72,15 @@ function resetViewModel(): boolean {
 
 /**
  * Closes the dialog, optionally resetting the view model.
- * @param {boolean} haveViewModelReset - Indicates whether to reset the view model.
+ * @param haveViewModelReset - Indicates whether to reset the view model.
  */
 function close(haveViewModelReset?: boolean) {
+    const hadChanges = hasChanges.value
+
     if (haveViewModelReset === true) {
         resetViewModel()
     }
 
-    if (hasChanges.value) {
-        emit('close-and-navigate-to-storefront')
-    } else {
-        emit('close')
-    }
+    emit('close', hadChanges)
 }
 </script>

@@ -16,7 +16,6 @@
         <SwitchUserRoleDialog
             v-model="switchUserRoleDialogIsOpen"
             @close="closeSwitchUserRoleDialog"
-            @close-and-navigate-to-storefront="closeSwitchUserRoleDialog(true)"
         />
         <v-btn @click="loginOrLogout">
             {{ store.isLoggedIn ? 'Logout' : 'Login' }}
@@ -66,10 +65,10 @@ function openSwitchUserRoleDialog() {
 /**
  * Closes the "SWITCH USER ROLE" dialog.
  */
-function closeSwitchUserRoleDialog(navigateToStorefront?: boolean) {
+function closeSwitchUserRoleDialog(navigateToStorefront: boolean) {
     switchUserRoleDialogIsOpen.value = false
 
-    if (navigateToStorefront === true) {
+    if (navigateToStorefront) {
         router.push({
             name: 'Storefront',
         })
