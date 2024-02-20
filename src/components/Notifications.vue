@@ -40,12 +40,12 @@ import { computed, nextTick, ref, watch } from 'vue'
 /**
  * Interface representing an alert to be displayed.
  *
- * @property {boolean} shouldBeVisible - Indicates whether the alert should be visible.
- * @property {string} text - The main text content of the alert.
- * @property {boolean} closable - Indicates whether the alert is closable.
- * @property {string | undefined} [title] - Optional title for the alert.
- * @property {'success' | 'info' | 'warning' | 'error' | undefined} [type] - Type of alert (success, info, warning, error).
- * @property {'default' | 'comfortable' | 'compact' | undefined} [density] - Density of the alert (default, comfortable, compact).
+ * @property shouldBeVisible - Indicates whether the alert should be visible.
+ * @property text - The main text content of the alert.
+ * @property closable - Indicates whether the alert is closable.
+ * @property [title] - Optional title for the alert.
+ * @property [type] - Type of alert (success, info, warning, error).
+ * @property [density] - Density of the alert (default, comfortable, compact).
  */
 interface Alert {
     shouldBeVisible: boolean

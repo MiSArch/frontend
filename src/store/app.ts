@@ -8,11 +8,11 @@ import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
 /**
  * Interface representing a notification to be displayed.
  *
- * @property {string} text - The main text content of the notification.
- * @property {string | undefined} [title] - Optional title for the notification.
- * @property {'success' | 'info' | 'warning' | 'error' | undefined} [type] - Type of notification (success, info, warning, error).
- * @property {'default' | 'comfortable' | 'compact' | undefined} [density] - Density of the notification (default, comfortable, compact).
- * @property {boolean | undefined} [closable] - Indicates whether the notification is closable.
+ * @property text - The main text content of the notification.
+ * @property [title] - Optional title for the notification.
+ * @property [type] - Type of notification (success, info, warning, error).
+ * @property [density] - Density of the notification (default, comfortable, compact).
+ * @property [closable] - Indicates whether the notification is closable.
  */
 export interface Notification {
     text: string
