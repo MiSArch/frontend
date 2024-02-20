@@ -1,5 +1,5 @@
 <template>
-    <v-dialog max-width="504" persistent>
+    <v-dialog max-width="500" persistent>
         <v-card>
             <v-card-item>
                 <v-card-title>Switch User Role</v-card-title>
