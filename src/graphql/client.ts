@@ -16,7 +16,7 @@ export function useClient() {
             ...request.headers,
         }
         if (token != undefined) {
-            headers.Authorization = `Bearer ${store.token}`
+            headers.Authorization = `Bearer ${await store.getAccessToken(true)}`
         }
         return {
             ...request,
