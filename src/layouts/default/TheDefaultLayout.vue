@@ -2,7 +2,7 @@
     <v-app>
         <TheAppBar />
         <v-navigation-drawer
-            v-if="activeUserRoleIsCustomer"
+            v-if="activeUserRoleIsBuyer"
             location="start"
             floating
         >
@@ -78,7 +78,7 @@ import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 
-const { activeUserRoleIsCustomer, activeUserRoleIsEitherAdminOrEmployee } =
+const { activeUserRoleIsBuyer, activeUserRoleIsEitherAdminOrEmployee } =
     storeToRefs(useAppStore())
 
 /**

@@ -12,7 +12,7 @@
                     Please note that certain areas of the online store's web
                     application can only be accessed with specific user roles.
                     For example, the wish list features are exclusively intended
-                    for the Customer.
+                    for the buyer.
                 </div>
                 <v-select
                     :items="userRolesOfCurrentUser"
@@ -22,7 +22,8 @@
                     variant="solo-filled"
                     v-model="activeUserRole"
                     @update:model-value="hasChanges = true"
-                ></v-select>
+                >
+                </v-select>
             </v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>

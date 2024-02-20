@@ -2,38 +2,26 @@
  * The user roles of the online store domain.
  */
 export enum UserRole {
-    Admin = 'Administrator',
-    Customer = 'Customer',
-    Employee = 'Employee',
+    Admin = 'admin',
+    Buyer = 'buyer',
+    Employee = 'employee',
 }
 
 /**
- * Lookup table that maps each individual user role to its corresponding 'Role name' in Keycloak.
- */
-const userRoleKeycloakRepresentationMap: Record<UserRole, string> = {
-    Administrator: 'site-admin',
-    Customer: 'buyer',
-    Employee: 'employee',
-}
-
-/**
- * Parses a Keycloak role name and returns the corresponding UserRole, or null if not found.
+ * Returns the UserRole that has the given roleName
+ * or null if no UserRole can be found.
  *
- * @param roleNameInKeycloak - The role name as represented in Keycloak.
+ * @param roleName - The name of the user role that should be returned.
  * @returns The corresponding UserRole, or null if not found.
- * @throws {Error} Throws an error if roleNameInKeycloak is null or undefined.
+ * @throws {Error} Throws an error if roleName is null or undefined.
  */
-export function parseKeycloakRoleName(
-    roleNameInKeycloak: string
-): UserRole | null {
-    if (roleNameInKeycloak === null || roleNameInKeycloak === undefined) {
-        throw new Error('roleNameInKeycloak cannot be null or undefined')
+export function parseRoleName(roleName: string): UserRole | null {
+    if (roleName === null || roleName === undefined) {
+        throw new Error('roleName cannot be null or undefined')
     }
 
     for (const userRole of Object.values(UserRole)) {
-        if (
-            userRoleKeycloakRepresentationMap[userRole] === roleNameInKeycloak
-        ) {
+        if (roleName === userRole) {
             return userRole
         }
     }

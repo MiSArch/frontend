@@ -64,6 +64,12 @@ export type AddWishlistInput = {
     userId: Scalars['UUID']['input']
 }
 
+/** Input for the archiveUserAddress mutation. */
+export type ArchiveUserAddressInput = {
+    /** The id of the user address to archive. */
+    id: Scalars['UUID']['input']
+}
+
 /** Input to create a CategoricalCategoryCharacteristic for a Category */
 export type CategoricalCategoryCharacteristicInput = {
     /** The description of the CategoricalCategoryCharacteristic */
@@ -266,6 +272,40 @@ export type CreateTaxRateVersionInput = {
     rate: Scalars['Float']['input']
     /** The id of the TaxRate the created TaxRateVersion belongs to */
     taxRateId: Scalars['UUID']['input']
+}
+
+/** Input for the createUserAddress mutation. */
+export type CreateUserAddressInput = {
+    /** The city part of the address to create */
+    city: Scalars['String']['input']
+    /** The company name part of the address to create */
+    companyName?: InputMaybe<Scalars['String']['input']>
+    /** The country part of the address to create */
+    country: Scalars['String']['input']
+    /** The postal code part of the address to create */
+    postalCode: Scalars['String']['input']
+    /** The first part of the street part of the address to create */
+    street1: Scalars['String']['input']
+    /** The second part of the street part of the address to create */
+    street2: Scalars['String']['input']
+    /** The id of the user to create the address for. */
+    userId: Scalars['UUID']['input']
+}
+
+/** Input for the createVendorAddress mutation. */
+export type CreateVendorAddressInput = {
+    /** The city part of the address to create */
+    city: Scalars['String']['input']
+    /** The company name part of the address to create */
+    companyName?: InputMaybe<Scalars['String']['input']>
+    /** The country part of the address to create */
+    country: Scalars['String']['input']
+    /** The postal code part of the address to create */
+    postalCode: Scalars['String']['input']
+    /** The first part of the street part of the address to create */
+    street1: Scalars['String']['input']
+    /** The second part of the street part of the address to create */
+    street2: Scalars['String']['input']
 }
 
 /** The gender of a user */
@@ -592,6 +632,20 @@ export type UpdateTaxRateInput = {
     name?: InputMaybe<Scalars['String']['input']>
 }
 
+/** Input for the updateUser mutation */
+export type UpdateUserInput = {
+    /** The new birthday of the user */
+    birthday?: InputMaybe<Scalars['Date']['input']>
+    /** The new first name of the user */
+    firstName?: InputMaybe<Scalars['String']['input']>
+    /** The new gender of the user */
+    gender?: InputMaybe<Gender>
+    /** The id of the user to update */
+    id: Scalars['UUID']['input']
+    /** The new last name of the user */
+    lastName?: InputMaybe<Scalars['String']['input']>
+}
+
 export type UpdateWishlistInput = {
     /** UUID of wishlist to update. */
     id: Scalars['UUID']['input']
@@ -599,6 +653,25 @@ export type UpdateWishlistInput = {
     name?: InputMaybe<Scalars['String']['input']>
     /** product variant UUIDs of wishlist to update */
     productVariantIds?: InputMaybe<Array<Scalars['UUID']['input']>>
+}
+
+/** User address filter */
+export type UserAddressFilterInput = {
+    isArchived?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** User address order fields */
+export enum UserAddressOrderField {
+    /** Order addresss by their id */
+    Id = 'ID',
+}
+
+/** User address order */
+export type UserAddressOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<UserAddressOrderField>
 }
 
 /** User order fields */

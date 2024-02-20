@@ -5,9 +5,9 @@ import Keycloak from 'keycloak-js'
 import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
 import { GetCurrentUserQuery } from '@/graphql/generated'
-import { UserRole, parseKeycloakRoleName } from './userRole'
+import { UserRole, parseRoleName } from './userRole'
 
-const defaultUserRole = UserRole.Customer
+const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
 
 export const useAppStore = defineStore('app', {
@@ -52,12 +52,12 @@ export const useAppStore = defineStore('app', {
             return defaultUserRole
         },
         /**
-         * Checks if the active user role is UserRole.Customer.
+         * Checks if the active user role is UserRole.Buyer.
          *
-         * @returns A boolean indicating whether the active user role is UserRole.Customer.
+         * @returns A boolean indicating whether the active user role is UserRole.Buyer.
          */
-        activeUserRoleIsCustomer(): boolean {
-            return this.activeUserRole === UserRole.Customer
+        activeUserRoleIsBuyer(): boolean {
+            return this.activeUserRole === UserRole.Buyer
         },
         /**
          * Checks if the active user role is either UserRole.Admin or UserRole.Employee.
@@ -169,19 +169,18 @@ export const useAppStore = defineStore('app', {
             if (this.keycloak !== null) {
                 const realmAccess = this.keycloak.realmAccess
                 if (realmAccess !== undefined) {
-                    realmAccess.roles.forEach((userRoleComingFromKeycloak) => {
-                        if (
-                            userRoleComingFromKeycloak !== null &&
-                            userRoleComingFromKeycloak !== undefined
-                        ) {
-                            const candidate = parseKeycloakRoleName(
-                                userRoleComingFromKeycloak
-                            )
+                    realmAccess.roles.forEach((roleName) => {
+                        if (roleName !== null && roleName !== undefined) {
+                            const possibleUserRoleOfCurrentUser =
+                                parseRoleName(roleName)
                             if (
-                                candidate !== null &&
-                                candidate !== defaultUserRole
+                                possibleUserRoleOfCurrentUser !== null &&
+                                possibleUserRoleOfCurrentUser !==
+                                    defaultUserRole
                             ) {
-                                this.userRolesOfCurrentUser.push(candidate)
+                                this.userRolesOfCurrentUser.push(
+                                    possibleUserRoleOfCurrentUser
+                                )
                             }
                         }
                     })
@@ -191,7 +190,7 @@ export const useAppStore = defineStore('app', {
                     return false
                 }
             } else {
-                this.userRolesOfCurrentUser = [UserRole.Customer]
+                this.userRolesOfCurrentUser = [UserRole.Buyer]
 
                 return false
             }
@@ -213,7 +212,7 @@ export const useAppStore = defineStore('app', {
          * Before the user is actually logged out,
          * this action resets the ID of the current user
          * stored in store.currentUserId to null to prevent the ID from being leaked.
-         * Resets the user roles of the current user to the default role 'Customer'.
+         * Resets the user roles of the current user to the default role 'Buyer'.
          */
         async logout() {
             try {

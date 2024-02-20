@@ -20,9 +20,9 @@ export interface AccessRights {
 }
 
 /**
- * The access rights of a user with their active role being 'Customer'.
+ * The access rights of a user with their active role being 'Buyer'.
  */
-export const customerAccessRights: AccessRights = {
+export const buyerAccessRights: AccessRights = {
     canAccessStorefront: true,
     canAccessProduct: true,
     canAccessProducts: true,
@@ -74,8 +74,8 @@ export const adminAccessRights: AccessRights = {
  */
 export function getAccessRights(userRole: UserRole): AccessRights | null {
     switch (userRole) {
-        case UserRole.Customer:
-            return customerAccessRights
+        case UserRole.Buyer:
+            return buyerAccessRights
         case UserRole.Employee:
             return employeeAccessRights
         case UserRole.Admin:
