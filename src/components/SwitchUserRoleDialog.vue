@@ -1,17 +1,22 @@
 <template>
-    <v-dialog max-width="500" persistent>
+    <v-dialog height="auto" max-width="500" persistent>
         <v-card>
             <v-card-item>
                 <v-card-title>Switch User Role</v-card-title>
                 <v-card-subtitle
-                    >TODO Explain the purpose of this dialog to the
-                    user</v-card-subtitle
+                    >User roles are managed in Keycloak</v-card-subtitle
                 >
             </v-card-item>
             <v-card-text>
+                <div class="mb-3">
+                    Please note that certain areas of the online store's web
+                    application can only be accessed with specific user roles.
+                    For example, the wish list features are exclusively intended
+                    for the Buyer.
+                </div>
                 <v-select
                     :items="userRolesOfCurrentUser"
-                    hint="The active user role determines the current application context."
+                    hint="Changes take effect immediately"
                     label="User Role"
                     persistent-hint
                     variant="solo-filled"
