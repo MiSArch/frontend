@@ -52,6 +52,8 @@
 import { useClient } from '@/graphql/client'
 import { UpdateWishlistInput } from '@/graphql/generated'
 import { useAppStore } from '@/store/app'
+import { errorMessages } from '@/strings/errorMessages'
+import { pushErrorNotification } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
@@ -101,36 +103,42 @@ const trigger = ref(0)
  */
 const wishlists = asyncComputed(
     async () => {
-        try {
-            trigger.value
+        trigger.value
 
-            const user = await client.getUserWithWishlistsWithProductVariants({
-                userId: useAppStore().currentUserId,
-            })
+        const userId = useAppStore().currentUserId
+        if (userId == null || !userId) {
+            return
+        }
 
-            if (user.user.wishlists) {
-                idsOfSelectedWishlists.value = user.user.wishlists.nodes
-                    .filter(
-                        (wishlist) =>
-                            wishlist.productVariants.nodes.filter(
-                                (productVariant) =>
-                                    productVariant.id == props.productVariantId
-                            ).length > 0
-                    )
-                    .map((wishlist) => wishlist.id)
+        const user = await client.getUserWithWishlistsWithProductVariants({
+            userId: userId,
+        })
 
-                return user.user.wishlists
-            } else {
-                return null
-            }
-        } catch (error) {
-            console.log(error)
+        if (user.user.wishlists) {
+            idsOfSelectedWishlists.value = user.user.wishlists.nodes
+                .filter(
+                    (wishlist) =>
+                        wishlist.productVariants.nodes.filter(
+                            (productVariant) =>
+                                productVariant.id == props.productVariantId
+                        ).length > 0
+                )
+                .map((wishlist) => wishlist.id)
 
+            return user.user.wishlists
+        } else {
             return null
         }
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getUserWithWishlistsWithProductVariants,
+                e
+            ),
+        shallow: false,
+    }
 )
 
 /**

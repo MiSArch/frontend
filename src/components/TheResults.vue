@@ -27,6 +27,8 @@ import { OrderDirection, ProductOrderField } from '@/graphql/generated'
 import { useClient } from '@/graphql/client'
 import { computed, ref } from 'vue'
 import { asyncComputed } from '@vueuse/core'
+import { pushErrorNotificationIfNecessary } from '@/util/errorHandler'
+import { errorMessages } from '@/strings/errorMessages'
 
 /**
  * The props of this SFC.
@@ -60,32 +62,39 @@ const productConnection = asyncComputed(
     async () => {
         if (props.categoryId) {
             var categoryWithAssociatedProducts =
-                await client.getCategoryWithCharacteristicsAndDefaultProductVariants(
-                    {
-                        id: props.categoryId,
-                        firstProducts: perPage.value,
-                        skipProducts: (currentPage.value - 1) * perPage.value,
-                        orderProductsBy: {
-                            direction: OrderDirection.Asc,
-                            field: ProductOrderField.InternalName,
-                        },
-                    }
-                )
+                await pushErrorNotificationIfNecessary(() => {
+                    return client.getCategoryWithCharacteristicsAndDefaultProductVariants(
+                        {
+                            id: props.categoryId,
+                            firstProducts: perPage.value,
+                            skipProducts:
+                                (currentPage.value - 1) * perPage.value,
+                            orderProductsBy: {
+                                direction: OrderDirection.Asc,
+                                field: ProductOrderField.InternalName,
+                            },
+                        }
+                    )
+                }, errorMessages.getCategoryWithCharacteristicsAndDefaultProductVariants)
             return categoryWithAssociatedProducts.category.products
         } else {
-            var products = await client.getDefaultProductVariants({
-                first: perPage.value,
-                skip: (currentPage.value - 1) * perPage.value,
-                orderBy: {
-                    direction: OrderDirection.Asc,
-                    field: ProductOrderField.InternalName,
-                },
-            })
+            var products = await pushErrorNotificationIfNecessary(() => {
+                return client.getDefaultProductVariants({
+                    first: perPage.value,
+                    skip: (currentPage.value - 1) * perPage.value,
+                    orderBy: {
+                        direction: OrderDirection.Asc,
+                        field: ProductOrderField.InternalName,
+                    },
+                })
+            }, errorMessages.getDefaultProductVariants)
             return products.products
         }
     },
     null,
-    { shallow: false }
+    {
+        shallow: false,
+    }
 )
 
 /**

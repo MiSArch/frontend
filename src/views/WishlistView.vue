@@ -33,6 +33,8 @@
 import ProductSummary from '@/components/ProductSummary.vue'
 import { useClient } from '@/graphql/client'
 import { CommonOrderField, OrderDirection } from '@/graphql/generated'
+import { errorMessages } from '@/strings/errorMessages'
+import { pushErrorNotification } from '@/util/errorHandler'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { asyncComputed } from '@vueuse/core'
@@ -77,24 +79,21 @@ const wishlist = asyncComputed(
     async () => {
         trigger.value
 
-        try {
-            return await client.getWishlist({
-                id: id.value,
-                firstProductVariants: perPage.value,
-                skipProductVariants: (currentPage.value - 1) * perPage.value,
-                orderProductVariantsBy: {
-                    direction: OrderDirection.Desc,
-                    field: CommonOrderField.Id,
-                },
-            })
-        } catch (error) {
-            console.log(error)
-
-            return null
-        }
+        return await client.getWishlist({
+            id: id.value,
+            firstProductVariants: perPage.value,
+            skipProductVariants: (currentPage.value - 1) * perPage.value,
+            orderProductVariantsBy: {
+                direction: OrderDirection.Desc,
+                field: CommonOrderField.Id,
+            },
+        })
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) => pushErrorNotification(errorMessages.getWishlist, e),
+        shallow: false,
+    }
 )
 
 /**
