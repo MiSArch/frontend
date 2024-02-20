@@ -1,7 +1,11 @@
 <template>
     <v-app>
         <TheAppBar />
-        <v-navigation-drawer location="start" floating>
+        <v-navigation-drawer
+            v-if="activeUserRoleIsBuyer"
+            location="start"
+            floating
+        >
             <v-list density="compact" nav>
                 <v-list-item
                     title="All Products"
@@ -34,6 +38,7 @@
             </v-list>
         </v-navigation-drawer>
         <v-navigation-drawer
+            v-if="activeUserRoleIsEitherAdminOrEmployee"
             class="bg-grey-lighten-3"
             expand-on-hover
             floating
@@ -69,8 +74,13 @@ import { useClient } from '@/graphql/client'
 import { CategoryOrderField, OrderDirection } from '@/graphql/generated'
 import { errorMessages } from '@/strings/errorMessages'
 import { pushErrorNotification } from '@/util/errorHandler'
-import { computed, ref } from 'vue'
+import { useAppStore } from '@/store/app'
 import { asyncComputed } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
+
+const { activeUserRoleIsBuyer, activeUserRoleIsEitherAdminOrEmployee } =
+    storeToRefs(useAppStore())
 
 /**
  * The GraphQL client to use for all GraphQL requests.

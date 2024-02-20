@@ -1,5 +1,5 @@
 <template>
-    <v-dialog max-width="504">
+    <v-dialog max-width="500">
         <v-card>
             <v-card-item>
                 <v-card-title>Add Tax Rate</v-card-title>

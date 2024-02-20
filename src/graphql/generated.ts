@@ -35,6 +35,19 @@ export type Scalars = {
     UUID: { input: any; output: any }
 }
 
+export type AddReviewInput = {
+    /** Body of Review. */
+    body: Scalars['String']['input']
+    /** Flag if review is visible, by default set to true. */
+    isVisible?: InputMaybe<Scalars['Boolean']['input']>
+    /** UUID of product variant in review. */
+    productVariantId: Scalars['UUID']['input']
+    /** Rating of Review in 1-5 stars. */
+    rating: Rating
+    /** UUID of user owning the review. */
+    userId: Scalars['UUID']['input']
+}
+
 export type AddShoppingCartItemInput = {
     /** UUID of user owning the shopping cart. */
     id: Scalars['UUID']['input']
@@ -49,6 +62,12 @@ export type AddWishlistInput = {
     productVariantIds: Array<Scalars['UUID']['input']>
     /** UUID of user owning the wishlist. */
     userId: Scalars['UUID']['input']
+}
+
+/** Input for the archiveUserAddress mutation. */
+export type ArchiveUserAddressInput = {
+    /** The id of the user address to archive. */
+    id: Scalars['UUID']['input']
 }
 
 /** Input to create a CategoricalCategoryCharacteristic for a Category */
@@ -202,7 +221,7 @@ export type CreateProductInput = {
 /** The input of a product item batch creation */
 export type CreateProductItemBatchInput = {
     /** The number of products to add */
-    number: Scalars['Float']['input']
+    number: Scalars['Int']['input']
     /** The product variant id of the product item */
     productVariantId: Scalars['UUID']['input']
 }
@@ -253,6 +272,40 @@ export type CreateTaxRateVersionInput = {
     rate: Scalars['Float']['input']
     /** The id of the TaxRate the created TaxRateVersion belongs to */
     taxRateId: Scalars['UUID']['input']
+}
+
+/** Input for the createUserAddress mutation. */
+export type CreateUserAddressInput = {
+    /** The city part of the address to create */
+    city: Scalars['String']['input']
+    /** The company name part of the address to create */
+    companyName?: InputMaybe<Scalars['String']['input']>
+    /** The country part of the address to create */
+    country: Scalars['String']['input']
+    /** The postal code part of the address to create */
+    postalCode: Scalars['String']['input']
+    /** The first part of the street part of the address to create */
+    street1: Scalars['String']['input']
+    /** The second part of the street part of the address to create */
+    street2: Scalars['String']['input']
+    /** The id of the user to create the address for. */
+    userId: Scalars['UUID']['input']
+}
+
+/** Input for the createVendorAddress mutation. */
+export type CreateVendorAddressInput = {
+    /** The city part of the address to create */
+    city: Scalars['String']['input']
+    /** The company name part of the address to create */
+    companyName?: InputMaybe<Scalars['String']['input']>
+    /** The country part of the address to create */
+    country: Scalars['String']['input']
+    /** The postal code part of the address to create */
+    postalCode: Scalars['String']['input']
+    /** The first part of the street part of the address to create */
+    street1: Scalars['String']['input']
+    /** The second part of the street part of the address to create */
+    street2: Scalars['String']['input']
 }
 
 /** The gender of a user */
@@ -307,6 +360,11 @@ export enum OrderDirection {
     Desc = 'DESC',
 }
 
+/** Product filter */
+export type ProductFilterInput = {
+    isPubliclyVisible?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 /** Ordering options for product items */
 export type ProductItemOrder = {
     /** The direction to order by */
@@ -319,6 +377,24 @@ export type ProductItemOrder = {
 export enum ProductItemOrderField {
     /** Order Product Items by their ID */
     Id = 'ID',
+}
+
+/** The status of an individual product item in the inventory */
+export enum ProductItemStatus {
+    /** The item has been delivered to the customer */
+    Delivered = 'DELIVERED',
+    /** The item is in the process of being fulfilled (packed, shipped) */
+    InFulfillment = 'IN_FULFILLMENT',
+    /** The item is in storage, not yet sold or reserved */
+    InStorage = 'IN_STORAGE',
+    /** The item has been lost (e.g., during shipping or in the warehouse) */
+    Lost = 'LOST',
+    /** The item has been reserved for a customer but not yet sold */
+    Reserved = 'RESERVED',
+    /** The item has been returned by the customer */
+    Returned = 'RETURNED',
+    /** The item has been shipped to the customer */
+    Shipped = 'SHIPPED',
 }
 
 /** Product order fields */
@@ -335,6 +411,11 @@ export type ProductOrderInput = {
     direction?: InputMaybe<OrderDirection>
     /** The field to order by */
     field?: InputMaybe<ProductOrderField>
+}
+
+/** Product variant filter */
+export type ProductVariantFilterInput = {
+    isPubliclyVisible?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Input for creating a product variant */
@@ -393,6 +474,44 @@ export type ProductVariantVersionOrderInput = {
     direction?: InputMaybe<OrderDirection>
     /** The field to order by */
     field?: InputMaybe<ProductVariantVersionOrderField>
+}
+
+export enum Rating {
+    FiveStars = 'FIVE_STARS',
+    FourStars = 'FOUR_STARS',
+    OneStars = 'ONE_STARS',
+    ThreeStars = 'THREE_STARS',
+    TwoStars = 'TWO_STARS',
+}
+
+/** The input to reserve a batch of product items */
+export type ReserveProductItemsBatchInput = {
+    /** The number of product items to reserve */
+    number: Scalars['Int']['input']
+    /** The product variant id of the product item */
+    productVariantId: Scalars['UUID']['input']
+}
+
+/** Describes the fields that a review can be ordered by. */
+export enum ReviewOrderField {
+    /** Orders by "created_at". */
+    CreatedAt = 'CREATED_AT',
+    /** Orders by "id". */
+    Id = 'ID',
+    /** Orders by "product_variant". */
+    ProductVariant = 'PRODUCT_VARIANT',
+    /** Orders by "rating". */
+    Rating = 'RATING',
+    /** Orders by "user_id". */
+    UserId = 'USER_ID',
+}
+
+/** Specifies the order of reviews. */
+export type ReviewOrderInput = {
+    /** Order direction of reviews. */
+    direction?: InputMaybe<OrderDirection>
+    /** Field that reviews should be ordered by. */
+    field?: InputMaybe<ReviewOrderField>
 }
 
 export type ShoppingCartItemInput = {
@@ -465,7 +584,7 @@ export type UpdateProductItemInput = {
     /** The product item identifier */
     id: Scalars['UUID']['input']
     /** The inventory state of the product item */
-    isInInventory: Scalars['Boolean']['input']
+    inventoryStatus: ProductItemStatus
     /** The product variant id of the product item */
     productVariantId: Scalars['UUID']['input']
 }
@@ -476,6 +595,17 @@ export type UpdateProductVariantInput = {
     id: Scalars['UUID']['input']
     /** If present, new value for isPubliclyVisible */
     isPubliclyVisible?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+export type UpdateReviewInput = {
+    /** Body of Review to update. */
+    body?: InputMaybe<Scalars['String']['input']>
+    /** UUID of review to update. */
+    id: Scalars['UUID']['input']
+    /** Flag if review is visible. */
+    isVisible?: InputMaybe<Scalars['Boolean']['input']>
+    /** Rating of Review in 1-5 stars to update. */
+    rating?: InputMaybe<Rating>
 }
 
 export type UpdateShoppingCartInput = {
@@ -502,6 +632,20 @@ export type UpdateTaxRateInput = {
     name?: InputMaybe<Scalars['String']['input']>
 }
 
+/** Input for the updateUser mutation */
+export type UpdateUserInput = {
+    /** The new birthday of the user */
+    birthday?: InputMaybe<Scalars['Date']['input']>
+    /** The new first name of the user */
+    firstName?: InputMaybe<Scalars['String']['input']>
+    /** The new gender of the user */
+    gender?: InputMaybe<Gender>
+    /** The id of the user to update */
+    id: Scalars['UUID']['input']
+    /** The new last name of the user */
+    lastName?: InputMaybe<Scalars['String']['input']>
+}
+
 export type UpdateWishlistInput = {
     /** UUID of wishlist to update. */
     id: Scalars['UUID']['input']
@@ -509,6 +653,25 @@ export type UpdateWishlistInput = {
     name?: InputMaybe<Scalars['String']['input']>
     /** product variant UUIDs of wishlist to update */
     productVariantIds?: InputMaybe<Array<Scalars['UUID']['input']>>
+}
+
+/** User address filter */
+export type UserAddressFilterInput = {
+    isArchived?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** User address order fields */
+export enum UserAddressOrderField {
+    /** Order addresss by their id */
+    Id = 'ID',
+}
+
+/** User address order */
+export type UserAddressOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<UserAddressOrderField>
 }
 
 /** User order fields */

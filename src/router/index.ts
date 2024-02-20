@@ -1,5 +1,7 @@
 // Composables
+import { useAppStore } from '@/store/app'
 import { createRouter, createWebHistory } from 'vue-router'
+import { canAccess, getAccessRights } from './accessRights'
 
 const routes = [
     {
@@ -66,6 +68,31 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes,
+})
+
+/**
+ * As of now, this only ensures that a user
+ * without the required access rights to a given route,
+ * cannot access that page.
+ */
+router.beforeEach((to) => {
+    const appStore = useAppStore()
+    const accessRights = getAccessRights(appStore.activeUserRole)
+
+    if (typeof to.name === 'string' && accessRights !== null) {
+        const userCanAccess = canAccess(to.name, accessRights)
+        if (process.env.NODE_ENV === 'development') {
+            console.log(
+                'User can access the route to:',
+                to.name,
+                ' -- ',
+                userCanAccess
+            )
+        }
+        return userCanAccess
+    }
+
+    return false
 })
 
 export default router

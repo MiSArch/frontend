@@ -4,6 +4,11 @@ import { useClient } from '@/graphql/client'
 import Keycloak from 'keycloak-js'
 import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
+import { GetCurrentUserQuery } from '@/graphql/generated'
+import { UserRole, parseRoleName } from './userRole'
+
+const defaultUserRole = UserRole.Buyer
+const initialUserRolesOfCurrentUser = [defaultUserRole]
 
 /**
  * Interface representing a notification to be displayed.
@@ -27,6 +32,8 @@ export const useAppStore = defineStore('app', {
         keycloak: null as Keycloak | null,
         isLoggedIn: false,
         currentUserId: null as string | null | undefined,
+        userRolesOfCurrentUser: initialUserRolesOfCurrentUser,
+        activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
     }),
     getters: {
@@ -37,16 +44,64 @@ export const useAppStore = defineStore('app', {
                 return undefined
             }
         },
+        /**
+         * Checks if the current user has more than one user role.
+         *
+         * @returns A boolean indicating whether the current user has more than one user role.
+         */
+        currenUserHasMoreThanOneRole(): boolean {
+            return this.userRolesOfCurrentUser.length > 1
+        },
+        /**
+         * Gets the highest user role of the current user based on their assigned roles.
+         * The order of precedence is Admin > Employee > defaultUserRole.
+         *
+         * @returns The highest user role of the current user.
+         */
+        highestUserRoleOfCurrentUser(): UserRole {
+            if (this.userRolesOfCurrentUser.includes(UserRole.Admin)) {
+                return UserRole.Admin
+            }
+
+            if (this.userRolesOfCurrentUser.includes(UserRole.Employee)) {
+                return UserRole.Employee
+            }
+
+            return defaultUserRole
+        },
+        /**
+         * Checks if the active user role is UserRole.Buyer.
+         *
+         * @returns A boolean indicating whether the active user role is UserRole.Buyer.
+         */
+        activeUserRoleIsBuyer(): boolean {
+            return this.activeUserRole === UserRole.Buyer
+        },
+        /**
+         * Checks if the active user role is either UserRole.Admin or UserRole.Employee.
+         *
+         * @returns A boolean indicating whether the active user role is either Admin or Employee.
+         */
+        activeUserRoleIsEitherAdminOrEmployee(): boolean {
+            return (
+                this.activeUserRole === UserRole.Admin ||
+                this.activeUserRole === UserRole.Employee
+            )
+        },
     },
     actions: {
         /**
-         * Initialize the Keycloak adapter.
-         * Also silently checks the SSO session.
-         * If the user is logged in,
-         * this action gets the current user and
-         * then stores its ID in store.currentUserId.
+         * Initializes the Keycloak adapter and
+         * silently checks the SSO session.
+         * If the user is logged in:
+         *     - The ID of the current user gets stored,
+         *     - the user roles of the current user get stored, and
+         *     - the highest user role of the current user becomes the active user role.
+         *
+         * @param logToken - If true, logs the Keycloak token to the console.
+         * @returns A promise that resolves after the initialization is complete.
          */
-        async initLogin() {
+        async initLogin(logToken?: boolean) {
             const keycloak = new Keycloak({
                 url: '/keycloak',
                 realm: 'Misarch',
@@ -54,20 +109,108 @@ export const useAppStore = defineStore('app', {
             })
 
             try {
-                await keycloak.init({
+                const authenticated = await keycloak.init({
                     onLoad: 'check-sso',
                     silentCheckSsoRedirectUri: silentCheckSsoHtmlUrl,
                     redirectUri: '/',
                 })
+
                 this.keycloak = keycloak
-                this.isLoggedIn = keycloak.authenticated ?? false
-                if (this.isLoggedIn) {
-                    const currentUser = await useClient().getCurrentUser()
-                    this.currentUserId = currentUser.currentUser?.id
+                this.isLoggedIn = authenticated
+
+                if (logToken === true) {
+                    console.log('Token', keycloak.token)
                 }
-                console.log('Token', keycloak.token)
             } catch (error) {
                 console.error('Failed to initialize adapter:', error)
+            }
+
+            if (this.isLoggedIn) {
+                this.setCurrentUserId()
+
+                this.setUserRolesOfCurrentUser()
+
+                this.activeUserRole = this.highestUserRoleOfCurrentUser
+            }
+        },
+        /**
+         * Retrieves the current user.
+         *
+         * @returns A promise that resolves with the current user information or null if:
+         *     a) the user information is not of type 'User' or
+         *     b) the retrieval failed with an error.
+         */
+        async getCurrentUser(): Promise<GetCurrentUserQuery | null> {
+            try {
+                const currentUser = await useClient().getCurrentUser()
+                if (currentUser.currentUser?.__typename === 'User') {
+                    return currentUser
+                } else {
+                    return null
+                }
+            } catch (error) {
+                console.error('Failed to get the current user:', error)
+
+                return null
+            }
+        },
+        /**
+         * Sets the current user ID based on the retrieved user information.
+         *
+         * @returns A promise that resolves with a boolean indicating whether
+         * the current user ID was successfully set (true) or not (false).
+         */
+        async setCurrentUserId(): Promise<boolean> {
+            const currentUser = await this.getCurrentUser()
+            if (
+                currentUser !== null &&
+                currentUser.currentUser?.__typename === 'User'
+            ) {
+                this.currentUserId = currentUser.currentUser.id
+
+                return (
+                    this.currentUserId !== null &&
+                    this.currentUserId !== undefined
+                )
+            } else {
+                this.currentUserId = null
+
+                return false
+            }
+        },
+        /**
+         * Sets the user roles of the current user based on the roles retrieved from Keycloak.
+         *
+         * @returns {boolean} A boolean indicating whether the user roles were successfully set (true) or not (false).
+         */
+        setUserRolesOfCurrentUser(): boolean {
+            if (this.keycloak !== null) {
+                const realmAccess = this.keycloak.realmAccess
+                if (realmAccess !== undefined) {
+                    realmAccess.roles.forEach((roleName) => {
+                        if (roleName !== null && roleName !== undefined) {
+                            const possibleUserRoleOfCurrentUser =
+                                parseRoleName(roleName)
+                            if (
+                                possibleUserRoleOfCurrentUser !== null &&
+                                possibleUserRoleOfCurrentUser !==
+                                    defaultUserRole
+                            ) {
+                                this.userRolesOfCurrentUser.push(
+                                    possibleUserRoleOfCurrentUser
+                                )
+                            }
+                        }
+                    })
+
+                    return true
+                } else {
+                    return false
+                }
+            } else {
+                this.userRolesOfCurrentUser = [UserRole.Buyer]
+
+                return false
             }
         },
         /**
@@ -87,6 +230,7 @@ export const useAppStore = defineStore('app', {
          * Before the user is actually logged out,
          * this action resets the ID of the current user
          * stored in store.currentUserId to null to prevent the ID from being leaked.
+         * Resets the user roles of the current user to the default role 'Buyer'.
          */
         async logout() {
             try {
@@ -95,6 +239,9 @@ export const useAppStore = defineStore('app', {
                 await this.keycloak?.logout({
                     redirectUri: '/',
                 })
+
+                this.userRolesOfCurrentUser = initialUserRolesOfCurrentUser
+                this.activeUserRole = defaultUserRole
             } catch (error) {
                 console.error('Failed to logout:', error)
             }
