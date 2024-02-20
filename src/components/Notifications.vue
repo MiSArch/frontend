@@ -1,5 +1,8 @@
 <template>
-    <v-bottom-sheet :model-value="hasAnyPushedNotificationsThatShouldBeVisible">
+    <v-bottom-sheet
+        max-height="40%"
+        :model-value="hasAnyPushedNotificationsThatShouldBeVisible"
+    >
         <v-card>
             <v-card-item>
                 <v-card-title>Notifications</v-card-title>
@@ -91,19 +94,11 @@ function pushNotifications() {
         return
     }
 
-    let forTestingOnly = snapshotOfQueuedNotifications.map(
-        convertNotificationToAlert
-    )
-
-    for (let index = 0; index < 5; index++) {
-        forTestingOnly.push(...forTestingOnly)
-    }
-
     pushedNotifications.value = [
         ...pushedNotifications.value.filter(
             (notification) => notification.shouldBeVisible
         ),
-        ...forTestingOnly,
+        ...store.popAllNotifications().map(convertNotificationToAlert),
     ]
 }
 

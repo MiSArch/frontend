@@ -114,9 +114,7 @@ export const useAppStore = defineStore('app', {
          * @returns A snapshot of the currently queued notifications, right before the queue gets emptied.
          */
         popAllNotifications(): Notification[] {
-            const snapshotOfQueuedNotifications = this.queuedNotifications
-            this.queuedNotifications = []
-            return snapshotOfQueuedNotifications
+            return this.queuedNotifications.splice(0)
         },
     },
 })
