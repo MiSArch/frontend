@@ -2,7 +2,7 @@
     <v-app>
         <TheAppBar />
         <v-navigation-drawer
-            v-if="activeUserRoleIsBuyer"
+            v-if="activeUserRoleIsCustomer"
             location="start"
             floating
         >
@@ -38,7 +38,7 @@
             </v-list>
         </v-navigation-drawer>
         <v-navigation-drawer
-            v-if="activeUserRoleIsEitherEmployeeOrSiteAdmin"
+            v-if="activeUserRoleIsEitherAdminOrEmployee"
             class="bg-grey-lighten-3"
             expand-on-hover
             floating
@@ -73,31 +73,13 @@ import TheViewPlaceholder from './TheViewPlaceholder.vue'
 
 import { useClient } from '@/graphql/client'
 import { CategoryOrderField, OrderDirection } from '@/graphql/generated'
-import { UserRole, useAppStore } from '@/store/app'
+import { useAppStore } from '@/store/app'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 
-const store = useAppStore()
-
-const { activeUserRole } = storeToRefs(store)
-
-/**
- * Whether or not the active user role is 'Buyer'.
- */
-const activeUserRoleIsBuyer = computed(() => {
-    return activeUserRole.value == UserRole.Buyer
-})
-
-/**
- * Whether or not the active user role is either 'Employee' or 'Administrator'.
- */
-const activeUserRoleIsEitherEmployeeOrSiteAdmin = computed(() => {
-    return (
-        activeUserRole.value == UserRole.Employee ||
-        activeUserRole.value == UserRole.SiteAdmin
-    )
-})
+const { activeUserRoleIsCustomer, activeUserRoleIsEitherAdminOrEmployee } =
+    storeToRefs(useAppStore())
 
 /**
  * The GraphQL client to use for all GraphQL requests.

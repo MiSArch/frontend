@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex flex-column ga-4">
-        <div v-if="activeUserRoleIsEitherEmployeeOrSiteAdmin">
+        <div v-if="activeUserRoleIsEitherAdminOrEmployee">
             <v-toolbar class="bg-grey-lighten-3" density="comfortable">
                 <v-btn icon="mdi-arrow-left" @click="router.back()"></v-btn>
             </v-toolbar>
@@ -341,7 +341,7 @@ import ProductSummary from '@/components/ProductSummary.vue'
 import RelativeTime from '@/components/RelativeTime.vue'
 import { useClient } from '@/graphql/client'
 import { UpdateWishlistInput } from '@/graphql/generated'
-import { UserRole, useAppStore } from '@/store/app'
+import { useAppStore } from '@/store/app'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
@@ -349,17 +349,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 const store = useAppStore()
 
-const { activeUserRole } = storeToRefs(store)
-
-/**
- * Whether or not the active user role is either 'Employee' or 'Administrator'.
- */
-const activeUserRoleIsEitherEmployeeOrSiteAdmin = computed(() => {
-    return (
-        activeUserRole.value == UserRole.Employee ||
-        activeUserRole.value == UserRole.SiteAdmin
-    )
-})
+const { activeUserRoleIsEitherAdminOrEmployee } = storeToRefs(store)
 
 /**
  * The GraphQL client to use for all GraphQL requests.

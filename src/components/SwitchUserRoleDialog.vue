@@ -12,7 +12,7 @@
                     Please note that certain areas of the online store's web
                     application can only be accessed with specific user roles.
                     For example, the wish list features are exclusively intended
-                    for the Buyer.
+                    for the Customer.
                 </div>
                 <v-select
                     :items="userRolesOfCurrentUser"

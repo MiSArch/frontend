@@ -3,11 +3,11 @@
         <v-app-bar-title>
             <router-link to="/"> MiSArch Online Store </router-link>
         </v-app-bar-title>
-        <v-btn v-if="activeUserRoleIsBuyer" disabled prepend-icon="mdi-cart">
+        <v-btn v-if="activeUserRoleIsCustomer" disabled prepend-icon="mdi-cart">
             Shopping Cart
         </v-btn>
         <v-btn
-            v-if="userHasMoreThanOneRole"
+            v-if="currenUserHasMoreThanOneRole"
             prepend-icon="mdi-account-switch"
             @click="openSwitchUserRoleDialog"
         >
@@ -25,28 +25,15 @@
 
 <script lang="ts" setup>
 import SwitchUserRoleDialog from '@/components/SwitchUserRoleDialog.vue'
-import { UserRole, useAppStore } from '@/store/app'
+import { useAppStore } from '@/store/app'
 import { storeToRefs } from 'pinia'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const store = useAppStore()
 
-const { activeUserRole, userRolesOfCurrentUser } = storeToRefs(store)
-
-/**
- * Whether or not the active user role is 'Buyer'.
- */
-const activeUserRoleIsBuyer = computed(() => {
-    return activeUserRole.value == UserRole.Buyer
-})
-
-/**
- * Whether or not the user has more than one user role.
- */
-const userHasMoreThanOneRole = computed(() => {
-    return userRolesOfCurrentUser.value.length > 1
-})
+const { activeUserRoleIsCustomer, currenUserHasMoreThanOneRole } =
+    storeToRefs(store)
 
 const router = useRouter()
 
