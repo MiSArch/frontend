@@ -11,24 +11,6 @@
             @close-addwishlistdialog="closeAddWishlistDialog"
         />
     </v-toolbar>
-    <v-alert
-        class="ma-2"
-        closable
-        density="comfortable"
-        text="An error occurred when trying to add the wishlist."
-        title="Could not add wishlist"
-        type="error"
-        v-model="addingWishlistFailed"
-    ></v-alert>
-    <v-alert
-        class="ma-2"
-        closable
-        density="comfortable"
-        text="An error occurred when trying to delete the wishlist."
-        title="Could not delete wishlist"
-        type="error"
-        v-model="deletingWishlistFailed"
-    ></v-alert>
     <v-list
         v-if="wishlists && wishlists.totalCount > 0"
         class="mx-2"
@@ -70,7 +52,13 @@ import {
     WishlistOrderField,
 } from '@/graphql/generated'
 import { useAppStore } from '@/store/app'
+import { errorMessages } from '@/strings/errorMessages'
+import {
+    pushErrorNotification,
+    pushErrorNotificationIfNecessary,
+} from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
+import { stringify } from 'querystring'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -110,35 +98,32 @@ const trigger = ref(0)
  */
 const wishlists = asyncComputed(
     async () => {
-        try {
-            trigger.value
+        trigger.value
 
-            if (store.isLoggedIn) {
-                const user = await client.getUserWithWishlists({
-                    userId: useAppStore().currentUserId,
-                    firstWishlists: perPage.value,
-                    skipWishlist: (currentPage.value - 1) * perPage.value,
-                    orderWishlistsBy: {
-                        direction: OrderDirection.Desc,
-                        field: WishlistOrderField.LastUpdatedAt,
-                    },
-                })
+        if (store.isLoggedIn && typeof store.currentUserId === 'string') {
+            const user = await client.getUserWithWishlists({
+                userId: store.currentUserId,
+                firstWishlists: perPage.value,
+                skipWishlist: (currentPage.value - 1) * perPage.value,
+                orderWishlistsBy: {
+                    direction: OrderDirection.Desc,
+                    field: WishlistOrderField.LastUpdatedAt,
+                },
+            })
 
-                if (user.user.wishlists) {
-                    return user.user.wishlists
-                } else {
-                    return null
-                }
+            if (user.user.wishlists) {
+                return user.user.wishlists
             } else {
+                return null
             }
-        } catch (error) {
-            console.log(error)
-
-            return null
         }
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) =>
+            pushErrorNotification(errorMessages.getUserWithWishlists, e),
+        shallow: false,
+    }
 )
 
 /**
@@ -162,28 +147,17 @@ const pageCount = computed(() => {
 })
 
 /**
- * Whether or not deleting a specific wishlist failed.
- * This property decides whether or not an alert has to be shown to the user.
- */
-const deletingWishlistFailed = ref(false)
-
-/**
  * Deletes the wishlist matching the given id.
  * @param id The id of the wishlist to delete.
  */
 async function deleteWishlist(id: any) {
-    deletingWishlistFailed.value = false
-    try {
-        await client.deleteWishlist({
+    await pushErrorNotificationIfNecessary(() => {
+        return client.deleteWishlist({
             id: id,
         })
+    }, errorMessages.deleteWishlist)
 
-        reevaluateWishlists()
-    } catch (error) {
-        deletingWishlistFailed.value = true
-
-        console.log(error)
-    }
+    reevaluateWishlists()
 }
 
 /**
@@ -206,30 +180,19 @@ function closeAddWishlistDialog() {
 }
 
 /**
- * Whether or not adding a new wishlist failed.
- * This property decides whether or not an alert has to be shown to the user.
- */
-const addingWishlistFailed = ref(false)
-
-/**
  * Tries to add a new wishlist.
  * @param input The wishlist to add.
  */
 async function addWishlist(input: AddWishlistInput) {
     closeAddWishlistDialog()
 
-    addingWishlistFailed.value = false
-    try {
-        await client.addWishlist({
+    await pushErrorNotificationIfNecessary(() => {
+        return client.addWishlist({
             input: input,
         })
+    }, errorMessages.addWishlist)
 
-        reevaluateWishlists()
-    } catch (error) {
-        addingWishlistFailed.value = true
-
-        console.error(error)
-    }
+    reevaluateWishlists()
 }
 
 /**

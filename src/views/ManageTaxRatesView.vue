@@ -11,15 +11,6 @@
             @add-tax-rate="addTaxRate"
         />
     </v-toolbar>
-    <v-alert
-        class="ma-2"
-        closable
-        density="comfortable"
-        text="An error occurred when trying to add the tax rate."
-        title="Could not add tax rate"
-        type="error"
-        v-model="addingTaxRateFailed"
-    ></v-alert>
     <v-list
         v-if="taxRates != null && taxRates && taxRates.taxRates.totalCount > 0"
         class="mx-2"
@@ -42,6 +33,11 @@
 import AddTaxRateDialog from '@/components/AddTaxRateDialog.vue'
 import { CreateTaxRateInput } from '@/graphql/generated'
 import { useClient } from '@/graphql/client'
+import { errorMessages } from '@/strings/errorMessages'
+import {
+    pushErrorNotification,
+    pushErrorNotificationIfNecessary,
+} from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { ref } from 'vue'
 import router from '@/router'
@@ -70,16 +66,17 @@ function reevaluateTaxRates() {
 const taxRates = asyncComputed(
     async () => {
         trigger.value
-        try {
-            return await client.getTaxRatesWithCurrentVersion()
-        } catch (error) {
-            console.error(error)
-
-            return null
-        }
+        return await client.getTaxRatesWithCurrentVersion()
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getTaxRatesWithCurrentVersion,
+                e
+            ),
+        shallow: false,
+    }
 )
 
 /**
@@ -102,11 +99,6 @@ function closeAddTaxRateDialog() {
 }
 
 /**
- * Whether or not adding a new tax rate failed.
- */
-const addingTaxRateFailed = ref(false)
-
-/**
  * Closes the 'ADD TAX RATE' dialog and
  * then tries to request the creation of a new tax rate
  * according to the given CreateTaxRateInput.
@@ -116,18 +108,13 @@ const addingTaxRateFailed = ref(false)
 async function addTaxRate(input: CreateTaxRateInput) {
     closeAddTaxRateDialog()
 
-    addingTaxRateFailed.value = false
-    try {
-        await client.createTaxRate({
+    await pushErrorNotificationIfNecessary(() => {
+        return client.createTaxRate({
             input: input,
         })
+    }, errorMessages.createTaxRate)
 
-        reevaluateTaxRates()
-    } catch (error) {
-        addingTaxRateFailed.value = true
-
-        console.error(error)
-    }
+    reevaluateTaxRates()
 }
 
 /**

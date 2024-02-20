@@ -111,15 +111,6 @@
             <!-- To enforce the gap (see line 2 "... ga-4") -->
         </div>
         <div class="d-flex flex-column ga-4">
-            <v-alert
-                class="mx-4"
-                closable
-                density="comfortable"
-                text="An error occurred when trying to update the wishlists."
-                title="Could not update wishlists"
-                type="error"
-                v-model="updatingWishlistFailed"
-            ></v-alert>
             <div class="d-flex mx-4 ga-4">
                 <v-sheet border>
                     <v-carousel cycle show-arrows="hover">
@@ -342,6 +333,11 @@ import RelativeTime from '@/components/RelativeTime.vue'
 import { useClient } from '@/graphql/client'
 import { UpdateWishlistInput } from '@/graphql/generated'
 import { useAppStore } from '@/store/app'
+import { errorMessages } from '@/strings/errorMessages'
+import {
+    pushErrorNotification,
+    pushErrorNotificationIfNecessary,
+} from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
@@ -383,7 +379,10 @@ const product = asyncComputed(
         })
     },
     null,
-    { shallow: false }
+    {
+        onError: (e) => pushErrorNotification(errorMessages.getProduct, e),
+        shallow: false,
+    }
 )
 
 /**
@@ -554,29 +553,20 @@ function closeAddToWishlistDialog() {
 }
 
 /**
- * Whether or not updating the wishlists failed.
- * This property decides whether or not an alert has to be shown to the user.
- */
-const updatingWishlistFailed = ref(false)
-
-/**
  * Tries to update the given wishlists.
  * @param input The wishlists that have to be updated.
  */
 async function updateWishlists(input: UpdateWishlistInput[]) {
     closeAddToWishlistDialog()
 
-    updatingWishlistFailed.value = false
     input.forEach(async (updateWishlistInput) => {
         try {
-            await client.updateWishlist({
-                input: updateWishlistInput,
-            })
-        } catch (error) {
-            updatingWishlistFailed.value = true
-
-            console.error(error)
-        }
+            await pushErrorNotificationIfNecessary(() => {
+                return client.updateWishlist({
+                    input: updateWishlistInput,
+                })
+            }, errorMessages.updateWishlist)
+        } catch (error) {}
     })
 }
 

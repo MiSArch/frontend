@@ -10,6 +10,23 @@ import { UserRole, parseRoleName } from './userRole'
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
 
+/**
+ * Interface representing a notification to be displayed.
+ *
+ * @property text - The main text content of the notification.
+ * @property [title] - Optional title for the notification.
+ * @property [type] - Type of notification (success, info, warning, error).
+ * @property [density] - Density of the notification (default, comfortable, compact).
+ * @property [closable] - Indicates whether the notification is closable.
+ */
+export interface Notification {
+    text: string
+    title?: string
+    type?: 'success' | 'info' | 'warning' | 'error'
+    density?: 'default' | 'comfortable' | 'compact'
+    closable?: boolean
+}
+
 export const useAppStore = defineStore('app', {
     state: () => ({
         keycloak: null as Keycloak | null,
@@ -17,6 +34,7 @@ export const useAppStore = defineStore('app', {
         currentUserId: null as string | null | undefined,
         userRolesOfCurrentUser: initialUserRolesOfCurrentUser,
         activeUserRole: defaultUserRole,
+        queuedNotifications: [] as Notification[],
     }),
     getters: {
         token(): string | undefined {
@@ -227,6 +245,23 @@ export const useAppStore = defineStore('app', {
             } catch (error) {
                 console.error('Failed to logout:', error)
             }
+        },
+        /**
+         * Adds the given notification to the notification queue.
+         * @param notification The notification to add to the queue.
+         */
+        pushNotification(notification: Notification) {
+            this.queuedNotifications = [
+                ...this.queuedNotifications,
+                notification,
+            ]
+        },
+        /**
+         * Pops all of the currently queued notifications.
+         * @returns A snapshot of the currently queued notifications, right before the queue gets emptied.
+         */
+        popAllNotifications(): Notification[] {
+            return this.queuedNotifications.splice(0)
         },
     },
 })

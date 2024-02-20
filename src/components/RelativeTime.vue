@@ -45,11 +45,11 @@ const absoluteTime = new Intl.DateTimeFormat(props.locales ?? 'en-US', {
 /**
  * Formats the relative time between two dates.
  *
- * @param {Date} from - The starting date from which the relative time is calculated. For the UI, in most cases, this will be today's date.
- * @param {Date} to - The ending date to which the relative time is calculated. This can be 'older' than the starting date.
- * @returns {string} A string representing the relative time between the two dates.
+ * @param from - The starting date from which the relative time is calculated. For the UI, in most cases, this will be today's date.
+ * @param to - The ending date to which the relative time is calculated. This can be 'older' than the starting date.
+ * @returns A string representing the relative time between the two dates.
  *                  The format is determined based on the elapsed time.
- * @throws {Error} Throws an error if an unreachable condition is encountered during
+ * @throws Throws an error if an unreachable condition is encountered during
  *                 the process of determining the relative time.
  */
 function formatRelativeTime(from: Date, to: Date): string {
@@ -70,10 +70,10 @@ function formatRelativeTime(from: Date, to: Date): string {
  * to generate a string representation of the Date object based on the
  * formatting rules of 'absoluteTime'.
  *
- * @param {Date} date - The Date object representing the absolute date and time.
- * @returns {string} A formatted string representing the given Date object.
+ * @param date - The Date object representing the absolute date and time.
+ * @returns A formatted string representing the given Date object.
  *
- * @throws {Error} Throws an error if the formatting process encounters an issue.
+ * @throws Throws an error if the formatting process encounters an issue.
  *
  * @example
  * const currentDate = new Date();
@@ -90,8 +90,8 @@ function formatAbsoluteTime(date: Date): string {
  * A Date object is considered valid if its `getDate` method returns a valid day
  * of the month. The `getDate` method returns the day (1-31) for the specified date.
  *
- * @param {Date} date - The Date object to be checked for validity.
- * @returns {boolean} Returns true if the provided Date is valid, otherwise returns false.
+ * @param date - The Date object to be checked for validity.
+ * @returns Returns true if the provided Date is valid, otherwise returns false.
  *
  * @example
  * const validDate = new Date('2022-01-15');
