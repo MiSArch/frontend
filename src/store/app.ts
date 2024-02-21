@@ -38,8 +38,8 @@ export const useAppStore = defineStore('app', {
     }),
     getters: {
         token(): string | undefined {
-            if (this.isLoggedIn) {
-                return this.keycloak?.token
+            if (this.keycloak !== null && this.isLoggedIn) {
+                return this.keycloak.token
             } else {
                 return undefined
             }
@@ -245,6 +245,51 @@ export const useAppStore = defineStore('app', {
             } catch (error) {
                 console.error('Failed to logout:', error)
             }
+        },
+        /**
+         * Refreshes the access token using the provided Keycloak instance.
+         *
+         * @param keycloak - The Keycloak instance used to refresh (update) the access token.
+         * @returns A promise that resolves with a boolean indicating whether the token was refreshed.
+         * @throws Throws an error if keycloak is null or undefined or if the token refresh fails.
+         */
+        async refreshAccessToken(keycloak: Keycloak): Promise<boolean> {
+            if (keycloak === null || keycloak === undefined) {
+                throw new Error('keycloak cannot be null or undefined')
+            }
+
+            try {
+                const refreshed = await keycloak.updateToken(5)
+                console.log(
+                    refreshed ? 'Token was refreshed' : 'Token is still valid'
+                )
+                return refreshed
+            } catch (error) {
+                console.error('Failed to refresh the token:', error)
+                throw error
+            }
+        },
+        /**
+         * Retrieves the access token. Optionally, refreshes the access token beforehand if specified.
+         *
+         * @param [refreshTheAccessTokenBeforehand=false] - Optional. If true, refreshes the access token before retrieval.
+         * @returns A promise that resolves with the access token or null if the token is undefined.
+         */
+        async getAccessToken(
+            refreshTheAccessTokenBeforehand?: boolean
+        ): Promise<string | null> {
+            if (this.token === undefined) {
+                return null
+            }
+
+            if (
+                refreshTheAccessTokenBeforehand === true &&
+                this.keycloak !== null
+            ) {
+                await this.refreshAccessToken(this.keycloak)
+            }
+
+            return this.token
         },
         /**
          * Adds the given notification to the notification queue.
