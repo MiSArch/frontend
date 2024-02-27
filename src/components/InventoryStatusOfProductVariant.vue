@@ -64,14 +64,14 @@ import { computed } from 'vue'
 /**
  * Possible modes / 'perspectives' of this component.
  */
- enum Perspective {
+enum Perspective {
     Customer = 'customer',
     InventoryManager = 'inventory manager',
 }
 
 /**
  * Props for the component.
- * 
+ *
  * @property perspective - The perspective (customer or inventory manager).
  * @property inStock - Indicates whether there are product items in stock.
  * @property [numberOfProductItemsInStock] - The number of product items in stock or undefined.
@@ -87,7 +87,7 @@ const props = defineProps({
         type: String,
         required: true,
         validator(value: string) {
-            return ['customer', 'inventory manager'].includes(value);
+            return ['customer', 'inventory manager'].includes(value)
         },
     },
     inStock: {
@@ -115,7 +115,7 @@ const props = defineProps({
     numberOfLostProductItems: {
         type: Number,
     },
-});
+})
 
 /**
  * Computed property indicating whether to show the number of product items in stock:
@@ -125,8 +125,8 @@ const showNumberOfProductItemsInStock = computed(() => {
     return (
         props.perspective === Perspective.InventoryManager &&
         props.numberOfProductItemsInStock !== undefined
-    );
-});
+    )
+})
 
 /**
  * Computed property indicating whether there is any inventory status information available:
@@ -141,7 +141,6 @@ const hasAnyInventoryStatusInformation = computed(() => {
         props.numberOfDeliveredProductItems ||
         props.numberOfReturnedProductItems ||
         props.numberOfLostProductItems
-    );
-});
-
+    )
+})
 </script>
