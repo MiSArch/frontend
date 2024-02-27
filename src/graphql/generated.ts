@@ -254,6 +254,8 @@ export type CreateProductVariantVersionInput = {
     retailPrice: Scalars['Int']['input']
     /** The associated TaxRate */
     taxRateId: Scalars['UUID']['input']
+    /** The weight of a single instance of the ProductVariant. */
+    weight: Scalars['Float']['input']
 }
 
 /** Input for the createTaxRate mutation */
@@ -456,6 +458,8 @@ export type ProductVariantVersionInput = {
     retailPrice: Scalars['Int']['input']
     /** The associated TaxRate */
     taxRateId: Scalars['UUID']['input']
+    /** The weight of a single instance of the ProductVariant. */
+    weight: Scalars['Float']['input']
 }
 
 /** ProductVariantVersion order fields */
@@ -571,6 +575,8 @@ export type UpdateNotificationInput = {
 
 /** Input for the updateProduct mutation. */
 export type UpdateProductInput = {
+    /** If present, new value for defaultVariantId */
+    defaultVariantId?: InputMaybe<Scalars['UUID']['input']>
     /** UUID of the product to be updated */
     id: Scalars['UUID']['input']
     /** If present, new value for internalName */
@@ -726,6 +732,7 @@ export type DefaultProductVariantFragment = {
             name: string
             description: string
             retailPrice: number
+            weight: number
             canBeReturnedForDays?: number | null
             version: number
             createdAt: any
@@ -740,6 +747,7 @@ export type CurrentVersionFragment = {
     name: string
     description: string
     retailPrice: number
+    weight: number
     canBeReturnedForDays?: number | null
     version: number
     createdAt: any
@@ -796,6 +804,7 @@ export type GetDefaultProductVariantsQuery = {
                     name: string
                     description: string
                     retailPrice: number
+                    weight: number
                     canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
@@ -867,6 +876,7 @@ export type GetCategoryWithCharacteristicsAndDefaultProductVariantsQuery = {
                         name: string
                         description: string
                         retailPrice: number
+                        weight: number
                         canBeReturnedForDays?: number | null
                         version: number
                         createdAt: any
@@ -987,6 +997,7 @@ export type GetProductQuery = {
                     name: string
                     description: string
                     retailPrice: number
+                    weight: number
                     canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
@@ -1154,39 +1165,6 @@ export type GetTaxRatesQuery = {
             id: any
             name: string
             description: string
-        }>
-    }
-}
-
-export type GetTaxRatesWithVersionsQueryVariables = Exact<{
-    first?: InputMaybe<Scalars['Int']['input']>
-    skip?: InputMaybe<Scalars['Int']['input']>
-    orderBy?: InputMaybe<TaxRateOrderInput>
-}>
-
-export type GetTaxRatesWithVersionsQuery = {
-    __typename?: 'Query'
-    taxRates: {
-        __typename?: 'TaxRateConnection'
-        totalCount: number
-        hasNextPage: boolean
-        nodes: Array<{
-            __typename?: 'TaxRate'
-            id: any
-            name: string
-            description: string
-            currentVersion: { __typename?: 'TaxRateVersion'; id: any }
-            versions: {
-                __typename?: 'TaxRateVersionConnection'
-                totalCount: number
-                nodes: Array<{
-                    __typename?: 'TaxRateVersion'
-                    id: any
-                    rate: number
-                    version: number
-                    createdAt: any
-                }>
-            }
         }>
     }
 }
@@ -1457,6 +1435,7 @@ export const CurrentVersionFragmentDoc = gql`
         name
         description
         retailPrice
+        weight
         canBeReturnedForDays
         version
         createdAt
@@ -1649,6 +1628,7 @@ export const GetProductDocument = gql`
                         name
                         description
                         retailPrice
+                        weight
                         canBeReturnedForDays
                         taxRate {
                             id
@@ -1755,33 +1735,6 @@ export const GetTaxRatesDocument = gql`
             }
         }
     }
-`
-export const GetTaxRatesWithVersionsDocument = gql`
-    query getTaxRatesWithVersions(
-        $first: Int
-        $skip: Int
-        $orderBy: TaxRateOrderInput
-    ) {
-        taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
-            totalCount
-            hasNextPage
-            nodes {
-                id
-                name
-                description
-                currentVersion {
-                    id
-                }
-                versions {
-                    totalCount
-                    nodes {
-                        ...taxRateVersion
-                    }
-                }
-            }
-        }
-    }
-    ${TaxRateVersionFragmentDoc}
 `
 export const GetTaxRatesWithCurrentVersionDocument = gql`
     query getTaxRatesWithCurrentVersion(
@@ -2174,22 +2127,6 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'getTaxRates',
-                'query',
-                variables
-            )
-        },
-        getTaxRatesWithVersions(
-            variables?: GetTaxRatesWithVersionsQueryVariables,
-            requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetTaxRatesWithVersionsQuery> {
-            return withWrapper(
-                (wrappedRequestHeaders) =>
-                    client.request<GetTaxRatesWithVersionsQuery>(
-                        GetTaxRatesWithVersionsDocument,
-                        variables,
-                        { ...requestHeaders, ...wrappedRequestHeaders }
-                    ),
-                'getTaxRatesWithVersions',
                 'query',
                 variables
             )

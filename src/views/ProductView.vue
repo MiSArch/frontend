@@ -84,11 +84,30 @@
                     >
                 </v-card-item>
                 <v-card-text>
-                    <div v-if="productVariant?.currentVersion.createdAt">
-                        Created
-                        <RelativeTime
-                            :time="productVariant?.currentVersion.createdAt"
-                        />
+                    <div class="d-flex flex-column ga-2">
+                        <div class="d-inline-flex">
+                            <v-table class="text-capitalize" density="compact">
+                                <tbody>
+                                    <tr>
+                                        <td>Weight</td>
+                                        <td class="text-lowercase">
+                                            {{
+                                                productVariant?.currentVersion
+                                                    .weight +
+                                                ' ' +
+                                                unitUsedForWeightInformation
+                                            }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </v-table>
+                        </div>
+                        <div v-if="productVariant?.currentVersion.createdAt">
+                            Created
+                            <RelativeTime
+                                :time="productVariant?.currentVersion.createdAt"
+                            />
+                        </div>
                     </div>
                 </v-card-text>
                 <v-divider class="mx-4"></v-divider>
@@ -275,7 +294,15 @@
                     <v-divider></v-divider>
                     <v-card-text>
                         <v-container>
-                            <v-row align="start" no-gutters>
+                            <v-row align="start" dense>
+                                <v-col>Weight:</v-col>
+                                <v-col>{{
+                                    productVariant?.currentVersion.weight +
+                                    ' ' +
+                                    unitUsedForWeightInformation
+                                }}</v-col>
+                            </v-row>
+                            <v-row align="start" dense>
                                 <v-col>Returns:</v-col>
                                 <v-col
                                     >Returnable within
@@ -345,7 +372,8 @@ import { useRoute, useRouter } from 'vue-router'
 
 const store = useAppStore()
 
-const { activeUserRoleIsEitherAdminOrEmployee } = storeToRefs(store)
+const { unitUsedForWeightInformation, activeUserRoleIsEitherAdminOrEmployee } =
+    storeToRefs(store)
 
 /**
  * The GraphQL client to use for all GraphQL requests.

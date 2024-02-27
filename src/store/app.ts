@@ -6,9 +6,11 @@ import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
 import { GetCurrentUserQuery } from '@/graphql/generated'
 import { UserRole, parseRoleName } from './userRole'
+import { Unit } from '../util/unit'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
+const defaultUnitUsedForWeightInformation = Unit.Kilogram
 
 /**
  * Interface representing a notification to be displayed.
@@ -35,6 +37,7 @@ export const useAppStore = defineStore('app', {
         userRolesOfCurrentUser: initialUserRolesOfCurrentUser,
         activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
+        unitUsedForWeightInformation: defaultUnitUsedForWeightInformation,
     }),
     getters: {
         token(): string | undefined {

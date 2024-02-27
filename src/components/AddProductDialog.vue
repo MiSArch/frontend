@@ -109,6 +109,18 @@
                                 item-value="id"
                                 v-model="variant.taxRateId"
                             ></v-select>
+                            <v-text-field
+                                class="mb-4"
+                                clearable
+                                hint="Enter a positive decimal number, e.g. 0.5"
+                                :label="
+                                    'Weight in ' + unitUsedForWeightInformation
+                                "
+                                :rules="[weightInputIsValid]"
+                                type="input"
+                                v-model="variant.weight"
+                            >
+                            </v-text-field>
                             <v-file-input
                                 accept="image/*"
                                 chips
@@ -143,12 +155,15 @@ import {
     CreateProductVariantInput,
     OrderDirection,
 } from '@/graphql/generated'
+import { useAppStore } from '@/store/app'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
     pushErrorNotificationIfNecessary,
 } from '@/util/errorHandler'
+import { weightInputIsValid } from '@/util/rules'
 import { asyncComputed } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 
 /**
@@ -172,6 +187,7 @@ interface ProductVariant {
     name: string
     retailPrice: string
     taxRateId: string | undefined
+    weight: string | undefined
 }
 
 /**
@@ -185,6 +201,11 @@ const emit = defineEmits<{
  * The GraphQL client to use for all GraphQL requests.
  */
 const client = useClient()
+
+/**
+ * Reactive references and values from the Pinia store.
+ */
+const { unitUsedForWeightInformation } = storeToRefs(useAppStore())
 
 const variantTab = ref<number>()
 const internalName = ref('')
@@ -254,6 +275,7 @@ function addVariant() {
         name: internalName.value ?? '',
         retailPrice: '0',
         taxRateId: undefined,
+        weight: undefined,
     }
     variants.value.push(createdVariant)
     variantTab.value = createdVariant.tempId
@@ -289,8 +311,10 @@ function transformVariant(
             description: variant.description,
             name: variant.name,
             numericalCharacteristicValues: [],
-            retailPrice: Number.parseInt(variant.retailPrice),
+            retailPrice: parseInt(variant.retailPrice),
             taxRateId: variant.taxRateId,
+            weight:
+                variant.weight !== undefined ? parseFloat(variant.weight) : 0,
         },
         isPubliclyVisible: !variant.invisible,
     }
@@ -329,6 +353,10 @@ async function save() {
                     numericalCharacteristicValues: [],
                     retailPrice: Number.parseInt(variant.retailPrice),
                     taxRateId: variant.taxRateId,
+                    weight:
+                        variant.weight !== undefined
+                            ? parseFloat(variant.weight)
+                            : 0,
                 },
                 isPubliclyVisible: !variant.invisible,
             }
