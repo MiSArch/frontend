@@ -1,0 +1,22 @@
+# Queries:
+
+# Gets the inventory status of each product item of a given product variant.
+query getInventoryStatusOfProductItems($productVariantId: UUID!, $first: Int, $skip: Int, $orderBy: ProductItemOrder) {
+  productItemsByProductVariant(first: $first, orderBy: $orderBy, productVariantId: $productVariantId, skip: $skip) {
+    totalCount
+    hasNextPage
+    nodes {
+      inventoryStatus
+    }
+  }
+}
+
+# Mutations:
+
+# Creates a batch of product items.
+mutation createProductItemBatch($input: CreateProductItemBatchInput!) {
+  createProductItemBatch(input: $input) {
+    id
+    inventoryStatus
+  }
+}

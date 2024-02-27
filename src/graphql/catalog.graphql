@@ -187,6 +187,21 @@ query getProduct($id: UUID!) {
   }
 }
 
+# Gets a single product with only the product variants of the product.
+# It only gets the ID and name of a product variant.
+query getProductWithItsVariantsOnly($id: UUID!) {
+  product(id: $id) {
+    variants {
+      nodes {
+        id
+        currentVersion {
+          name
+        }
+      }
+    }
+  }
+}
+
 # Mutations:
 
 mutation createProduct($input: CreateProductInput!) {
