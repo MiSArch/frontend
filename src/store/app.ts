@@ -142,7 +142,7 @@ export const useAppStore = defineStore('app', {
             try {
                 const getCurrentUserQuery = await useClient().getCurrentUser()
                 const currentUser = getCurrentUserQuery.currentUser
-                if (currentUser !== null && currentUser !== undefined) {
+                if (currentUser != undefined) {
                     return getCurrentUserQuery
                 } else {
                     return null
@@ -164,14 +164,12 @@ export const useAppStore = defineStore('app', {
             const getCurrentUserQuery = await this.getCurrentUser()
             if (getCurrentUserQuery !== null) {
                 const currentUser = getCurrentUserQuery.currentUser
-                if (currentUser !== null && currentUser !== undefined) {
+                if (currentUser != undefined) {
                     this.currentUserId = currentUser.id
                 }
             }
 
-            return (
-                this.currentUserId !== null && this.currentUserId !== undefined
-            )
+            return this.currentUserId != undefined
         },
         /**
          * Sets the user roles of the current user based on the roles retrieved from Keycloak.
