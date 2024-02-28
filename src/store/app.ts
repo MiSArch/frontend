@@ -134,17 +134,16 @@ export const useAppStore = defineStore('app', {
             }
         },
         /**
-         * Retrieves the current user.
+         * Asynchronously retrieves the current user.
          *
-         * @returns A promise that resolves with the current user information or null if:
-         *     a) the user information is not of type 'User' or
-         *     b) the retrieval failed with an error.
+         * @returns A promise that resolves to the current user or null if an error occurs.
          */
         async getCurrentUser(): Promise<GetCurrentUserQuery | null> {
             try {
-                const currentUser = await useClient().getCurrentUser()
-                if (currentUser.currentUser?.__typename === 'User') {
-                    return currentUser
+                const getCurrentUserQuery = await useClient().getCurrentUser()
+                const currentUser = getCurrentUserQuery.currentUser
+                if (currentUser != undefined) {
+                    return getCurrentUserQuery
                 } else {
                     return null
                 }
@@ -157,26 +156,20 @@ export const useAppStore = defineStore('app', {
         /**
          * Sets the current user ID based on the retrieved user information.
          *
-         * @returns A promise that resolves with a boolean indicating whether
-         * the current user ID was successfully set (true) or not (false).
+         * @returns A promise that resolves to true if the current user ID was successfully set, false otherwise.
          */
         async setCurrentUserId(): Promise<boolean> {
-            const currentUser = await this.getCurrentUser()
-            if (
-                currentUser !== null &&
-                currentUser.currentUser?.__typename === 'User'
-            ) {
-                this.currentUserId = currentUser.currentUser.id
+            this.currentUserId = null
 
-                return (
-                    this.currentUserId !== null &&
-                    this.currentUserId !== undefined
-                )
-            } else {
-                this.currentUserId = null
-
-                return false
+            const getCurrentUserQuery = await this.getCurrentUser()
+            if (getCurrentUserQuery !== null) {
+                const currentUser = getCurrentUserQuery.currentUser
+                if (currentUser != undefined) {
+                    this.currentUserId = currentUser.id
+                }
             }
+
+            return this.currentUserId != undefined
         },
         /**
          * Sets the user roles of the current user based on the roles retrieved from Keycloak.
