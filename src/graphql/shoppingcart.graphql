@@ -1,0 +1,23 @@
+# Queries
+
+# Gets the shopping cart of the user with the given user ID.
+query getShoppingCartOfUser($id: UUID!) {
+  user(id: $id) {
+    __typename
+    id
+    shoppingcart {
+      lastUpdatedAt
+      shoppingcartItems {
+        totalCount
+        nodes {
+          id
+          count
+          addedAt
+          productVariant {
+            id
+          }
+        }
+      }
+    }
+  }
+}

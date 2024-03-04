@@ -222,6 +222,7 @@
                             class=""
                             :items="['1', '2', '3', '4', '5']"
                             density="compact"
+                            :disabled="!shoppingCartIsEnabled"
                             hint="Choose how many to add to the cart."
                             label="Amount"
                             persistent-hint
@@ -230,7 +231,9 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn disabled prepend-icon="mdi-cart"
+                        <v-btn
+                            :disabled="!shoppingCartIsEnabled"
+                            prepend-icon="mdi-cart"
                             >Add To Cart</v-btn
                         >
                     </v-card-actions>
@@ -345,7 +348,8 @@ import { useRoute, useRouter } from 'vue-router'
 
 const store = useAppStore()
 
-const { activeUserRoleIsEitherAdminOrEmployee } = storeToRefs(store)
+const { activeUserRoleIsEitherAdminOrEmployee, shoppingCartIsEnabled } =
+    storeToRefs(store)
 
 /**
  * The GraphQL client to use for all GraphQL requests.

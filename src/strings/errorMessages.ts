@@ -40,4 +40,6 @@ export const errorMessages = {
     createTaxRate: 'Could not create the new tax rate.',
     createTaxRateVersion: 'Could not create the new tax rate version.',
     updateTaxRate: 'Could not update the tax rate.',
+    // shopping cart
+    restoreShoppingCartOfUser: 'Could not load the shopping cart of the user.',
 }

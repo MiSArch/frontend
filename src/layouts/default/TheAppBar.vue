@@ -3,7 +3,11 @@
         <v-app-bar-title>
             <router-link to="/"> MiSArch Online Store </router-link>
         </v-app-bar-title>
-        <v-btn v-if="activeUserRoleIsBuyer" disabled prepend-icon="mdi-cart">
+        <v-btn
+            v-if="activeUserRoleIsBuyer"
+            :disabled="!shoppingCartIsEnabled"
+            prepend-icon="mdi-cart"
+        >
             Shopping Cart
         </v-btn>
         <v-btn
@@ -32,8 +36,11 @@ import { useRouter } from 'vue-router'
 
 const store = useAppStore()
 
-const { activeUserRoleIsBuyer, currenUserHasMoreThanOneRole } =
-    storeToRefs(store)
+const {
+    activeUserRoleIsBuyer,
+    currenUserHasMoreThanOneRole,
+    shoppingCartIsEnabled,
+} = storeToRefs(store)
 
 const router = useRouter()
 

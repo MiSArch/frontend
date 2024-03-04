@@ -2,16 +2,17 @@ import { UserRole, parseRoleName } from './userRole'
 import { useClient } from '@/graphql/client'
 import { GetCurrentUserQuery } from '@/graphql/generated'
 import { ShoppingCart } from '@/model/shoppingCart'
+import { ShoppingCartItem } from '@/model/shoppingCartItem'
+import { errorMessages } from '@/strings/errorMessages'
+import {
+    awaitActionAndPushErrorIfNecessary,
+    doActionAndPushErrorIfNecessary,
+} from '@/util/errorHandler'
 
 // Utilities
 import Keycloak from 'keycloak-js'
 import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
-import {
-    awaitActionAndPushErrorIfNecessary,
-    doActionAndPushErrorIfNecessary,
-} from '@/util/errorHandler'
-import { errorMessages } from '@/strings/errorMessages'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
@@ -100,6 +101,14 @@ export const useAppStore = defineStore('app', {
                 this.activeUserRole === UserRole.Employee
             )
         },
+        /**
+         * Checks if the shopping cart is enabled for the current user.
+         *
+         * @returns True if the shopping cart is enabled, false otherwise.
+         */
+        shoppingCartIsEnabled(): boolean {
+            return this.isLoggedIn && this.activeUserRoleIsBuyer
+        },
     },
     actions: {
         /**
@@ -143,6 +152,8 @@ export const useAppStore = defineStore('app', {
                 this.setUserRolesOfCurrentUser()
 
                 this.activeUserRole = this.highestUserRoleOfCurrentUser
+
+                this.restoreShoppingCartOfCurrentUser()
             }
         },
         /**
@@ -217,6 +228,45 @@ export const useAppStore = defineStore('app', {
 
                 return false
             }
+        },
+        /**
+         * Asynchronously retrieves the shopping cart of the current user.
+         *
+         * @returns A promise that resolves to true if the shopping cart was successfully restored, false otherwise.
+         */
+        async restoreShoppingCartOfCurrentUser(): Promise<boolean> {
+            if (this.currentUserId != undefined) {
+                const getShoppingCartOfUserQuery =
+                    await awaitActionAndPushErrorIfNecessary(() => {
+                        return useClient().getShoppingCartOfUser({
+                            id: this.currentUserId,
+                        })
+                    }, errorMessages.restoreShoppingCartOfUser)
+
+                const shoppingCartOfCurrentUser =
+                    getShoppingCartOfUserQuery.user.shoppingcart
+                this.shoppingCart.lastUpdatedAt =
+                    shoppingCartOfCurrentUser.lastUpdatedAt
+                this.shoppingCart.items = []
+
+                shoppingCartOfCurrentUser.shoppingcartItems.nodes.forEach(
+                    (shoppingCartItem) => {
+                        const item: ShoppingCartItem = {
+                            id: shoppingCartItem.id,
+                            count: shoppingCartItem.count,
+                            addedAt: shoppingCartItem.addedAt,
+                            productVariantId:
+                                shoppingCartItem.productVariant.id,
+                        }
+
+                        this.shoppingCart.items.push(item)
+                    }
+                )
+
+                return true
+            }
+
+            return false
         },
         /**
          * Logs the user in.

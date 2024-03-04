@@ -254,6 +254,8 @@ export type CreateProductVariantVersionInput = {
     retailPrice: Scalars['Int']['input']
     /** The associated TaxRate */
     taxRateId: Scalars['UUID']['input']
+    /** The weight of a single instance of the ProductVariant. */
+    weight: Scalars['Float']['input']
 }
 
 /** Input for the createTaxRate mutation */
@@ -456,6 +458,8 @@ export type ProductVariantVersionInput = {
     retailPrice: Scalars['Int']['input']
     /** The associated TaxRate */
     taxRateId: Scalars['UUID']['input']
+    /** The weight of a single instance of the ProductVariant. */
+    weight: Scalars['Float']['input']
 }
 
 /** ProductVariantVersion order fields */
@@ -571,6 +575,8 @@ export type UpdateNotificationInput = {
 
 /** Input for the updateProduct mutation. */
 export type UpdateProductInput = {
+    /** If present, new value for defaultVariantId */
+    defaultVariantId?: InputMaybe<Scalars['UUID']['input']>
     /** UUID of the product to be updated */
     id: Scalars['UUID']['input']
     /** If present, new value for internalName */
@@ -1129,6 +1135,33 @@ export type CreateNumericalCategoryCharacteristicMutation = {
     }
 }
 
+export type GetShoppingCartOfUserQueryVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type GetShoppingCartOfUserQuery = {
+    __typename?: 'Query'
+    user: {
+        __typename: 'User'
+        id: any
+        shoppingcart: {
+            __typename?: 'ShoppingCart'
+            lastUpdatedAt: any
+            shoppingcartItems: {
+                __typename?: 'ShoppingCartItemConnection'
+                totalCount: number
+                nodes: Array<{
+                    __typename?: 'ShoppingCartItem'
+                    id: any
+                    count: number
+                    addedAt: any
+                    productVariant: { __typename?: 'ProductVariant'; id: any }
+                }>
+            }
+        }
+    }
+}
+
 export type TaxRateVersionFragment = {
     __typename?: 'TaxRateVersion'
     id: any
@@ -1154,39 +1187,6 @@ export type GetTaxRatesQuery = {
             id: any
             name: string
             description: string
-        }>
-    }
-}
-
-export type GetTaxRatesWithVersionsQueryVariables = Exact<{
-    first?: InputMaybe<Scalars['Int']['input']>
-    skip?: InputMaybe<Scalars['Int']['input']>
-    orderBy?: InputMaybe<TaxRateOrderInput>
-}>
-
-export type GetTaxRatesWithVersionsQuery = {
-    __typename?: 'Query'
-    taxRates: {
-        __typename?: 'TaxRateConnection'
-        totalCount: number
-        hasNextPage: boolean
-        nodes: Array<{
-            __typename?: 'TaxRate'
-            id: any
-            name: string
-            description: string
-            currentVersion: { __typename?: 'TaxRateVersion'; id: any }
-            versions: {
-                __typename?: 'TaxRateVersionConnection'
-                totalCount: number
-                nodes: Array<{
-                    __typename?: 'TaxRateVersion'
-                    id: any
-                    rate: number
-                    version: number
-                    createdAt: any
-                }>
-            }
         }>
     }
 }
@@ -1743,6 +1743,28 @@ export const CreateNumericalCategoryCharacteristicDocument = gql`
         }
     }
 `
+export const GetShoppingCartOfUserDocument = gql`
+    query getShoppingCartOfUser($id: UUID!) {
+        user(id: $id) {
+            __typename
+            id
+            shoppingcart {
+                lastUpdatedAt
+                shoppingcartItems {
+                    totalCount
+                    nodes {
+                        id
+                        count
+                        addedAt
+                        productVariant {
+                            id
+                        }
+                    }
+                }
+            }
+        }
+    }
+`
 export const GetTaxRatesDocument = gql`
     query getTaxRates($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
         taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
@@ -1755,33 +1777,6 @@ export const GetTaxRatesDocument = gql`
             }
         }
     }
-`
-export const GetTaxRatesWithVersionsDocument = gql`
-    query getTaxRatesWithVersions(
-        $first: Int
-        $skip: Int
-        $orderBy: TaxRateOrderInput
-    ) {
-        taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
-            totalCount
-            hasNextPage
-            nodes {
-                id
-                name
-                description
-                currentVersion {
-                    id
-                }
-                versions {
-                    totalCount
-                    nodes {
-                        ...taxRateVersion
-                    }
-                }
-            }
-        }
-    }
-    ${TaxRateVersionFragmentDoc}
 `
 export const GetTaxRatesWithCurrentVersionDocument = gql`
     query getTaxRatesWithCurrentVersion(
@@ -2162,6 +2157,22 @@ export function getSdk(
                 variables
             )
         },
+        getShoppingCartOfUser(
+            variables: GetShoppingCartOfUserQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetShoppingCartOfUserQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetShoppingCartOfUserQuery>(
+                        GetShoppingCartOfUserDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getShoppingCartOfUser',
+                'query',
+                variables
+            )
+        },
         getTaxRates(
             variables?: GetTaxRatesQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
@@ -2174,22 +2185,6 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'getTaxRates',
-                'query',
-                variables
-            )
-        },
-        getTaxRatesWithVersions(
-            variables?: GetTaxRatesWithVersionsQueryVariables,
-            requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetTaxRatesWithVersionsQuery> {
-            return withWrapper(
-                (wrappedRequestHeaders) =>
-                    client.request<GetTaxRatesWithVersionsQuery>(
-                        GetTaxRatesWithVersionsDocument,
-                        variables,
-                        { ...requestHeaders, ...wrappedRequestHeaders }
-                    ),
-                'getTaxRatesWithVersions',
                 'query',
                 variables
             )
