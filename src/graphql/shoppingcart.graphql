@@ -41,7 +41,9 @@ mutation addItemToShoppingCart($input: AddShoppingCartItemInput!) {
   }
 }
 
-# TODO Write comment
+# Updates an existing shopping cart item of the user's shopping cart and
+# returns the updated shopping cart item 
+# including the name of the product variant's current version.
 mutation updateShoppingcartItem($input: UpdateShoppingCartItemInput!) {
   updateShoppingcartItem(input: $input) {
     id
