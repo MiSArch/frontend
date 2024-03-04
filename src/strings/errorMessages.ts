@@ -42,4 +42,6 @@ export const errorMessages = {
     updateTaxRate: 'Could not update the tax rate.',
     // shopping cart
     restoreShoppingCartOfUser: 'Could not load the shopping cart of the user.',
+    addItemToShoppingCart:
+        'Could not add the product variant to the shopping cart.',
 }

@@ -227,6 +227,7 @@
                             label="Amount"
                             persistent-hint
                             variant="solo"
+                            v-model="amount"
                         ></v-select>
                     </v-card-text>
                     <v-card-actions>
@@ -234,6 +235,7 @@
                         <v-btn
                             :disabled="!shoppingCartIsEnabled"
                             prepend-icon="mdi-cart"
+                            @click="addToCart"
                             >Add To Cart</v-btn
                         >
                     </v-card-actions>
@@ -581,5 +583,34 @@ function goToWishlists() {
     router.push({
         name: 'Wishlists',
     })
+}
+
+/**
+ * How many of the product variant should be added to the cart.
+ */
+const amount = ref<string | null>(null)
+
+/**
+ * Whether or not the product variant can be added to the cart.
+ */
+const canAddToCart = computed(() => {
+    return (
+        shoppingCartIsEnabled &&
+        productVariantId.value != undefined &&
+        amount.value !== null
+    )
+})
+
+/**
+ * Asynchronously adds the product variant to the shopping cart based on the specified amount
+ * if the product variant can actually be added to the cart.
+ */
+async function addToCart() {
+    if (canAddToCart.value && amount.value !== null) {
+        await store.addProductVariantToShoppingCart(
+            productVariantId.value,
+            parseInt(amount.value)
+        )
+    }
 }
 </script>

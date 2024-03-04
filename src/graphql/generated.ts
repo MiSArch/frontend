@@ -1162,6 +1162,50 @@ export type GetShoppingCartOfUserQuery = {
     }
 }
 
+export type AddItemToShoppingCartMutationVariables = Exact<{
+    input: AddShoppingCartItemInput
+}>
+
+export type AddItemToShoppingCartMutation = {
+    __typename?: 'Mutation'
+    addShoppingcartItem: {
+        __typename?: 'ShoppingCartItem'
+        id: any
+        count: number
+        addedAt: any
+        productVariant: {
+            __typename?: 'ProductVariant'
+            id: any
+            currentVersion: {
+                __typename?: 'ProductVariantVersion'
+                name: string
+            }
+        }
+    }
+}
+
+export type UpdateShoppingcartItemMutationVariables = Exact<{
+    input: UpdateShoppingCartItemInput
+}>
+
+export type UpdateShoppingcartItemMutation = {
+    __typename?: 'Mutation'
+    updateShoppingcartItem: {
+        __typename?: 'ShoppingCartItem'
+        id: any
+        count: number
+        addedAt: any
+        productVariant: {
+            __typename?: 'ProductVariant'
+            id: any
+            currentVersion: {
+                __typename?: 'ProductVariantVersion'
+                name: string
+            }
+        }
+    }
+}
+
 export type TaxRateVersionFragment = {
     __typename?: 'TaxRateVersion'
     id: any
@@ -1765,6 +1809,36 @@ export const GetShoppingCartOfUserDocument = gql`
         }
     }
 `
+export const AddItemToShoppingCartDocument = gql`
+    mutation addItemToShoppingCart($input: AddShoppingCartItemInput!) {
+        addShoppingcartItem(input: $input) {
+            id
+            count
+            addedAt
+            productVariant {
+                id
+                currentVersion {
+                    name
+                }
+            }
+        }
+    }
+`
+export const UpdateShoppingcartItemDocument = gql`
+    mutation updateShoppingcartItem($input: UpdateShoppingCartItemInput!) {
+        updateShoppingcartItem(input: $input) {
+            id
+            count
+            addedAt
+            productVariant {
+                id
+                currentVersion {
+                    name
+                }
+            }
+        }
+    }
+`
 export const GetTaxRatesDocument = gql`
     query getTaxRates($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
         taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
@@ -2170,6 +2244,38 @@ export function getSdk(
                     ),
                 'getShoppingCartOfUser',
                 'query',
+                variables
+            )
+        },
+        addItemToShoppingCart(
+            variables: AddItemToShoppingCartMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<AddItemToShoppingCartMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<AddItemToShoppingCartMutation>(
+                        AddItemToShoppingCartDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'addItemToShoppingCart',
+                'mutation',
+                variables
+            )
+        },
+        updateShoppingcartItem(
+            variables: UpdateShoppingcartItemMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<UpdateShoppingcartItemMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<UpdateShoppingcartItemMutation>(
+                        UpdateShoppingcartItemDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'updateShoppingcartItem',
+                'mutation',
                 variables
             )
         },

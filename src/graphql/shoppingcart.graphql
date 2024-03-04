@@ -21,3 +21,37 @@ query getShoppingCartOfUser($id: UUID!) {
     }
   }
 }
+
+# Mutations
+
+# Adds a product variant to the user's shopping cart and
+# returns the newly created shopping cart item 
+# including the name of the product variant's current version.
+mutation addItemToShoppingCart($input: AddShoppingCartItemInput!) {
+  addShoppingcartItem(input: $input) {
+    id
+    count
+    addedAt
+    productVariant {
+      id
+      currentVersion {
+        name
+      }
+    }
+  }
+}
+
+# TODO Write comment
+mutation updateShoppingcartItem($input: UpdateShoppingCartItemInput!) {
+  updateShoppingcartItem(input: $input) {
+    id
+    count
+    addedAt
+    productVariant {
+      id
+      currentVersion {
+        name
+      }
+    }
+  }
+}

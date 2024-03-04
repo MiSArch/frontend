@@ -147,13 +147,15 @@ export const useAppStore = defineStore('app', {
             }
 
             if (this.isLoggedIn) {
-                this.setCurrentUserId()
+                await this.setCurrentUserId()
 
                 this.setUserRolesOfCurrentUser()
 
                 this.activeUserRole = this.highestUserRoleOfCurrentUser
 
-                this.restoreShoppingCartOfCurrentUser()
+                if (this.shoppingCartIsEnabled) {
+                    await this.restoreShoppingCartOfCurrentUser()
+                }
             }
         },
         /**
@@ -371,6 +373,84 @@ export const useAppStore = defineStore('app', {
          */
         popAllNotifications(): Notification[] {
             return this.queuedNotifications.splice(0)
+        },
+        /**
+         * Asynchronously adds a product variant to the shopping cart.
+         * If the product has already been added to the cart
+         * then it updates the count:
+         * It simply adds the specified count on top of the existing count.
+         *
+         * @param productVariantId - The ID of the product variant to add.
+         * @param count - The quantity of the product variant to add.
+         */
+        async addProductVariantToShoppingCart(
+            productVariantId: string,
+            count: number
+        ) {
+            if (!this.shoppingCartIsEnabled) {
+                return
+            }
+
+            if (count <= 0) {
+                return
+            }
+
+            let nameOfProductVariant: string
+
+            const existingShoppingCartItems = this.shoppingCart.items.filter(
+                (item) => item.productVariantId === productVariantId
+            )
+            if (existingShoppingCartItems.length >= 1) {
+                const newShoppingCartItem = (
+                    await awaitActionAndPushErrorIfNecessary(() => {
+                        return useClient().updateShoppingcartItem({
+                            input: {
+                                id: existingShoppingCartItems[0].id,
+                                count:
+                                    existingShoppingCartItems[0].count + count,
+                            },
+                        })
+                    }, errorMessages.addItemToShoppingCart)
+                ).updateShoppingcartItem
+
+                nameOfProductVariant =
+                    newShoppingCartItem.productVariant.currentVersion.name
+            } else {
+                const newShoppingCartItem = (
+                    await awaitActionAndPushErrorIfNecessary(() => {
+                        return useClient().addItemToShoppingCart({
+                            input: {
+                                id: this.currentUserId,
+                                shoppingCartItem: {
+                                    count: count,
+                                    productVariantId: productVariantId,
+                                },
+                            },
+                        })
+                    }, errorMessages.addItemToShoppingCart)
+                ).addShoppingcartItem
+
+                nameOfProductVariant =
+                    newShoppingCartItem.productVariant.currentVersion.name
+            }
+
+            const timeOrTimes = count == 1 ? 'time' : 'times'
+            const textOfSuccessNotification =
+                nameOfProductVariant +
+                ' was added to the shopping cart ' +
+                count +
+                ' ' +
+                timeOrTimes +
+                '.'
+            const successNotification: Notification = {
+                text: textOfSuccessNotification,
+                type: 'success',
+                density: 'comfortable',
+            }
+
+            this.pushNotification(successNotification)
+
+            await this.restoreShoppingCartOfCurrentUser()
         },
     },
 })

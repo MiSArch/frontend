@@ -7,6 +7,7 @@
             v-if="activeUserRoleIsBuyer"
             :disabled="!shoppingCartIsEnabled"
             prepend-icon="mdi-cart"
+            @click="refreshShoppingCart"
         >
             Shopping Cart
         </v-btn>
@@ -39,6 +40,7 @@ const store = useAppStore()
 const {
     activeUserRoleIsBuyer,
     currenUserHasMoreThanOneRole,
+    shoppingCart,
     shoppingCartIsEnabled,
 } = storeToRefs(store)
 
@@ -74,6 +76,17 @@ function loginOrLogout() {
         store.logout()
     } else {
         store.login()
+    }
+}
+
+/**
+ * For testing purposes only.
+ */
+async function refreshShoppingCart() {
+    await store.restoreShoppingCartOfCurrentUser()
+
+    if (process.env.NODE_ENV === 'development') {
+        console.log(shoppingCart.value)
     }
 }
 </script>
