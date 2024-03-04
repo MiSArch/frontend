@@ -372,8 +372,10 @@ import { useRoute, useRouter } from 'vue-router'
 
 const store = useAppStore()
 
-const { unitUsedForWeightInformation, activeUserRoleIsEitherAdminOrEmployee } =
-    storeToRefs(store)
+const {
+    unitOfMass: unitUsedForWeightInformation,
+    activeUserRoleIsEitherAdminOrEmployee,
+} = storeToRefs(store)
 
 /**
  * The GraphQL client to use for all GraphQL requests.

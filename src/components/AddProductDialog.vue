@@ -113,9 +113,7 @@
                                 class="mb-4"
                                 clearable
                                 hint="Enter a positive decimal number, e.g. 0.5"
-                                :label="
-                                    'Weight in ' + unitUsedForWeightInformation
-                                "
+                                :label="'Weight in ' + kilogram"
                                 :rules="[weightInputIsValid]"
                                 type="input"
                                 v-model="variant.weight"
@@ -155,13 +153,13 @@ import {
     CreateProductVariantInput,
     OrderDirection,
 } from '@/graphql/generated'
-import { useAppStore } from '@/store/app'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
     pushErrorNotificationIfNecessary,
 } from '@/util/errorHandler'
 import { weightInputIsValid } from '@/util/rules'
+import { UnitOfMass } from '@/util/unitOfMass'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
@@ -202,15 +200,11 @@ const emit = defineEmits<{
  */
 const client = useClient()
 
-/**
- * Reactive references and values from the Pinia store.
- */
-const { unitUsedForWeightInformation } = storeToRefs(useAppStore())
-
 const variantTab = ref<number>()
 const internalName = ref('')
 const invisible = ref(false)
 const selectedCategories = ref<any>([])
+const kilogram = ref<string>(UnitOfMass.Kilogram)
 const tempIdCounter = ref(0)
 const defaultVariant = ref<number>()
 const variants = ref<ProductVariant[]>([])
