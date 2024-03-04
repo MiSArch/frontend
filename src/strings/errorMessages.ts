@@ -2,6 +2,10 @@
  * The online store's error messages that could be displayed to the user.
  */
 export const errorMessages = {
+    // general
+    logout: 'Failed to logout the user.',
+    resetStateRelatedToUser:
+        "Could not reset the website's state related to the current user.",
     // user
     getCurrentUser: 'Could not load the current user.',
     // catalog

@@ -1,14 +1,25 @@
+import { UserRole, parseRoleName } from './userRole'
 import { useClient } from '@/graphql/client'
+import { GetCurrentUserQuery } from '@/graphql/generated'
+import { ShoppingCart } from '@/model/shoppingCart'
 
 // Utilities
 import Keycloak from 'keycloak-js'
 import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
-import { GetCurrentUserQuery } from '@/graphql/generated'
-import { UserRole, parseRoleName } from './userRole'
+import {
+    awaitActionAndPushErrorIfNecessary,
+    doActionAndPushErrorIfNecessary,
+} from '@/util/errorHandler'
+import { errorMessages } from '@/strings/errorMessages'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
+
+const emptyShoppingCart: ShoppingCart = {
+    lastUpdatedAt: null,
+    items: [],
+}
 
 /**
  * Interface representing a notification to be displayed.
@@ -35,6 +46,7 @@ export const useAppStore = defineStore('app', {
         userRolesOfCurrentUser: initialUserRolesOfCurrentUser,
         activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
+        shoppingCart: emptyShoppingCart,
     }),
     getters: {
         token(): string | undefined {
@@ -221,23 +233,32 @@ export const useAppStore = defineStore('app', {
         /**
          * Logs the user out.
          * Before the user is actually logged out,
-         * this action resets the ID of the current user
-         * stored in store.currentUserId to null to prevent the ID from being leaked.
-         * Resets the user roles of the current user to the default role 'Buyer'.
+         * this action resets the state related to the current user.
          */
         async logout() {
-            try {
+            await awaitActionAndPushErrorIfNecessary(() => {
+                if (this.keycloak != undefined) {
+                    return this.keycloak.logout({
+                        redirectUri: '/',
+                    })
+                } else {
+                    return Promise.resolve()
+                }
+            }, errorMessages.logout)
+
+            this.resetStateRelatedToUser()
+        },
+        /**
+         * Resets the state related to the current user.
+         */
+        resetStateRelatedToUser() {
+            doActionAndPushErrorIfNecessary(() => {
+                this.isLoggedIn = false
                 this.currentUserId = null
-
-                await this.keycloak?.logout({
-                    redirectUri: '/',
-                })
-
                 this.userRolesOfCurrentUser = initialUserRolesOfCurrentUser
                 this.activeUserRole = defaultUserRole
-            } catch (error) {
-                console.error('Failed to logout:', error)
-            }
+                this.shoppingCart = emptyShoppingCart
+            }, errorMessages.resetStateRelatedToUser)
         },
         /**
          * Refreshes the access token using the provided Keycloak instance.
