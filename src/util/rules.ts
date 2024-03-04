@@ -26,7 +26,7 @@ export function isNumber(input: string): boolean {
  * @returns True if the weight is valid, otherwise a string describing the error.
  */
 export function weightInputIsValid(input: string): boolean | string {
-    if (isNotNull(input) && isNumber(input) && parseFloat(input) > 0) {
+    if (isNumber(input) && parseFloat(input) > 0) {
         return true
     }
 
