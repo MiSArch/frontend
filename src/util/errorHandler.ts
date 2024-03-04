@@ -1,20 +1,39 @@
 import { Notification, useAppStore } from '@/store/app'
 
 /**
- * Trys to perform an action and pushes an error notification
+ * Trys to await an action and pushes an error notification
  * if the action throws an error.
  * @param action The action to execute.
  * @param errorMessage The error message to display if an error occurres.
  * @param titleOfErrorNotification An optional title for the notification.
- * @returns
  */
-export async function pushErrorNotificationIfNecessary<T>(
+export async function awaitActionAndPushErrorIfNecessary<T>(
     action: () => Promise<T>,
     errorMessage: string,
     titleOfErrorNotification?: string
 ): Promise<T> {
     try {
         return await action()
+    } catch (error) {
+        pushErrorNotification(errorMessage, error, titleOfErrorNotification)
+        throw error
+    }
+}
+
+/**
+ * Trys to perform an action and pushes an error notification
+ * if the action throws an error.
+ * @param action The action to execute.
+ * @param errorMessage The error message to display if an error occurres.
+ * @param titleOfErrorNotification An optional title for the notification.
+ */
+export function doActionAndPushErrorIfNecessary<T>(
+    action: () => T,
+    errorMessage: string,
+    titleOfErrorNotification?: string
+): T {
+    try {
+        return action()
     } catch (error) {
         pushErrorNotification(errorMessage, error, titleOfErrorNotification)
         throw error

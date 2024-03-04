@@ -146,7 +146,7 @@ import {
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
-    pushErrorNotificationIfNecessary,
+    awaitActionAndPushErrorIfNecessary,
 } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -304,7 +304,7 @@ async function save() {
         (v) => v.tempId === defaultVariant.value
     )!
 
-    const product = await pushErrorNotificationIfNecessary(() => {
+    const product = await awaitActionAndPushErrorIfNecessary(() => {
         return client.createProduct({
             input: {
                 categoryIds: selectedCategories.value ?? [],
@@ -332,7 +332,7 @@ async function save() {
                 },
                 isPubliclyVisible: !variant.invisible,
             }
-            await pushErrorNotificationIfNecessary(() => {
+            await awaitActionAndPushErrorIfNecessary(() => {
                 return client.createProductVariant({ input: variantInput })
             }, errorMessages.createProductVariant)
         }

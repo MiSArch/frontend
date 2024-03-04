@@ -27,7 +27,7 @@ import { OrderDirection, ProductOrderField } from '@/graphql/generated'
 import { useClient } from '@/graphql/client'
 import { computed, ref } from 'vue'
 import { asyncComputed } from '@vueuse/core'
-import { pushErrorNotificationIfNecessary } from '@/util/errorHandler'
+import { awaitActionAndPushErrorIfNecessary } from '@/util/errorHandler'
 import { errorMessages } from '@/strings/errorMessages'
 
 /**
@@ -62,7 +62,7 @@ const productConnection = asyncComputed(
     async () => {
         if (props.categoryId) {
             var categoryWithAssociatedProducts =
-                await pushErrorNotificationIfNecessary(() => {
+                await awaitActionAndPushErrorIfNecessary(() => {
                     return client.getCategoryWithCharacteristicsAndDefaultProductVariants(
                         {
                             id: props.categoryId,
@@ -78,7 +78,7 @@ const productConnection = asyncComputed(
                 }, errorMessages.getCategoryWithCharacteristicsAndDefaultProductVariants)
             return categoryWithAssociatedProducts.category.products
         } else {
-            var products = await pushErrorNotificationIfNecessary(() => {
+            var products = await awaitActionAndPushErrorIfNecessary(() => {
                 return client.getDefaultProductVariants({
                     first: perPage.value,
                     skip: (currentPage.value - 1) * perPage.value,

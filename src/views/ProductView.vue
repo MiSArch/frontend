@@ -336,7 +336,7 @@ import { useAppStore } from '@/store/app'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
-    pushErrorNotificationIfNecessary,
+    awaitActionAndPushErrorIfNecessary,
 } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
@@ -561,7 +561,7 @@ async function updateWishlists(input: UpdateWishlistInput[]) {
 
     input.forEach(async (updateWishlistInput) => {
         try {
-            await pushErrorNotificationIfNecessary(() => {
+            await awaitActionAndPushErrorIfNecessary(() => {
                 return client.updateWishlist({
                     input: updateWishlistInput,
                 })
