@@ -274,7 +274,7 @@ const canRestock = computed(() => {
  */
 async function restock() {
     if (activeUserRoleIsEitherAdminOrEmployee.value && canRestock) {
-        const q = await pushErrorNotificationIfNecessary(() => {
+        await pushErrorNotificationIfNecessary(() => {
             return client.createProductItemBatch({
                 input: {
                     productVariantId: selectedProductVariantId.value,
