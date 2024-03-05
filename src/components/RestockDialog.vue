@@ -99,6 +99,7 @@ const props = defineProps({
     },
     maximumBatchSize: {
         type: Number,
+        default: 100,
     },
 })
 
@@ -163,13 +164,9 @@ const productVariants = computed(() => {
  * Computed property for generating an array of amount options based on the maximum batch size.
  */
 const amountOptions = computed(() => {
-    const defaultMaximumLength = 100
-    const length =
-        props.maximumBatchSize !== undefined
-            ? props.maximumBatchSize
-            : defaultMaximumLength
-
-    return Array.from({ length: length }, (_, index) => (index + 1).toString())
+    return Array.from({ length: props.maximumBatchSize }, (_, index) =>
+        (index + 1).toString()
+    )
 })
 
 /**
