@@ -5,7 +5,7 @@
                 <ProductSummary
                     :product-id="product.id"
                     :product-variant-id="product.defaultVariant.id"
-                    :internal-name="product.defaultVariant.currentVersion.name"
+                    :name="product.defaultVariant.currentVersion.name"
                     :price="product.defaultVariant.currentVersion.retailPrice"
                     :retail-price="
                         product.defaultVariant.currentVersion.retailPrice

@@ -311,10 +311,10 @@
                         <v-list-item>
                             <ProductSummary
                                 :product-id="product?.product.id"
-                                :internal-name="v.currentVersion.name"
+                                :product-variant-id="v.id"
+                                :name="v.currentVersion.name"
                                 :price="v.currentVersion.retailPrice"
                                 :retail-price="v.currentVersion.retailPrice"
-                                :product-variant-id="v.id"
                             />
                         </v-list-item>
                     </v-list>
