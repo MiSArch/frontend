@@ -732,6 +732,7 @@ export type DefaultProductVariantFragment = {
             name: string
             description: string
             retailPrice: number
+            weight: number
             canBeReturnedForDays?: number | null
             version: number
             createdAt: any
@@ -746,6 +747,7 @@ export type CurrentVersionFragment = {
     name: string
     description: string
     retailPrice: number
+    weight: number
     canBeReturnedForDays?: number | null
     version: number
     createdAt: any
@@ -802,6 +804,7 @@ export type GetDefaultProductVariantsQuery = {
                     name: string
                     description: string
                     retailPrice: number
+                    weight: number
                     canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
@@ -873,6 +876,7 @@ export type GetCategoryWithCharacteristicsAndDefaultProductVariantsQuery = {
                         name: string
                         description: string
                         retailPrice: number
+                        weight: number
                         canBeReturnedForDays?: number | null
                         version: number
                         createdAt: any
@@ -993,6 +997,7 @@ export type GetProductQuery = {
                     name: string
                     description: string
                     retailPrice: number
+                    weight: number
                     canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
@@ -1519,6 +1524,7 @@ export const CurrentVersionFragmentDoc = gql`
         name
         description
         retailPrice
+        weight
         canBeReturnedForDays
         version
         createdAt
@@ -1711,6 +1717,7 @@ export const GetProductDocument = gql`
                         name
                         description
                         retailPrice
+                        weight
                         canBeReturnedForDays
                         taxRate {
                             id

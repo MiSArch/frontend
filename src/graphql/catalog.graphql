@@ -17,12 +17,13 @@ fragment defaultProductVariant on Product {
 
 fragment currentVersion on ProductVariantVersion {
   id
-  name
-  description
-  retailPrice
-  canBeReturnedForDays
   version
   createdAt
+  name
+  retailPrice
+  weight
+  description
+  canBeReturnedForDays
 }
 
 fragment characteristic on CategoryCharacteristic {
@@ -138,9 +139,12 @@ query getProduct($id: UUID!) {
         isPubliclyVisible
         currentVersion {
           id
+          version
+          createdAt
           name
-          description
           retailPrice
+          weight
+          description
           canBeReturnedForDays
           taxRate {
             id
@@ -153,8 +157,6 @@ query getProduct($id: UUID!) {
               createdAt
             }
           }
-          version
-          createdAt
           characteristicValues {
             totalCount
             nodes {
