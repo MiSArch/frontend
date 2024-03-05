@@ -15,6 +15,13 @@ query getShoppingCartOfUser($id: UUID!) {
           addedAt
           productVariant {
             id
+            currentVersion {
+              name
+              retailPrice
+            }
+            product {
+              id
+            }
           }
         }
       }
@@ -56,4 +63,9 @@ mutation updateShoppingcartItem($input: UpdateShoppingCartItemInput!) {
       }
     }
   }
+}
+
+# Deletes the shopping cart item with the specified ID.
+mutation deleteShoppingCartItem($id: UUID!) {
+  deleteShoppingcartItem(id: $id)
 }

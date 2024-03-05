@@ -1155,7 +1155,16 @@ export type GetShoppingCartOfUserQuery = {
                     id: any
                     count: number
                     addedAt: any
-                    productVariant: { __typename?: 'ProductVariant'; id: any }
+                    productVariant: {
+                        __typename?: 'ProductVariant'
+                        id: any
+                        currentVersion: {
+                            __typename?: 'ProductVariantVersion'
+                            name: string
+                            retailPrice: number
+                        }
+                        product: { __typename?: 'Product'; id: any }
+                    }
                 }>
             }
         }
@@ -1204,6 +1213,15 @@ export type UpdateShoppingcartItemMutation = {
             }
         }
     }
+}
+
+export type DeleteShoppingCartItemMutationVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type DeleteShoppingCartItemMutation = {
+    __typename?: 'Mutation'
+    deleteShoppingcartItem: boolean
 }
 
 export type TaxRateVersionFragment = {
@@ -1802,6 +1820,13 @@ export const GetShoppingCartOfUserDocument = gql`
                         addedAt
                         productVariant {
                             id
+                            currentVersion {
+                                name
+                                retailPrice
+                            }
+                            product {
+                                id
+                            }
                         }
                     }
                 }
@@ -1837,6 +1862,11 @@ export const UpdateShoppingcartItemDocument = gql`
                 }
             }
         }
+    }
+`
+export const DeleteShoppingCartItemDocument = gql`
+    mutation deleteShoppingCartItem($id: UUID!) {
+        deleteShoppingcartItem(id: $id)
     }
 `
 export const GetTaxRatesDocument = gql`
@@ -2275,6 +2305,22 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'updateShoppingcartItem',
+                'mutation',
+                variables
+            )
+        },
+        deleteShoppingCartItem(
+            variables: DeleteShoppingCartItemMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<DeleteShoppingCartItemMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<DeleteShoppingCartItemMutation>(
+                        DeleteShoppingCartItemDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'deleteShoppingCartItem',
                 'mutation',
                 variables
             )
