@@ -7,7 +7,7 @@
             v-if="activeUserRoleIsBuyer"
             :disabled="!shoppingCartIsEnabled"
             prepend-icon="mdi-cart"
-            @click="refreshShoppingCart"
+            @click="goToShoppingCart"
         >
             Shopping Cart
         </v-btn>
@@ -80,13 +80,11 @@ function loginOrLogout() {
 }
 
 /**
- * For testing purposes only.
+ * Navigates the user to their shopping cart.
  */
-async function refreshShoppingCart() {
-    await store.restoreShoppingCartOfCurrentUser()
-
-    if (process.env.NODE_ENV === 'development') {
-        console.log(shoppingCart.value)
-    }
+async function goToShoppingCart() {
+    router.push({
+        name: 'Shopping Cart',
+    })
 }
 </script>

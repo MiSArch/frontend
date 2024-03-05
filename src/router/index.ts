@@ -61,6 +61,11 @@ const routes = [
                 name: 'Tax Rate',
                 component: () => import('@/views/TaxRateView.vue'),
             },
+            {
+                path: 'shopping-cart',
+                name: 'Shopping Cart',
+                component: () => import('@/views/ShoppingCartView.vue'),
+            },
         ],
     },
 ]
