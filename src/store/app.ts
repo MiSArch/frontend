@@ -259,6 +259,14 @@ export const useAppStore = defineStore('app', {
                             addedAt: shoppingCartItem.addedAt,
                             productVariantId:
                                 shoppingCartItem.productVariant.id,
+                            productId:
+                                shoppingCartItem.productVariant.product.id,
+                            nameOfProductVariant:
+                                shoppingCartItem.productVariant.currentVersion
+                                    .name,
+                            retailPrice:
+                                shoppingCartItem.productVariant.currentVersion
+                                    .retailPrice,
                         }
 
                         this.shoppingCart.items.push(item)
@@ -449,6 +457,59 @@ export const useAppStore = defineStore('app', {
             }
 
             this.pushNotification(successNotification)
+
+            await this.restoreShoppingCartOfCurrentUser()
+        },
+        /**
+         * Updates the shopping cart item with the specified ID.
+         * @param idOfShoppingCartItem - The ID of the shopping cart item to be updated.
+         * @param count - The new count of the shopping cart item.
+         */
+        async updateShoppingCartItem(
+            idOfShoppingCartItem: string,
+            count: number
+        ) {
+            if (!this.shoppingCartIsEnabled) {
+                return
+            }
+
+            if (count <= 0) {
+                return
+            }
+
+            try {
+                await awaitActionAndPushErrorIfNecessary(() => {
+                    return useClient().updateShoppingcartItem({
+                        input: {
+                            id: idOfShoppingCartItem,
+                            count: count,
+                        },
+                    })
+                }, errorMessages.updateShoppingCartItem)
+            } catch (error) {
+                console.error(error)
+            }
+
+            await this.restoreShoppingCartOfCurrentUser()
+        },
+        /**
+         * Deletes the shopping cart item with the specified ID.
+         * @param idOfShoppingCartItem - The ID of the shopping cart item to be deleted.
+         */
+        async deleteShoppingCartItem(idOfShoppingCartItem: string) {
+            if (!this.shoppingCartIsEnabled) {
+                return
+            }
+
+            try {
+                await awaitActionAndPushErrorIfNecessary(() => {
+                    return useClient().deleteShoppingCartItem({
+                        id: idOfShoppingCartItem,
+                    })
+                }, errorMessages.deleteShoppingCartItem)
+            } catch (error) {
+                console.error(error)
+            }
 
             await this.restoreShoppingCartOfCurrentUser()
         },

@@ -44,4 +44,6 @@ export const errorMessages = {
     restoreShoppingCartOfUser: 'Could not load the shopping cart of the user.',
     addItemToShoppingCart:
         'Could not add the product variant to the shopping cart.',
+    updateShoppingCartItem: 'Could not update the shopping cart item.',
+    deleteShoppingCartItem: 'Could not remove the shopping cart item.',
 }

@@ -1,5 +1,6 @@
 /**
  * Represents a single item in a shopping cart.
+ *
  * @interface
  */
 export interface ShoppingCartItem {
@@ -7,4 +8,7 @@ export interface ShoppingCartItem {
     count: number
     addedAt: string
     productVariantId: string
+    productId: string
+    nameOfProductVariant: string
+    retailPrice: number
 }
