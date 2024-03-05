@@ -84,11 +84,30 @@
                     >
                 </v-card-item>
                 <v-card-text>
-                    <div v-if="productVariant?.currentVersion.createdAt">
-                        Created
-                        <RelativeTime
-                            :time="productVariant?.currentVersion.createdAt"
-                        />
+                    <div class="d-flex flex-column ga-2">
+                        <div class="d-inline-flex">
+                            <v-table class="text-capitalize" density="compact">
+                                <tbody>
+                                    <tr>
+                                        <td>Weight</td>
+                                        <td class="text-lowercase">
+                                            {{
+                                                productVariant?.currentVersion
+                                                    .weight +
+                                                ' ' +
+                                                commonStrings.kg
+                                            }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </v-table>
+                        </div>
+                        <div v-if="productVariant?.currentVersion.createdAt">
+                            Created
+                            <RelativeTime
+                                :time="productVariant?.currentVersion.createdAt"
+                            />
+                        </div>
                     </div>
                 </v-card-text>
                 <v-divider class="mx-4"></v-divider>
@@ -275,7 +294,15 @@
                     <v-divider></v-divider>
                     <v-card-text>
                         <v-container>
-                            <v-row align="start" no-gutters>
+                            <v-row align="start" dense>
+                                <v-col>Weight:</v-col>
+                                <v-col>{{
+                                    productVariant?.currentVersion.weight +
+                                    ' ' +
+                                    commonStrings.kg
+                                }}</v-col>
+                            </v-row>
+                            <v-row align="start" dense>
                                 <v-col>Returns:</v-col>
                                 <v-col
                                     >Returnable within
@@ -333,6 +360,7 @@ import RelativeTime from '@/components/RelativeTime.vue'
 import { useClient } from '@/graphql/client'
 import { UpdateWishlistInput } from '@/graphql/generated'
 import { useAppStore } from '@/store/app'
+import { commonStrings } from '@/strings/commonStrings'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
