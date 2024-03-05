@@ -14,7 +14,6 @@
 </template>
 
 <script lang="ts" setup>
-
 /**
  * Props of this component:
  *
