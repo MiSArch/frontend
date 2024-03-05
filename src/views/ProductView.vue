@@ -804,29 +804,18 @@ const numberOfLostProductItems = computed(() => {
  * The maximum number of product items a buyer can order.
  *
  * This computed ref calculates the maximum number of product items a buyer can order based on the
- * number of items in stock and the number of reserved items.
- * The available quantity is the number of items in stock minus the number of reserved items.
- * If the available quantity is less than 10, it returns that value; otherwise,
+ * number of items in stock.
+ * The available quantity is simply the number of items in stocks.
+ * If the available quantity (in stock) is less than 10, it returns that value; otherwise,
  * it returns the default maximum value of 10.
  */
 const maximumNumberOfProductItemsABuyerCanOrder = computed(() => {
-    if (
-        numberOfProductItemsInStock.value !== undefined &&
-        numberOfReservedProductItems.value !== undefined
-    ) {
-        const numberOfAvailableProductItems =
-            numberOfProductItemsInStock.value -
-            numberOfReservedProductItems.value
+    if (numberOfProductItemsInStock.value !== undefined) {
+        const numberOfAvailableProductItems = numberOfProductItemsInStock.value
 
-        // Ensure the available quantity is not negative; set it to 0 if negative.
-        const nonNegativeAvailableQuantity = Math.max(
-            numberOfAvailableProductItems,
-            0
-        )
-
-        return nonNegativeAvailableQuantity <
+        return numberOfAvailableProductItems <
             defaultMaximumNumberOfItemsABuyerCanOrder
-            ? nonNegativeAvailableQuantity
+            ? numberOfAvailableProductItems
             : defaultMaximumNumberOfItemsABuyerCanOrder
     }
 
