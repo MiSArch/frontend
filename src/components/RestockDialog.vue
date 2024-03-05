@@ -252,9 +252,8 @@ const hasChanges = computed(() => {
 
 /**
  * Resets the view model to its initial state.
- * @returns Whether or not the view model was reset.
  */
-function resetViewModel(): boolean {
+function resetViewModel() {
     if (hasChanges.value) {
         selectedProductVariantId.value = props.preselectedProductVariantId
         amount.value = null
