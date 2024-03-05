@@ -387,6 +387,12 @@ import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+/**
+ * The default value for the maximum number of product items a buyer can order at once.
+ * See the computed ref 'maximumNumberOfProductItemsABuyerCanOrder'
+ */
+const defaultMaximumNumberOfItemsABuyerCanOrder = 10
+
 const store = useAppStore()
 
 const { activeUserRoleIsEitherAdminOrEmployee } = storeToRefs(store)
@@ -804,8 +810,6 @@ const numberOfLostProductItems = computed(() => {
  * it returns the default maximum value of 10.
  */
 const maximumNumberOfProductItemsABuyerCanOrder = computed(() => {
-    const defaultValue = 10
-
     if (
         numberOfProductItemsInStock.value !== undefined &&
         numberOfReservedProductItems.value !== undefined
@@ -820,13 +824,14 @@ const maximumNumberOfProductItemsABuyerCanOrder = computed(() => {
             0
         )
 
-        return nonNegativeAvailableQuantity < defaultValue
+        return nonNegativeAvailableQuantity <
+            defaultMaximumNumberOfItemsABuyerCanOrder
             ? nonNegativeAvailableQuantity
-            : defaultValue
+            : defaultMaximumNumberOfItemsABuyerCanOrder
     }
 
     // If calculation is not possible, return a default maximum value of 10.
-    return defaultValue
+    return defaultMaximumNumberOfItemsABuyerCanOrder
 })
 
 /**
