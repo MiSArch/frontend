@@ -95,7 +95,7 @@
                                                 productVariant?.currentVersion
                                                     .weight +
                                                 ' ' +
-                                                unitUsedForWeightInformation
+                                                commonStrings.kg
                                             }}
                                         </td>
                                     </tr>
@@ -299,7 +299,7 @@
                                 <v-col>{{
                                     productVariant?.currentVersion.weight +
                                     ' ' +
-                                    unitUsedForWeightInformation
+                                    commonStrings.kg
                                 }}</v-col>
                             </v-row>
                             <v-row align="start" dense>
@@ -360,6 +360,7 @@ import RelativeTime from '@/components/RelativeTime.vue'
 import { useClient } from '@/graphql/client'
 import { UpdateWishlistInput } from '@/graphql/generated'
 import { useAppStore } from '@/store/app'
+import { commonStrings } from '@/strings/commonStrings'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
@@ -372,10 +373,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 const store = useAppStore()
 
-const {
-    unitOfMass: unitUsedForWeightInformation,
-    activeUserRoleIsEitherAdminOrEmployee,
-} = storeToRefs(store)
+const { activeUserRoleIsEitherAdminOrEmployee } = storeToRefs(store)
 
 /**
  * The GraphQL client to use for all GraphQL requests.

@@ -5,13 +5,10 @@ import Keycloak from 'keycloak-js'
 import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
 import { GetCurrentUserQuery } from '@/graphql/generated'
-import { useLocalStorage } from '@vueuse/core'
 import { UserRole, parseRoleName } from './userRole'
-import { UnitOfMass } from '../util/unitOfMass'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
-const defaultUnitOfMass = UnitOfMass.Kilogram
 
 /**
  * Interface representing a notification to be displayed.
@@ -38,10 +35,6 @@ export const useAppStore = defineStore('app', {
         userRolesOfCurrentUser: initialUserRolesOfCurrentUser,
         activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
-        unitOfMass: useLocalStorage<UnitOfMass>(
-            'unitOfMass',
-            defaultUnitOfMass
-        ),
     }),
     getters: {
         token(): string | undefined {
