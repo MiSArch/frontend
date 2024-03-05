@@ -241,25 +241,11 @@ const selectedProductVariantId = ref<string | undefined>(
 const amount = ref<string | null>(null)
 
 /**
- * Computed property indicating whether there are changes in the component's state.
- */
-const hasChanges = computed(() => {
-    return (
-        selectedProductVariantId.value !== props.preselectedProductVariantId ||
-        amount.value !== null
-    )
-})
-
-/**
  * Resets the view model to its initial state.
  */
 function resetViewModel() {
-    if (hasChanges.value) {
-        selectedProductVariantId.value = props.preselectedProductVariantId
-        amount.value = null
-        return true
-    }
-    return false
+    selectedProductVariantId.value = props.preselectedProductVariantId
+    amount.value = null
 }
 
 /**
