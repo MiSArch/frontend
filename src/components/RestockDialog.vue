@@ -257,12 +257,9 @@ const hasChanges = computed(() => {
 function resetViewModel(): boolean {
     if (hasChanges.value) {
         selectedProductVariantId.value = props.preselectedProductVariantId
-
         amount.value = null
-
         return true
     }
-
     return false
 }
 
