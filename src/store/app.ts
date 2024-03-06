@@ -1,8 +1,10 @@
 import { UserRole, parseRoleName } from './userRole'
 import { useClient } from '@/graphql/client'
-import { GetCurrentUserQuery } from '@/graphql/generated'
+import {
+    GetCurrentUserQuery,
+    GetShoppingCartOfUserQuery,
+} from '@/graphql/generated'
 import { ShoppingCart } from '@/model/shoppingCart'
-import { ShoppingCartItem } from '@/model/shoppingCartItem'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     awaitActionAndPushErrorIfNecessary,
@@ -154,7 +156,7 @@ export const useAppStore = defineStore('app', {
                 this.activeUserRole = this.highestUserRoleOfCurrentUser
 
                 if (this.shoppingCartIsEnabled) {
-                    await this.restoreShoppingCartOfCurrentUser()
+                    await this.restoreShoppingCart()
                 }
             }
         },
@@ -232,51 +234,58 @@ export const useAppStore = defineStore('app', {
             }
         },
         /**
-         * Asynchronously retrieves the shopping cart of the current user.
-         *
-         * @returns A promise that resolves to true if the shopping cart was successfully restored, false otherwise.
+         * Asynchronously restores the state of the current user's shopping cart.
          */
-        async restoreShoppingCartOfCurrentUser(): Promise<boolean> {
+        async restoreShoppingCart() {
             if (this.currentUserId != undefined) {
                 const getShoppingCartOfUserQuery =
-                    await awaitActionAndPushErrorIfNecessary(() => {
-                        return useClient().getShoppingCartOfUser({
-                            id: this.currentUserId,
-                        })
-                    }, errorMessages.restoreShoppingCartOfUser)
+                    await this.getShoppingCartOfUser(this.currentUserId)
 
-                const shoppingCartOfCurrentUser =
-                    getShoppingCartOfUserQuery.user.shoppingcart
-                this.shoppingCart.lastUpdatedAt =
-                    shoppingCartOfCurrentUser.lastUpdatedAt
-                this.shoppingCart.items = []
-
-                shoppingCartOfCurrentUser.shoppingcartItems.nodes.forEach(
-                    (shoppingCartItem) => {
-                        const item: ShoppingCartItem = {
-                            id: shoppingCartItem.id,
-                            count: shoppingCartItem.count,
-                            addedAt: shoppingCartItem.addedAt,
-                            productVariantId:
-                                shoppingCartItem.productVariant.id,
-                            productId:
-                                shoppingCartItem.productVariant.product.id,
-                            nameOfProductVariant:
-                                shoppingCartItem.productVariant.currentVersion
-                                    .name,
-                            retailPrice:
-                                shoppingCartItem.productVariant.currentVersion
-                                    .retailPrice,
-                        }
-
-                        this.shoppingCart.items.push(item)
-                    }
+                this.extractAndApplyShoppingCartInfoFromQuery(
+                    getShoppingCartOfUserQuery
                 )
-
-                return true
+            }
+        },
+        /**
+         * Asynchronously retrieves the shopping cart of a user.
+         * @param userId - The ID of the user.
+         * @returns A promise that resolves to the shopping cart query result.
+         */
+        async getShoppingCartOfUser(
+            userId: string
+        ): Promise<GetShoppingCartOfUserQuery> {
+            return await awaitActionAndPushErrorIfNecessary(() => {
+                return useClient().getShoppingCartOfUser({
+                    id: userId,
+                })
+            }, errorMessages.getShoppingCartOfUser)
+        },
+        /**
+         * Extracts and applies shopping cart information from a query result.
+         * @param getShoppingCartOfUserQuery - The query result containing the shopping cart information.
+         */
+        extractAndApplyShoppingCartInfoFromQuery(
+            getShoppingCartOfUserQuery: GetShoppingCartOfUserQuery
+        ) {
+            if (getShoppingCartOfUserQuery.user.id !== this.currentUserId) {
+                return
             }
 
-            return false
+            const shoppingCart = getShoppingCartOfUserQuery.user.shoppingcart
+            this.shoppingCart.lastUpdatedAt = shoppingCart.lastUpdatedAt
+            this.shoppingCart.items = []
+            shoppingCart.shoppingcartItems.nodes.forEach((item) => {
+                this.shoppingCart.items.push({
+                    id: item.id,
+                    count: item.count,
+                    addedAt: item.addedAt,
+                    productVariantId: item.productVariant.id,
+                    productId: item.productVariant.product.id,
+                    nameOfProductVariant:
+                        item.productVariant.currentVersion.name,
+                    retailPrice: item.productVariant.currentVersion.retailPrice,
+                })
+            })
         },
         /**
          * Logs the user in.
@@ -458,7 +467,7 @@ export const useAppStore = defineStore('app', {
 
             this.pushNotification(successNotification)
 
-            await this.restoreShoppingCartOfCurrentUser()
+            await this.restoreShoppingCart()
         },
         /**
          * Updates the shopping cart item with the specified ID.
@@ -490,7 +499,7 @@ export const useAppStore = defineStore('app', {
                 console.error(error)
             }
 
-            await this.restoreShoppingCartOfCurrentUser()
+            await this.restoreShoppingCart()
         },
         /**
          * Deletes the shopping cart item with the specified ID.
@@ -511,7 +520,7 @@ export const useAppStore = defineStore('app', {
                 console.error(error)
             }
 
-            await this.restoreShoppingCartOfCurrentUser()
+            await this.restoreShoppingCart()
         },
     },
 })

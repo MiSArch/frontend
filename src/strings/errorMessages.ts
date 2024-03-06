@@ -41,7 +41,7 @@ export const errorMessages = {
     createTaxRateVersion: 'Could not create the new tax rate version.',
     updateTaxRate: 'Could not update the tax rate.',
     // shopping cart
-    restoreShoppingCartOfUser: 'Could not load the shopping cart of the user.',
+    getShoppingCartOfUser: 'Could not load the shopping cart of the user.',
     addItemToShoppingCart:
         'Could not add the product variant to the shopping cart.',
     updateShoppingCartItem: 'Could not update the shopping cart item.',
