@@ -1,9 +1,6 @@
 import { UserRole, parseRoleName } from './userRole'
 import { useClient } from '@/graphql/client'
-import {
-    GetCurrentUserQuery,
-    GetShoppingCartOfUserQuery,
-} from '@/graphql/generated'
+import { GetCurrentUserQuery } from '@/graphql/generated'
 import { ShoppingCart } from '@/model/shoppingCart'
 import { errorMessages } from '@/strings/errorMessages'
 import {
@@ -15,6 +12,12 @@ import {
 import Keycloak from 'keycloak-js'
 import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
+import {
+    addItemToShoppingCart,
+    extractShoppingCartInstanceFromQuery,
+    getShoppingCartOfUser,
+    updateShoppingCartItem,
+} from './shoppingCartManagement'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
@@ -238,54 +241,16 @@ export const useAppStore = defineStore('app', {
          */
         async restoreShoppingCart() {
             if (this.currentUserId != undefined) {
-                const getShoppingCartOfUserQuery =
-                    await this.getShoppingCartOfUser(this.currentUserId)
-
-                this.extractAndApplyShoppingCartInfoFromQuery(
-                    getShoppingCartOfUserQuery
+                const getShoppingCartOfUserQuery = await getShoppingCartOfUser(
+                    this.currentUserId
                 )
-            }
-        },
-        /**
-         * Asynchronously retrieves the shopping cart of a user.
-         * @param userId - The ID of the user.
-         * @returns A promise that resolves to the shopping cart query result.
-         */
-        async getShoppingCartOfUser(
-            userId: string
-        ): Promise<GetShoppingCartOfUserQuery> {
-            return await awaitActionAndPushErrorIfNecessary(() => {
-                return useClient().getShoppingCartOfUser({
-                    id: userId,
-                })
-            }, errorMessages.getShoppingCartOfUser)
-        },
-        /**
-         * Extracts and applies shopping cart information from a query result.
-         * @param getShoppingCartOfUserQuery - The query result containing the shopping cart information.
-         */
-        extractAndApplyShoppingCartInfoFromQuery(
-            getShoppingCartOfUserQuery: GetShoppingCartOfUserQuery
-        ) {
-            if (getShoppingCartOfUserQuery.user.id !== this.currentUserId) {
-                return
-            }
 
-            const shoppingCart = getShoppingCartOfUserQuery.user.shoppingcart
-            this.shoppingCart.lastUpdatedAt = shoppingCart.lastUpdatedAt
-            this.shoppingCart.items = []
-            shoppingCart.shoppingcartItems.nodes.forEach((item) => {
-                this.shoppingCart.items.push({
-                    id: item.id,
-                    count: item.count,
-                    addedAt: item.addedAt,
-                    productVariantId: item.productVariant.id,
-                    productId: item.productVariant.product.id,
-                    nameOfProductVariant:
-                        item.productVariant.currentVersion.name,
-                    retailPrice: item.productVariant.currentVersion.retailPrice,
-                })
-            })
+                if (getShoppingCartOfUserQuery.user.id === this.currentUserId) {
+                    this.shoppingCart = extractShoppingCartInstanceFromQuery(
+                        getShoppingCartOfUserQuery
+                    )
+                }
+            }
         },
         /**
          * Logs the user in.
@@ -396,7 +361,6 @@ export const useAppStore = defineStore('app', {
          * If the product has already been added to the cart
          * then it updates the count:
          * It simply adds the specified count on top of the existing count.
-         *
          * @param productVariantId - The ID of the product variant to add.
          * @param count - The quantity of the product variant to add.
          */
@@ -412,69 +376,64 @@ export const useAppStore = defineStore('app', {
                 return
             }
 
-            let nameOfProductVariant: string
-
-            const existingShoppingCartItems = this.shoppingCart.items.filter(
+            const existingItem = this.shoppingCart.items.find(
                 (item) => item.productVariantId === productVariantId
             )
-            if (existingShoppingCartItems.length >= 1) {
-                const newShoppingCartItem = (
-                    await awaitActionAndPushErrorIfNecessary(() => {
-                        return useClient().updateShoppingcartItem({
-                            input: {
-                                id: existingShoppingCartItems[0].id,
-                                count:
-                                    existingShoppingCartItems[0].count + count,
-                            },
-                        })
-                    }, errorMessages.addItemToShoppingCart)
-                ).updateShoppingcartItem
-
-                nameOfProductVariant =
-                    newShoppingCartItem.productVariant.currentVersion.name
+            if (existingItem != undefined) {
+                await updateShoppingCartItem({
+                    id: existingItem.id,
+                    count: existingItem.count + count,
+                })
             } else {
-                const newShoppingCartItem = (
-                    await awaitActionAndPushErrorIfNecessary(() => {
-                        return useClient().addItemToShoppingCart({
-                            input: {
-                                id: this.currentUserId,
-                                shoppingCartItem: {
-                                    count: count,
-                                    productVariantId: productVariantId,
-                                },
-                            },
-                        })
-                    }, errorMessages.addItemToShoppingCart)
-                ).addShoppingcartItem
+                await addItemToShoppingCart({
+                    id: this.currentUserId,
+                    shoppingCartItem: {
+                        count: count,
+                        productVariantId: productVariantId,
+                    },
+                })
+            }
 
-                nameOfProductVariant =
-                    newShoppingCartItem.productVariant.currentVersion.name
+            await this.restoreShoppingCart()
+            this.notifyAboutAdditionOfShoppingCartItem(productVariantId, count)
+        },
+        /**
+         * Notifies about the addition of a shopping cart item.
+         * @param productVariantId - The ID of the product variant added to the shopping cart.
+         * @param count - The quantity of the product variant added to the shopping cart.
+         */
+        notifyAboutAdditionOfShoppingCartItem(
+            productVariantId: string,
+            count: number
+        ) {
+            const shoppingCartItem = this.shoppingCart.items.find(
+                (item) => item.productVariantId === productVariantId
+            )
+            if (shoppingCartItem === undefined) {
+                return
             }
 
             const timeOrTimes = count == 1 ? 'time' : 'times'
-            const textOfSuccessNotification =
-                nameOfProductVariant +
+            const notificationText =
+                shoppingCartItem.nameOfProductVariant +
                 ' was added to the shopping cart ' +
                 count +
                 ' ' +
                 timeOrTimes +
                 '.'
-            const successNotification: Notification = {
-                text: textOfSuccessNotification,
+
+            this.pushNotification({
+                text: notificationText,
                 type: 'success',
                 density: 'comfortable',
-            }
-
-            this.pushNotification(successNotification)
-
-            await this.restoreShoppingCart()
+            })
         },
         /**
-         * Updates the shopping cart item with the specified ID.
+         * Updates the count of the shopping cart item with the specified ID.
          * @param idOfShoppingCartItem - The ID of the shopping cart item to be updated.
          * @param count - The new count of the shopping cart item.
          */
-        async updateShoppingCartItem(
+        async updateCountOfShoppingCartItem(
             idOfShoppingCartItem: string,
             count: number
         ) {
@@ -487,14 +446,10 @@ export const useAppStore = defineStore('app', {
             }
 
             try {
-                await awaitActionAndPushErrorIfNecessary(() => {
-                    return useClient().updateShoppingcartItem({
-                        input: {
-                            id: idOfShoppingCartItem,
-                            count: count,
-                        },
-                    })
-                }, errorMessages.updateShoppingCartItem)
+                await updateShoppingCartItem({
+                    id: idOfShoppingCartItem,
+                    count: count,
+                })
             } catch (error) {
                 console.error(error)
             }

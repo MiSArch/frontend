@@ -65,7 +65,7 @@ async function updateShoppingCartItem(
     idOfShoppingCartItem: any,
     newCount: number
 ) {
-    await store.updateShoppingCartItem(idOfShoppingCartItem, newCount)
+    await store.updateCountOfShoppingCartItem(idOfShoppingCartItem, newCount)
 }
 
 /**
