@@ -641,12 +641,10 @@ const getInventoryStatusOfProductItemsQuery = asyncComputed(
     async () => {
         triggerGetInventoryStatusOfProductItemsQuery.value
 
-        if (activeUserRoleIsEitherAdminOrEmployee.value) {
-            if (productVariantId.value !== undefined) {
-                return client.getInventoryStatusOfProductItems({
-                    productVariantId: productVariantId.value,
-                })
-            }
+        if (productVariantId.value !== undefined) {
+            return client.getInventoryStatusOfProductItems({
+                productVariantId: productVariantId.value,
+            })
         }
 
         return null
