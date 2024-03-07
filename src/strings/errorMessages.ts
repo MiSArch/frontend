@@ -12,6 +12,8 @@ export const errorMessages = {
         'Could not load the categories of the store.',
     getCategoriesWithCharacteristics: 'Could not load the categories.',
     getProduct: 'Could not load the product.',
+    getProductWithItsVariantsOnly:
+        'Could not load the product variants of the product.',
     createProduct: 'Could not create the new product.',
     createProductVariant: 'Could not create the new product variant.',
     createNewProductVariantVersion:
@@ -36,4 +38,8 @@ export const errorMessages = {
     createTaxRate: 'Could not create the new tax rate.',
     createTaxRateVersion: 'Could not create the new tax rate version.',
     updateTaxRate: 'Could not update the tax rate.',
+    // inventory
+    getInventoryStatusOfProductItems:
+        'Could not load the inventory status of the product items of the product variant.',
+    createProductItemBatch: 'Could not create the batch of product items.',
 }
