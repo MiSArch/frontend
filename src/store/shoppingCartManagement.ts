@@ -10,6 +10,14 @@ import { errorMessages } from '@/strings/errorMessages'
 import { awaitActionAndPushErrorIfNecessary } from '@/util/errorHandler'
 
 /**
+ * An empty shopping cart instance.
+ */
+export const emptyShoppingCart: ShoppingCart = {
+    lastUpdatedAt: null,
+    items: [],
+}
+
+/**
  * Asynchronously retrieves the shopping cart of a user.
  * @param userId - The ID of the user.
  * @returns A promise that resolves to the shopping cart query result.

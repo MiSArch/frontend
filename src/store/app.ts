@@ -1,7 +1,6 @@
 import { UserRole, parseRoleName } from './userRole'
 import { useClient } from '@/graphql/client'
 import { GetCurrentUserQuery } from '@/graphql/generated'
-import { ShoppingCart } from '@/model/shoppingCart'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     awaitActionAndPushErrorIfNecessary,
@@ -14,6 +13,7 @@ import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
 import {
     addItemToShoppingCart,
+    emptyShoppingCart,
     extractShoppingCartInstanceFromQuery,
     getShoppingCartOfUser,
     updateShoppingCartItem,
@@ -21,11 +21,6 @@ import {
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
-
-const emptyShoppingCart: ShoppingCart = {
-    lastUpdatedAt: null,
-    items: [],
-}
 
 /**
  * Interface representing a notification to be displayed.
@@ -117,6 +112,12 @@ export const useAppStore = defineStore('app', {
     },
     actions: {
         /**
+         * Empties the shopping cart.
+         */
+        emptyTheShoppingCart() {
+            this.shoppingCart = emptyShoppingCart
+        },
+        /**
          * Initializes the Keycloak adapter and
          * silently checks the SSO session.
          * If the user is logged in:
@@ -158,9 +159,7 @@ export const useAppStore = defineStore('app', {
 
                 this.activeUserRole = this.highestUserRoleOfCurrentUser
 
-                if (this.shoppingCartIsEnabled) {
-                    await this.restoreShoppingCart()
-                }
+                await this.restoreTheShoppingCart()
             }
         },
         /**
@@ -237,15 +236,19 @@ export const useAppStore = defineStore('app', {
             }
         },
         /**
-         * Asynchronously restores the state of the current user's shopping cart.
+         * Asynchronously restores the state of the shopping cart
+         * depending on the current user's active user role.
+         * If and only if the shopping cart is enabled,
+         * it queries the shopping cart. In all other cases it simply empties it.
          */
-        async restoreShoppingCart() {
-            if (this.currentUserId != undefined) {
-                const getShoppingCartOfUserQuery = await getShoppingCartOfUser(
-                    this.currentUserId
-                )
+        async restoreTheShoppingCart() {
+            this.emptyTheShoppingCart()
 
-                if (getShoppingCartOfUserQuery.user.id === this.currentUserId) {
+            if (this.shoppingCartIsEnabled) {
+                if (this.currentUserId != undefined) {
+                    const getShoppingCartOfUserQuery =
+                        await getShoppingCartOfUser(this.currentUserId)
+
                     this.shoppingCart = extractShoppingCartInstanceFromQuery(
                         getShoppingCartOfUserQuery
                     )
@@ -291,7 +294,7 @@ export const useAppStore = defineStore('app', {
                 this.currentUserId = null
                 this.userRolesOfCurrentUser = initialUserRolesOfCurrentUser
                 this.activeUserRole = defaultUserRole
-                this.shoppingCart = emptyShoppingCart
+                this.emptyTheShoppingCart()
             }, errorMessages.resetStateRelatedToUser)
         },
         /**
@@ -394,7 +397,7 @@ export const useAppStore = defineStore('app', {
                 })
             }
 
-            await this.restoreShoppingCart()
+            await this.restoreTheShoppingCart()
             this.notifyAboutAdditionOfShoppingCartItem(productVariantId, count)
         },
         /**
@@ -454,7 +457,7 @@ export const useAppStore = defineStore('app', {
                 console.error(error)
             }
 
-            await this.restoreShoppingCart()
+            await this.restoreTheShoppingCart()
         },
         /**
          * Deletes the shopping cart item with the specified ID.
@@ -475,7 +478,7 @@ export const useAppStore = defineStore('app', {
                 console.error(error)
             }
 
-            await this.restoreShoppingCart()
+            await this.restoreTheShoppingCart()
         },
     },
 })
