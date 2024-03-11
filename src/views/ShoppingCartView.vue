@@ -11,7 +11,7 @@
     <div class="d-flex h-auto py-3">
         <v-virtual-scroll :items="shoppingCart.items">
             <template v-slot:default="{ item }">
-                <v-list-item>
+                <v-list-item :key="item.id">
                     <ProductSummary
                         :product-id="item.productId"
                         :product-variant-id="item.productVariantId"

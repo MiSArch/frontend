@@ -242,8 +242,6 @@ export const useAppStore = defineStore('app', {
          * it queries the shopping cart. In all other cases it simply empties it.
          */
         async restoreTheShoppingCart() {
-            this.emptyTheShoppingCart()
-
             if (this.shoppingCartIsEnabled) {
                 if (this.currentUserId != undefined) {
                     const getShoppingCartOfUserQuery =
@@ -252,8 +250,12 @@ export const useAppStore = defineStore('app', {
                     this.shoppingCart = extractShoppingCartInstanceFromQuery(
                         getShoppingCartOfUserQuery
                     )
+
+                    return
                 }
             }
+
+            this.emptyTheShoppingCart()
         },
         /**
          * Logs the user in.
