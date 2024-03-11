@@ -3,6 +3,12 @@
         <div v-if="activeUserRoleIsEitherAdminOrEmployee">
             <v-toolbar class="bg-grey-lighten-3" density="comfortable">
                 <v-btn icon="mdi-arrow-left" @click="router.back()"></v-btn>
+                <v-spacer></v-spacer>
+                <v-btn
+                    prepend-icon="mdi-playlist-plus"
+                    @click="openRestockDialog()"
+                    >Restock</v-btn
+                >
             </v-toolbar>
             <v-card class="bg-grey-lighten-3" rounded="0" variant="flat">
                 <v-card-item>
@@ -58,6 +64,29 @@
                         readonly
                         v-model="productVariantIsHidden"
                     ></v-switch>
+                    <InventoryStatusOfProductVariant
+                        perspective="inventory manager"
+                        :in-stock="inStock"
+                        :number-of-product-items-in-stock="
+                            numberOfProductItemsInStock
+                        "
+                        :number-of-reserved-product-items="
+                            numberOfReservedProductItems
+                        "
+                        :number-of-product-items-in-fullfillment="
+                            numberOfProductItemsInFullfillment
+                        "
+                        :number-of-shipped-product-items="
+                            numberOfShippedProductItems
+                        "
+                        :number-of-delivered-product-items="
+                            numberOfDeliveredProductItems
+                        "
+                        :number-of-returned-product-items="
+                            numberOfReturnedProductItems
+                        "
+                        :number-of-lost-product-items="numberOfLostProductItems"
+                    />
                 </v-card-text>
                 <div
                     v-if="
@@ -237,22 +266,27 @@
                     </v-card-item>
                     <v-divider></v-divider>
                     <v-card-text>
+                        <InventoryStatusOfProductVariant
+                            perspective="customer"
+                            :in-stock="inStock"
+                        />
+                    </v-card-text>
+                    <div class="d-flex flex-column px-4 pb-4">
                         <v-select
-                            class=""
-                            :items="['1', '2', '3', '4', '5']"
+                            :items="quantityOptions"
                             density="compact"
-                            :disabled="!shoppingCartIsEnabled"
+                            :disabled="!inStock || !shoppingCartIsEnabled"
                             hint="Choose how many to add to the cart."
                             label="Amount"
                             persistent-hint
                             variant="solo"
                             v-model="amount"
                         ></v-select>
-                    </v-card-text>
+                    </div>
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn
-                            :disabled="!shoppingCartIsEnabled"
+                            :disabled="!inStock || !shoppingCartIsEnabled"
                             prepend-icon="mdi-cart"
                             @click="addToCart"
                             >Add To Cart</v-btn
@@ -356,14 +390,23 @@
         @update-wishlists="updateWishlists"
         @go-to-wishlists="goToWishlists"
     />
+    <RestockDialog
+        :product-id="id"
+        :preselected-product-variant-id="productVariantId"
+        v-model="restockDialogOpen"
+        @close="closeRestockDialog"
+        @restocked="reloadInventoryStatus"
+    />
 </template>
 
 <script setup lang="ts">
 import AddToWishlistDialog from '@/components/AddToWishlistDialog.vue'
+import InventoryStatusOfProductVariant from '@/components/InventoryStatusOfProductVariant.vue'
 import ProductSummary from '@/components/ProductSummary.vue'
 import RelativeTime from '@/components/RelativeTime.vue'
+import RestockDialog from '@/components/RestockDialog.vue'
 import { useClient } from '@/graphql/client'
-import { UpdateWishlistInput } from '@/graphql/generated'
+import { ProductItemStatus, UpdateWishlistInput } from '@/graphql/generated'
 import { useAppStore } from '@/store/app'
 import { commonStrings } from '@/strings/commonStrings'
 import { errorMessages } from '@/strings/errorMessages'
@@ -375,6 +418,12 @@ import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+
+/**
+ * The default value for the maximum number of product items a buyer can order at once.
+ * See the computed ref 'maximumNumberOfProductItemsABuyerCanOrder'
+ */
+const defaultMaximumNumberOfItemsABuyerCanOrder = 10
 
 const store = useAppStore()
 
@@ -611,6 +660,235 @@ function goToWishlists() {
     router.push({
         name: 'Wishlists',
     })
+}
+
+/**
+ * Reference to trigger the getInventoryStatusOfProductItems query.
+ */
+const triggerGetInventoryStatusOfProductItemsQuery = ref(0)
+
+/**
+ * Asynchronously computes the inventory status of product items.
+ */
+const getInventoryStatusOfProductItemsQuery = asyncComputed(
+    async () => {
+        triggerGetInventoryStatusOfProductItemsQuery.value
+
+        if (productVariantId.value !== undefined) {
+            return client.getInventoryStatusOfProductItems({
+                productVariantId: productVariantId.value,
+            })
+        }
+
+        return null
+    },
+    null,
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getInventoryStatusOfProductItems,
+                e
+            ),
+        shallow: false,
+    }
+)
+
+/**
+ * Computed property for the inventory status of product items.
+ */
+const inventoryStatusOfProductItems = computed(() => {
+    if (getInventoryStatusOfProductItemsQuery.value !== null) {
+        const nodes =
+            getInventoryStatusOfProductItemsQuery.value
+                .productItemsByProductVariant.nodes
+        if (nodes !== null && nodes !== undefined) {
+            return nodes
+        }
+    }
+
+    return null
+})
+
+/**
+ * Computed property indicating whether there are product items in stock.
+ * @returns True if there are product items in stock, false otherwise.
+ */
+const inStock = computed(() => {
+    if (inventoryStatusOfProductItems.value !== null) {
+        return (
+            inventoryStatusOfProductItems.value.filter(
+                (productItem) =>
+                    productItem.inventoryStatus === ProductItemStatus.InStorage
+            ).length > 0
+        )
+    }
+
+    return false
+})
+
+/**
+ * Computed property for the number of product items in stock.
+ * @returns The number of product items in stock or undefined if no data is available.
+ */
+const numberOfProductItemsInStock = computed(() => {
+    if (inventoryStatusOfProductItems.value !== null) {
+        return inventoryStatusOfProductItems.value.filter(
+            (productItem) =>
+                productItem.inventoryStatus === ProductItemStatus.InStorage
+        ).length
+    }
+
+    return undefined
+})
+
+/**
+ * Computed property for the number of reserved product items.
+ * @returns The number of reserved product items or undefined if no data is available.
+ */
+const numberOfReservedProductItems = computed(() => {
+    if (inventoryStatusOfProductItems.value !== null) {
+        return inventoryStatusOfProductItems.value.filter(
+            (productItem) =>
+                productItem.inventoryStatus === ProductItemStatus.Reserved
+        ).length
+    }
+
+    return undefined
+})
+
+/**
+ * Computed property for the number of product items in fulfillment.
+ * @returns The number of product items in fulfillment or undefined if no data is available.
+ */
+const numberOfProductItemsInFullfillment = computed(() => {
+    if (inventoryStatusOfProductItems.value !== null) {
+        return inventoryStatusOfProductItems.value.filter(
+            (productItem) =>
+                productItem.inventoryStatus === ProductItemStatus.InFulfillment
+        ).length
+    }
+
+    return undefined
+})
+
+/**
+ * Computed property for the number of shipped product items.
+ * @returns The number of shipped product items or undefined if no data is available.
+ */
+const numberOfShippedProductItems = computed(() => {
+    if (inventoryStatusOfProductItems.value !== null) {
+        return inventoryStatusOfProductItems.value.filter(
+            (productItem) =>
+                productItem.inventoryStatus === ProductItemStatus.Shipped
+        ).length
+    }
+
+    return undefined
+})
+
+/**
+ * Computed property for the number of delivered product items.
+ * @returns The number of delivered product items or undefined if no data is available.
+ */
+const numberOfDeliveredProductItems = computed(() => {
+    if (inventoryStatusOfProductItems.value !== null) {
+        return inventoryStatusOfProductItems.value.filter(
+            (productItem) =>
+                productItem.inventoryStatus === ProductItemStatus.Delivered
+        ).length
+    }
+
+    return undefined
+})
+
+/**
+ * Computed property for the number of returned product items.
+ * @returns The number of returned product items or undefined if no data is available.
+ */
+const numberOfReturnedProductItems = computed(() => {
+    if (inventoryStatusOfProductItems.value !== null) {
+        return inventoryStatusOfProductItems.value.filter(
+            (productItem) =>
+                productItem.inventoryStatus === ProductItemStatus.Returned
+        ).length
+    }
+
+    return undefined
+})
+
+/**
+ * Computed property for the number of lost product items.
+ * @returns The number of lost product items or undefined if no data is available.
+ */
+const numberOfLostProductItems = computed(() => {
+    if (inventoryStatusOfProductItems.value !== null) {
+        return inventoryStatusOfProductItems.value.filter(
+            (productItem) =>
+                productItem.inventoryStatus === ProductItemStatus.Lost
+        ).length
+    }
+
+    return undefined
+})
+
+/**
+ * The maximum number of product items a buyer can order.
+ *
+ * This computed ref calculates the maximum number of product items a buyer can order based on the
+ * number of items in stock.
+ * The available quantity is simply the number of items in stocks.
+ * If the available quantity (in stock) is less than 10, it returns that value; otherwise,
+ * it returns the default maximum value of 10.
+ */
+const maximumNumberOfProductItemsABuyerCanOrder = computed(() => {
+    if (numberOfProductItemsInStock.value !== undefined) {
+        const numberOfAvailableProductItems = numberOfProductItemsInStock.value
+
+        return numberOfAvailableProductItems <
+            defaultMaximumNumberOfItemsABuyerCanOrder
+            ? numberOfAvailableProductItems
+            : defaultMaximumNumberOfItemsABuyerCanOrder
+    }
+
+    // If calculation is not possible, return a default maximum value of 10.
+    return defaultMaximumNumberOfItemsABuyerCanOrder
+})
+
+/**
+ * Computes an array of stringified integers from 1 to the value of the ref 'maximumNumberOfProductItemsABuyerCanOrder'.
+ */
+const quantityOptions = computed(() => {
+    return Array.from(
+        { length: maximumNumberOfProductItemsABuyerCanOrder.value },
+        (_, index) => (index + 1).toString()
+    )
+})
+
+/**
+ * Whether or not the "RESTOCK" dialog is open.
+ */
+const restockDialogOpen = ref(false)
+
+/**
+ * Opens the "RESTOCK" dialog.
+ */
+function openRestockDialog() {
+    restockDialogOpen.value = true
+}
+
+/**
+ * Closes the "RESTOCK" dialog.
+ */
+function closeRestockDialog() {
+    restockDialogOpen.value = false
+}
+
+/**
+ * Triggers the reloading of the inventory status information
+ * by triggering the GetInventoryStatusOfProductItemsQuery to be executed again.
+ */
+function reloadInventoryStatus() {
+    triggerGetInventoryStatusOfProductItemsQuery.value++
 }
 
 /**
