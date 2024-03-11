@@ -182,11 +182,8 @@
                 <v-card class="align-self-start" elevation="4">
                     <v-card-item>
                         <v-card-title>{{
-                            product?.product.internalName
-                        }}</v-card-title>
-                        <v-card-subtitle>{{
                             productVariant?.currentVersion.name
-                        }}</v-card-subtitle>
+                        }}</v-card-title>
                     </v-card-item>
                     <v-card-text>
                         <div class="d-flex flex-wrap ga-2">
