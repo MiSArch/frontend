@@ -90,7 +90,8 @@
                 </v-card-text>
                 <div
                     v-if="
-                        productVariant?.id === product?.product.defaultVariant.id
+                        productVariant?.id ===
+                        product?.product.defaultVariant.id
                     "
                 >
                     <v-divider></v-divider>
