@@ -90,7 +90,7 @@
                 </v-card-text>
                 <div
                     v-if="
-                        productVariant?.id == product?.product.defaultVariant.id
+                        productVariant?.id === product?.product.defaultVariant.id
                     "
                 >
                     <v-divider></v-divider>
@@ -469,7 +469,7 @@ const product = asyncComputed(
  * has not been loaded yet or could not be loaded.
  */
 const productIsHidden = computed(() => {
-    if (product.value == null) {
+    if (product.value === null) {
         return false
     } else {
         return !product.value.product.isPubliclyVisible
@@ -499,7 +499,7 @@ const productVariant = computed(() => {
     }
 
     return product.value?.product.variants.nodes.find(
-        (variant) => variant.id == productVariantId.value
+        (variant) => variant.id === productVariantId.value
     )
 })
 
@@ -509,7 +509,7 @@ const productVariant = computed(() => {
  * has not been loaded yet or could not be loaded.
  */
 const productVariantIsHidden = computed(() => {
-    if (productVariant.value == null) {
+    if (productVariant.value == undefined) {
         return false
     } else {
         return !productVariant.value.isPubliclyVisible
@@ -523,7 +523,7 @@ const productVariantIsHidden = computed(() => {
 const otherProductVariants = computed(() => {
     return (
         product.value?.product.variants.nodes.filter(
-            (variant) => variant.id != productVariantId.value
+            (variant) => variant.id !== productVariantId.value
         ) ?? []
     )
 })

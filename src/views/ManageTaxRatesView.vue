@@ -12,7 +12,7 @@
         />
     </v-toolbar>
     <v-list
-        v-if="taxRates != null && taxRates && taxRates.taxRates.totalCount > 0"
+        v-if="taxRates != undefined && taxRates.taxRates.totalCount > 0"
         class="mx-2"
         lines="three"
     >

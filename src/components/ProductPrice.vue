@@ -4,7 +4,7 @@
             <v-card-title>{{ price }} EUR</v-card-title>
             <v-card-subtitle
                 class="text-decoration-line-through"
-                v-if="price != retailPrice"
+                v-if="price !== retailPrice"
             >
                 {{ retailPrice }} EUR
             </v-card-subtitle>

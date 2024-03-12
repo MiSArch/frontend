@@ -55,7 +55,7 @@ const absoluteTime = new Intl.DateTimeFormat(props.locales ?? 'en-US', {
 function formatRelativeTime(from: Date, to: Date): string {
     const elapsed = to.getTime() - from.getTime()
     for (const [unit, unitLength] of Object.entries(units)) {
-        if (Math.abs(elapsed) > unitLength || unit == 'second') {
+        if (Math.abs(elapsed) > unitLength || unit === 'second') {
             return relativeTime.format(
                 Math.round(elapsed / unitLength),
                 unit as Intl.RelativeTimeFormatUnit
