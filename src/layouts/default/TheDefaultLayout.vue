@@ -120,7 +120,7 @@ const categoriesWithTotalCountOfProducts = asyncComputed(
  * it has at least one visible product variant.
  */
 const categoriesWithAtLeastOneVisibleProduct = computed(() => {
-    if (categoriesWithTotalCountOfProducts.value === null) {
+    if (categoriesWithTotalCountOfProducts.value == null) {
         return []
     }
 
@@ -147,7 +147,7 @@ const categoriesWithAtLeastOneVisibleProduct = computed(() => {
  * that has at least one visible product.
  */
 const hasAtLeastOneCategoryWithAtLeastOneVisibleProduct = computed(() => {
-    if (categoriesWithTotalCountOfProducts.value === null) {
+    if (categoriesWithTotalCountOfProducts.value == null) {
         return false
     }
 

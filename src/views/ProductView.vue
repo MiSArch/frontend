@@ -470,7 +470,7 @@ const product = asyncComputed(
  * has not been loaded yet or could not be loaded.
  */
 const productIsHidden = computed(() => {
-    if (product.value === null) {
+    if (product.value == null) {
         return false
     } else {
         return !product.value.product.isPubliclyVisible

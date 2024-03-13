@@ -16,7 +16,7 @@ export enum UserRole {
  * @throws {Error} Throws an error if roleName is null or undefined.
  */
 export function parseRoleName(roleName: string): UserRole | null {
-    if (roleName === null || roleName === undefined) {
+    if (roleName == null) {
         throw new Error('roleName cannot be null or undefined')
     }
 
