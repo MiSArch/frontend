@@ -123,7 +123,61 @@ query getCategoriesWithCharacteristics($first: Int, $skip: Int, $orderBy: Catego
   }
 }
 
-# Gets a single product.
+# Retrieve the product with the specified ID,
+# including only the information relevant to a potential customer.
+query getProductForBuyer($id: UUID!) {
+  product(id: $id) {
+    id
+    defaultVariant {
+      id
+    }
+    variants {
+      totalCount
+      nodes {
+        id
+        currentVersion {
+          id
+          version
+          createdAt
+          name
+          retailPrice
+          weight
+          description
+          canBeReturnedForDays
+          characteristicValues {
+            totalCount
+            nodes {
+              __typename
+              characteristic {
+                id
+                name
+                category {
+                  id
+                }
+              }
+              ... on CategoricalCategoryCharacteristicValue {
+                categoricalValue: value
+              }
+              ... on NumericalCategoryCharacteristicValue {
+                numericalValue: value
+              }
+            }
+          }
+        }
+      }
+    }
+    categories {
+      totalCount
+      nodes {
+        id
+        name
+      }
+    }
+  }
+}
+
+# Retrieve the product with the specified ID,
+# including all the information relevant to an employee or an admin.
 query getProduct($id: UUID!) {
   product(id: $id) {
     id

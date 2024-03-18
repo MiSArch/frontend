@@ -16,6 +16,7 @@ export const errorMessages = {
         'Could not load the categories of the store.',
     getCategoriesWithCharacteristics: 'Could not load the categories.',
     getProduct: 'Could not load the product.',
+    getProductForBuyer: 'Could not load the product.',
     getProductWithItsVariantsOnly:
         'Could not load the product variants of the product.',
     createProduct: 'Could not create the new product.',

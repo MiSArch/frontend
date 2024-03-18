@@ -13,11 +13,18 @@
             <v-card class="bg-grey-lighten-3" rounded="0" variant="flat">
                 <v-card-item>
                     <v-card-title class="mr-1">
-                        Product: {{ product?.product.internalName }}
+                        Product:
+                        {{
+                            productInfoRelevantToAdminAndEmployee?.product
+                                .internalName
+                        }}
                     </v-card-title>
 
                     <v-card-subtitle
-                        >ID: {{ product?.product.id }}</v-card-subtitle
+                        >ID:
+                        {{
+                            productInfoRelevantToAdminAndEmployee?.product.id
+                        }}</v-card-subtitle
                     >
                 </v-card-item>
                 <v-card-text>
@@ -35,7 +42,10 @@
                     ></v-switch>
                     <p>
                         Number of variants:
-                        {{ product?.product.variants.totalCount }}
+                        {{
+                            productInfoRelevantToAdminAndEmployee?.product
+                                .variants.totalCount
+                        }}
                     </p>
                 </v-card-text>
             </v-card>
@@ -43,10 +53,16 @@
                 <v-card-item>
                     <v-card-title
                         >Variant:
-                        {{ productVariant?.currentVersion.name }}</v-card-title
+                        {{
+                            productVariantInfoRelevantToAdminAndEmployee
+                                ?.currentVersion.name
+                        }}</v-card-title
                     >
                     <v-card-subtitle
-                        >ID: {{ productVariant?.id }}</v-card-subtitle
+                        >ID:
+                        {{
+                            productVariantInfoRelevantToAdminAndEmployee?.id
+                        }}</v-card-subtitle
                     >
                 </v-card-item>
                 <v-card-text>
@@ -90,8 +106,9 @@
                 </v-card-text>
                 <div
                     v-if="
-                        productVariant?.id ===
-                        product?.product.defaultVariant.id
+                        productVariantInfoRelevantToAdminAndEmployee?.id ===
+                        productInfoRelevantToAdminAndEmployee?.product
+                            .defaultVariant.id
                     "
                 >
                     <v-divider></v-divider>
@@ -105,12 +122,16 @@
                     <v-card-title
                         >Variant Version:
                         {{
-                            productVariant?.currentVersion.version
+                            productVariantInfoRelevantToAdminAndEmployee
+                                ?.currentVersion.version
                         }}</v-card-title
                     >
                     <v-card-subtitle
                         >ID:
-                        {{ productVariant?.currentVersion.id }}</v-card-subtitle
+                        {{
+                            productVariantInfoRelevantToAdminAndEmployee
+                                ?.currentVersion.id
+                        }}</v-card-subtitle
                     >
                 </v-card-item>
                 <v-card-text>
@@ -122,8 +143,8 @@
                                         <td>Weight</td>
                                         <td class="text-lowercase">
                                             {{
-                                                productVariant?.currentVersion
-                                                    .weight +
+                                                productVariantInfoRelevantToAdminAndEmployee
+                                                    ?.currentVersion.weight +
                                                 ' ' +
                                                 commonStrings.kg
                                             }}
@@ -132,10 +153,18 @@
                                 </tbody>
                             </v-table>
                         </div>
-                        <div v-if="productVariant?.currentVersion.createdAt">
+                        <div
+                            v-if="
+                                productVariantInfoRelevantToAdminAndEmployee
+                                    ?.currentVersion.createdAt
+                            "
+                        >
                             Created
                             <RelativeTime
-                                :time="productVariant?.currentVersion.createdAt"
+                                :time="
+                                    productVariantInfoRelevantToAdminAndEmployee
+                                        ?.currentVersion.createdAt
+                                "
                             />
                         </div>
                     </div>
@@ -145,12 +174,14 @@
                     <v-chip
                         @click="
                             navigateToTaxRate(
-                                productVariant?.currentVersion.taxRate.id
+                                productVariantInfoRelevantToAdminAndEmployee
+                                    ?.currentVersion.taxRate.id
                             )
                         "
                         >Tax Rate:
                         {{
-                            productVariant?.currentVersion.taxRate.name
+                            productVariantInfoRelevantToAdminAndEmployee
+                                ?.currentVersion.taxRate.name
                         }}</v-chip
                     >
                 </v-card-text>
@@ -183,11 +214,9 @@
                 <v-card class="align-self-start" elevation="4">
                     <v-card-item>
                         <v-card-title>{{
-                            product?.product.internalName
+                            productVariantInfoRelevantToBuyer?.currentVersion
+                                .name
                         }}</v-card-title>
-                        <v-card-subtitle>{{
-                            productVariant?.currentVersion.name
-                        }}</v-card-subtitle>
                     </v-card-item>
                     <v-card-text>
                         <div class="d-flex flex-wrap ga-2">
@@ -253,7 +282,8 @@
                     <v-card-item>
                         <v-card-title
                             >{{
-                                productVariant?.currentVersion.retailPrice
+                                productVariantInfoRelevantToBuyer
+                                    ?.currentVersion.retailPrice
                             }}
                             EUR</v-card-title
                         >
@@ -261,7 +291,10 @@
                             class="text-decoration-line-through"
                             v-if="false"
                         >
-                            {{ productVariant?.currentVersion.retailPrice }}
+                            {{
+                                productVariantInfoRelevantToBuyer
+                                    ?.currentVersion.retailPrice
+                            }}
                             EUR
                         </v-card-subtitle>
                     </v-card-item>
@@ -337,7 +370,8 @@
                             <v-row align="start" dense>
                                 <v-col>Weight:</v-col>
                                 <v-col>{{
-                                    productVariant?.currentVersion.weight +
+                                    productVariantInfoRelevantToBuyer
+                                        ?.currentVersion.weight +
                                     ' ' +
                                     commonStrings.kg
                                 }}</v-col>
@@ -347,7 +381,8 @@
                                 <v-col
                                     >Returnable within
                                     {{
-                                        productVariant?.currentVersion
+                                        productVariantInfoRelevantToBuyer
+                                            ?.currentVersion
                                             .canBeReturnedForDays
                                     }}
                                     days of receipt.</v-col
@@ -361,7 +396,10 @@
                 class="mx-4"
                 elevation="4"
                 title="Description"
-                :text="productVariant?.currentVersion.description"
+                :text="
+                    productVariantInfoRelevantToBuyer?.currentVersion
+                        .description
+                "
             >
             </v-card>
             <v-card class="mx-4 mb-4" elevation="4">
@@ -372,7 +410,9 @@
                     <v-list v-for="v in otherProductVariants">
                         <v-list-item>
                             <ProductSummary
-                                :product-id="product?.product.id"
+                                :product-id="
+                                    productInfoRelevantToBuyer?.product.id
+                                "
                                 :product-variant-id="v.id"
                                 :name="v.currentVersion.name"
                                 :price="v.currentVersion.retailPrice"
@@ -454,13 +494,35 @@ const id = computed(() => {
 })
 
 /**
- * Gets the "entire" product from the catalog service.
+ * Gets the product from the catalog service,
+ * including only the information relevant to a potential customer.
  */
-const product = asyncComputed(
+const productInfoRelevantToBuyer = asyncComputed(
     async () => {
-        return client.getProduct({
+        return client.getProductForBuyer({
             id: id.value,
         })
+    },
+    null,
+    {
+        onError: (e) =>
+            pushErrorNotification(errorMessages.getProductForBuyer, e),
+        shallow: false,
+    }
+)
+
+/**
+ * The product information that is only relevant to users whose active user role is either 'Admin' or 'Employee'.
+ */
+const productInfoRelevantToAdminAndEmployee = asyncComputed(
+    async () => {
+        if (activeUserRoleIsEitherAdminOrEmployee.value) {
+            return client.getProduct({
+                id: id.value,
+            })
+        } else {
+            return null
+        }
     },
     null,
     {
@@ -470,15 +532,66 @@ const product = asyncComputed(
 )
 
 /**
- * Whether or not the product is hidden from the customer.
- * The default value is false if the product
- * has not been loaded yet or could not be loaded.
+ * Indicates whether the product is hidden from the customer.
+ * If the product has not yet been loaded or could not be loaded, the value is false.
  */
 const productIsHidden = computed(() => {
-    if (product.value == null) {
+    if (productInfoRelevantToAdminAndEmployee.value == null) {
         return false
     } else {
-        return !product.value.product.isPubliclyVisible
+        return !productInfoRelevantToAdminAndEmployee.value.product
+            .isPubliclyVisible
+    }
+})
+
+/**
+ * The ID of the product variant displayed on this view.
+ */
+const productVariantId = computed(() => {
+    if (typeof route.params.productvariantid === 'string') {
+        return route.params.productvariantid
+    }
+
+    if (activeUserRoleIsEitherAdminOrEmployee.value) {
+        if (productInfoRelevantToAdminAndEmployee.value != undefined) {
+            return productInfoRelevantToAdminAndEmployee.value.product
+                .defaultVariant.id
+        }
+    } else {
+        if (productInfoRelevantToBuyer.value != undefined) {
+            return productInfoRelevantToBuyer.value.product.defaultVariant.id
+        }
+    }
+})
+
+/**
+ * Decides which product variant to display initially.
+ */
+const productVariantInfoRelevantToBuyer = computed(() => {
+    return productInfoRelevantToBuyer.value?.product.variants.nodes.find(
+        (variant) => variant.id == productVariantId.value
+    )
+})
+
+/**
+ * Decides which product variant to display initially.
+ */
+const productVariantInfoRelevantToAdminAndEmployee = computed(() => {
+    return productInfoRelevantToAdminAndEmployee.value?.product.variants.nodes.find(
+        (variant) => variant.id === productVariantId.value
+    )
+})
+
+/**
+ * Indicates whether the currently displayed product variant is hidden from the customer.
+ * If the product variant has not yet been computed or could not be computed, the value is false.
+ */
+const productVariantIsHidden = computed(() => {
+    if (productVariantInfoRelevantToAdminAndEmployee.value == undefined) {
+        return false
+    } else {
+        return !productVariantInfoRelevantToAdminAndEmployee.value
+            .isPubliclyVisible
     }
 })
 
@@ -486,40 +599,7 @@ const productIsHidden = computed(() => {
  * Gets the product categories to which the product belongs.
  */
 const categories = computed(() => {
-    return product.value?.product.categories.nodes ?? []
-})
-
-/**
- * The id of the product variant that gets displayed on this view.
- */
-const productVariantId = ref()
-
-/**
- * Decides which product variant to display initially.
- */
-const productVariant = computed(() => {
-    if (route.params.productvariantid) {
-        productVariantId.value = route.params.productvariantid
-    } else {
-        productVariantId.value = product.value?.product.defaultVariant.id
-    }
-
-    return product.value?.product.variants.nodes.find(
-        (variant) => variant.id === productVariantId.value
-    )
-})
-
-/**
- * Whether or not the current product variant is hidden from the customer.
- * The default value is false if the product variant
- * has not been loaded yet or could not be loaded.
- */
-const productVariantIsHidden = computed(() => {
-    if (productVariant.value == undefined) {
-        return false
-    } else {
-        return !productVariant.value.isPubliclyVisible
-    }
+    return productInfoRelevantToBuyer.value?.product.categories.nodes ?? []
 })
 
 /**
@@ -528,7 +608,7 @@ const productVariantIsHidden = computed(() => {
  */
 const otherProductVariants = computed(() => {
     return (
-        product.value?.product.variants.nodes.filter(
+        productInfoRelevantToBuyer.value?.product.variants.nodes.filter(
             (variant) => variant.id !== productVariantId.value
         ) ?? []
     )
@@ -539,7 +619,7 @@ const otherProductVariants = computed(() => {
  */
 const categoricalCategoryCharacteristicValues = computed(() => {
     return (
-        productVariant.value?.currentVersion.characteristicValues.nodes
+        productVariantInfoRelevantToBuyer.value?.currentVersion.characteristicValues.nodes
             .filter(
                 (characteristicValue) =>
                     characteristicValue.__typename ===
@@ -564,7 +644,7 @@ const hasAnyCategoricalCategoryCharacteristicValues = computed(() => {
  */
 const numericalCategoryCharacteristicValues = computed(() => {
     return (
-        productVariant.value?.currentVersion.characteristicValues.nodes
+        productVariantInfoRelevantToBuyer.value?.currentVersion.characteristicValues.nodes
             .filter(
                 (characteristicValue) =>
                     characteristicValue.__typename ===

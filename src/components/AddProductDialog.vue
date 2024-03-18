@@ -21,7 +21,9 @@
                     v-model="invisible"
                 ></v-switch>
                 <v-text-field
+                    class="mb-4"
                     clearable
+                    hint="The internal product name will not be visible to the customer."
                     label="Internal Product Name"
                     v-model="internalName"
                 >
