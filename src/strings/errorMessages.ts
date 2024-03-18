@@ -2,6 +2,10 @@
  * The online store's error messages that could be displayed to the user.
  */
 export const errorMessages = {
+    // general
+    logout: 'Failed to logout the user.',
+    resetStateRelatedToUser:
+        "Could not reset the website's state related to the current user.",
     // user
     getCurrentUser: 'Could not load the current user.',
     // catalog
@@ -43,4 +47,10 @@ export const errorMessages = {
     getInventoryStatusOfProductItems:
         'Could not load the inventory status of the product items of the product variant.',
     createProductItemBatch: 'Could not create the batch of product items.',
+    // shopping cart
+    getShoppingCartOfUser: 'Could not load the shopping cart of the user.',
+    addItemToShoppingCart:
+        'Could not add the product variant to the shopping cart.',
+    updateShoppingCartItem: 'Could not update the shopping cart item.',
+    deleteShoppingCartItem: 'Could not remove the shopping cart item.',
 }

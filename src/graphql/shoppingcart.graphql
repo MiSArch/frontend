@@ -1,0 +1,71 @@
+# Queries
+
+# Gets the shopping cart of the user with the given user ID.
+query getShoppingCartOfUser($id: UUID!) {
+  user(id: $id) {
+    __typename
+    id
+    shoppingcart {
+      lastUpdatedAt
+      shoppingcartItems {
+        totalCount
+        nodes {
+          id
+          count
+          addedAt
+          productVariant {
+            id
+            currentVersion {
+              name
+              retailPrice
+            }
+            product {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+# Mutations
+
+# Adds a product variant to the user's shopping cart and
+# returns the newly created shopping cart item 
+# including the name of the product variant's current version.
+mutation addItemToShoppingCart($input: AddShoppingCartItemInput!) {
+  addShoppingcartItem(input: $input) {
+    id
+    count
+    addedAt
+    productVariant {
+      id
+      currentVersion {
+        name
+      }
+    }
+  }
+}
+
+# Updates an existing shopping cart item of the user's shopping cart and
+# returns the updated shopping cart item 
+# including the name of the product variant's current version.
+mutation updateShoppingcartItem($input: UpdateShoppingCartItemInput!) {
+  updateShoppingcartItem(input: $input) {
+    id
+    count
+    addedAt
+    productVariant {
+      id
+      currentVersion {
+        name
+      }
+    }
+  }
+}
+
+# Deletes the shopping cart item with the specified ID.
+mutation deleteShoppingCartItem($id: UUID!) {
+  deleteShoppingcartItem(id: $id)
+}

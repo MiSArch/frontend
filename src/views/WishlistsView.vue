@@ -55,7 +55,7 @@ import { useAppStore } from '@/store/app'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
-    pushErrorNotificationIfNecessary,
+    awaitActionAndPushErrorIfNecessary,
 } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { stringify } from 'querystring'
@@ -151,7 +151,7 @@ const pageCount = computed(() => {
  * @param id The id of the wishlist to delete.
  */
 async function deleteWishlist(id: any) {
-    await pushErrorNotificationIfNecessary(() => {
+    await awaitActionAndPushErrorIfNecessary(() => {
         return client.deleteWishlist({
             id: id,
         })
@@ -186,7 +186,7 @@ function closeAddWishlistDialog() {
 async function addWishlist(input: AddWishlistInput) {
     closeAddWishlistDialog()
 
-    await pushErrorNotificationIfNecessary(() => {
+    await awaitActionAndPushErrorIfNecessary(() => {
         return client.addWishlist({
             input: input,
         })

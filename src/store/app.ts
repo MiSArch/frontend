@@ -1,11 +1,23 @@
+import { UserRole, parseRoleName } from './userRole'
 import { useClient } from '@/graphql/client'
+import { GetCurrentUserQuery } from '@/graphql/generated'
+import { errorMessages } from '@/strings/errorMessages'
+import {
+    awaitActionAndPushErrorIfNecessary,
+    doActionAndPushErrorIfNecessary,
+} from '@/util/errorHandler'
 
 // Utilities
 import Keycloak from 'keycloak-js'
 import { defineStore } from 'pinia'
 import silentCheckSsoHtmlUrl from '@/assets/silent-check-sso.html?url'
-import { GetCurrentUserQuery } from '@/graphql/generated'
-import { UserRole, parseRoleName } from './userRole'
+import {
+    addItemToShoppingCart,
+    emptyShoppingCart,
+    extractShoppingCartInstanceFromQuery,
+    getShoppingCartOfUser,
+    updateShoppingCartItem,
+} from './shoppingCartManagement'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
@@ -35,6 +47,7 @@ export const useAppStore = defineStore('app', {
         userRolesOfCurrentUser: initialUserRolesOfCurrentUser,
         activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
+        shoppingCart: emptyShoppingCart,
     }),
     getters: {
         token(): string | undefined {
@@ -88,8 +101,22 @@ export const useAppStore = defineStore('app', {
                 this.activeUserRole === UserRole.Employee
             )
         },
+        /**
+         * Checks if the shopping cart is enabled for the current user.
+         *
+         * @returns True if the shopping cart is enabled, false otherwise.
+         */
+        shoppingCartIsEnabled(): boolean {
+            return this.isLoggedIn && this.activeUserRoleIsBuyer
+        },
     },
     actions: {
+        /**
+         * Empties the shopping cart.
+         */
+        emptyTheShoppingCart() {
+            this.shoppingCart = emptyShoppingCart
+        },
         /**
          * Initializes the Keycloak adapter and
          * silently checks the SSO session.
@@ -126,11 +153,13 @@ export const useAppStore = defineStore('app', {
             }
 
             if (this.isLoggedIn) {
-                this.setCurrentUserId()
+                await this.setCurrentUserId()
 
                 this.setUserRolesOfCurrentUser()
 
                 this.activeUserRole = this.highestUserRoleOfCurrentUser
+
+                await this.restoreTheShoppingCart()
             }
         },
         /**
@@ -207,6 +236,28 @@ export const useAppStore = defineStore('app', {
             }
         },
         /**
+         * Asynchronously restores the state of the shopping cart
+         * depending on the current user's active user role.
+         * If and only if the shopping cart is enabled,
+         * it queries the shopping cart. In all other cases it simply empties it.
+         */
+        async restoreTheShoppingCart() {
+            if (this.shoppingCartIsEnabled) {
+                if (this.currentUserId != undefined) {
+                    const getShoppingCartOfUserQuery =
+                        await getShoppingCartOfUser(this.currentUserId)
+
+                    this.shoppingCart = extractShoppingCartInstanceFromQuery(
+                        getShoppingCartOfUserQuery
+                    )
+
+                    return
+                }
+            }
+
+            this.emptyTheShoppingCart()
+        },
+        /**
          * Logs the user in.
          */
         async login() {
@@ -221,23 +272,32 @@ export const useAppStore = defineStore('app', {
         /**
          * Logs the user out.
          * Before the user is actually logged out,
-         * this action resets the ID of the current user
-         * stored in store.currentUserId to null to prevent the ID from being leaked.
-         * Resets the user roles of the current user to the default role 'Buyer'.
+         * this action resets the state related to the current user.
          */
         async logout() {
-            try {
+            await awaitActionAndPushErrorIfNecessary(() => {
+                if (this.keycloak != undefined) {
+                    return this.keycloak.logout({
+                        redirectUri: '/',
+                    })
+                } else {
+                    return Promise.resolve()
+                }
+            }, errorMessages.logout)
+
+            this.resetStateRelatedToUser()
+        },
+        /**
+         * Resets the state related to the current user.
+         */
+        resetStateRelatedToUser() {
+            doActionAndPushErrorIfNecessary(() => {
+                this.isLoggedIn = false
                 this.currentUserId = null
-
-                await this.keycloak?.logout({
-                    redirectUri: '/',
-                })
-
                 this.userRolesOfCurrentUser = initialUserRolesOfCurrentUser
                 this.activeUserRole = defaultUserRole
-            } catch (error) {
-                console.error('Failed to logout:', error)
-            }
+                this.emptyTheShoppingCart()
+            }, errorMessages.resetStateRelatedToUser)
         },
         /**
          * Refreshes the access token using the provided Keycloak instance.
@@ -247,7 +307,7 @@ export const useAppStore = defineStore('app', {
          * @throws Throws an error if keycloak is null or undefined or if the token refresh fails.
          */
         async refreshAccessToken(keycloak: Keycloak): Promise<boolean> {
-            if (keycloak === null || keycloak === undefined) {
+            if (keycloak == null) {
                 throw new Error('keycloak cannot be null or undefined')
             }
 
@@ -300,6 +360,127 @@ export const useAppStore = defineStore('app', {
          */
         popAllNotifications(): Notification[] {
             return this.queuedNotifications.splice(0)
+        },
+        /**
+         * Asynchronously adds a product variant to the shopping cart.
+         * If the product has already been added to the cart
+         * then it updates the count:
+         * It simply adds the specified count on top of the existing count.
+         * @param productVariantId - The ID of the product variant to add.
+         * @param count - The quantity of the product variant to add.
+         */
+        async addProductVariantToShoppingCart(
+            productVariantId: string,
+            count: number
+        ) {
+            if (!this.shoppingCartIsEnabled) {
+                return
+            }
+
+            if (count <= 0) {
+                return
+            }
+
+            const existingItem = this.shoppingCart.items.find(
+                (item) => item.productVariantId === productVariantId
+            )
+            if (existingItem != undefined) {
+                await updateShoppingCartItem({
+                    id: existingItem.id,
+                    count: existingItem.count + count,
+                })
+            } else {
+                await addItemToShoppingCart({
+                    id: this.currentUserId,
+                    shoppingCartItem: {
+                        count: count,
+                        productVariantId: productVariantId,
+                    },
+                })
+            }
+
+            await this.restoreTheShoppingCart()
+            this.notifyAboutAdditionOfShoppingCartItem(productVariantId, count)
+        },
+        /**
+         * Notifies about the addition of a shopping cart item.
+         * @param productVariantId - The ID of the product variant added to the shopping cart.
+         * @param count - The quantity of the product variant added to the shopping cart.
+         */
+        notifyAboutAdditionOfShoppingCartItem(
+            productVariantId: string,
+            count: number
+        ) {
+            const shoppingCartItem = this.shoppingCart.items.find(
+                (item) => item.productVariantId === productVariantId
+            )
+            if (shoppingCartItem === undefined) {
+                return
+            }
+
+            const timeOrTimes = count == 1 ? 'time' : 'times'
+            const notificationText =
+                shoppingCartItem.nameOfProductVariant +
+                ' was added to the shopping cart ' +
+                count +
+                ' ' +
+                timeOrTimes +
+                '.'
+
+            this.pushNotification({
+                text: notificationText,
+                type: 'success',
+                density: 'comfortable',
+            })
+        },
+        /**
+         * Updates the count of the shopping cart item with the specified ID.
+         * @param idOfShoppingCartItem - The ID of the shopping cart item to be updated.
+         * @param count - The new count of the shopping cart item.
+         */
+        async updateCountOfShoppingCartItem(
+            idOfShoppingCartItem: string,
+            count: number
+        ) {
+            if (!this.shoppingCartIsEnabled) {
+                return
+            }
+
+            if (count <= 0) {
+                return
+            }
+
+            try {
+                await updateShoppingCartItem({
+                    id: idOfShoppingCartItem,
+                    count: count,
+                })
+            } catch (error) {
+                console.error(error)
+            }
+
+            await this.restoreTheShoppingCart()
+        },
+        /**
+         * Deletes the shopping cart item with the specified ID.
+         * @param idOfShoppingCartItem - The ID of the shopping cart item to be deleted.
+         */
+        async deleteShoppingCartItem(idOfShoppingCartItem: string) {
+            if (!this.shoppingCartIsEnabled) {
+                return
+            }
+
+            try {
+                await awaitActionAndPushErrorIfNecessary(() => {
+                    return useClient().deleteShoppingCartItem({
+                        id: idOfShoppingCartItem,
+                    })
+                }, errorMessages.deleteShoppingCartItem)
+            } catch (error) {
+                console.error(error)
+            }
+
+            await this.restoreTheShoppingCart()
         },
     },
 })

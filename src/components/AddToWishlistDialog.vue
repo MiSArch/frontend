@@ -8,7 +8,7 @@
                 By selecting or deselecting a wishlist, you decide whether the
                 product variant should be on the wishlist or not.
             </v-card-text>
-            <v-card-text v-if="wishlists != null && wishlists">
+            <v-card-text v-if="wishlists != undefined">
                 <v-list lines="one" select-strategy="classic">
                     <v-list-subheader>Wishlists</v-list-subheader>
                     <v-list-item
@@ -106,28 +106,26 @@ const wishlists = asyncComputed(
         trigger.value
 
         const userId = useAppStore().currentUserId
-        if (userId == null || !userId) {
-            return
-        }
+        if (userId != undefined) {
+            const user = await client.getUserWithWishlistsWithProductVariants({
+                userId: userId,
+            })
 
-        const user = await client.getUserWithWishlistsWithProductVariants({
-            userId: userId,
-        })
+            if (user.user.wishlists) {
+                idsOfSelectedWishlists.value = user.user.wishlists.nodes
+                    .filter(
+                        (wishlist) =>
+                            wishlist.productVariants.nodes.filter(
+                                (productVariant) =>
+                                    productVariant.id === props.productVariantId
+                            ).length > 0
+                    )
+                    .map((wishlist) => wishlist.id)
 
-        if (user.user.wishlists) {
-            idsOfSelectedWishlists.value = user.user.wishlists.nodes
-                .filter(
-                    (wishlist) =>
-                        wishlist.productVariants.nodes.filter(
-                            (productVariant) =>
-                                productVariant.id == props.productVariantId
-                        ).length > 0
-                )
-                .map((wishlist) => wishlist.id)
-
-            return user.user.wishlists
-        } else {
-            return null
+                return user.user.wishlists
+            } else {
+                return null
+            }
         }
     },
     null,
@@ -153,12 +151,12 @@ function reevaluateWishlists() {
  * before the user has made any interaction with the dialog.
  */
 const wishlistsAlreadyContainingProductVariant = computed(() => {
-    if (wishlists.value != null) {
+    if (wishlists.value != undefined) {
         return wishlists.value?.nodes.filter(
             (wishlist) =>
                 wishlist.productVariants.nodes.filter(
                     (productVariant) =>
-                        productVariant.id == props.productVariantId
+                        productVariant.id === props.productVariantId
                 ).length > 0
         )
     } else {
@@ -192,7 +190,7 @@ function resetViewModel() {
 function changeSelection(wishlistId: string) {
     if (idsOfSelectedWishlists.value.includes(wishlistId)) {
         idsOfSelectedWishlists.value = idsOfSelectedWishlists.value.filter(
-            (id) => id != wishlistId
+            (id) => id !== wishlistId
         )
     } else {
         idsOfSelectedWishlists.value = idsOfSelectedWishlists.value.concat([
@@ -219,10 +217,9 @@ function cancel() {
  */
 function save() {
     if (
-        wishlists.value == null ||
-        !wishlists.value ||
-        wishlists.value.totalCount == 0 ||
-        idsOfSelectedWishlists.value ==
+        wishlists.value == undefined ||
+        wishlists.value.totalCount === 0 ||
+        idsOfSelectedWishlists.value ===
             idsOfWishlistsAlreadyContainingProductVariant.value
     ) {
         cancel()
@@ -238,7 +235,7 @@ function save() {
                 const addToWishlistInput: UpdateWishlistInput = {
                     id: wishlistId,
                     productVariantIds: wishlists.value?.nodes
-                        .find((wishlist) => wishlist.id == wishlistId)
+                        .find((wishlist) => wishlist.id === wishlistId)
                         ?.productVariants.nodes.map(
                             (productVariant) => productVariant.id
                         )
@@ -255,11 +252,11 @@ function save() {
                     const removeFromWishlistInput: UpdateWishlistInput = {
                         id: wishlistId,
                         productVariantIds: wishlists.value?.nodes
-                            .find((wishlist) => wishlist.id == wishlistId)
+                            .find((wishlist) => wishlist.id === wishlistId)
                             ?.productVariants.nodes.map(
                                 (productVariant) => productVariant.id
                             )
-                            .filter((id) => id != props.productVariantId),
+                            .filter((id) => id !== props.productVariantId),
                     }
 
                     input = input.concat([removeFromWishlistInput])

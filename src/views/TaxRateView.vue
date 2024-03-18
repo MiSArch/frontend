@@ -118,7 +118,7 @@ import {
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
-    pushErrorNotificationIfNecessary,
+    awaitActionAndPushErrorIfNecessary,
 } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -221,7 +221,7 @@ function closeAddTaxRateVersionDialog() {
 async function addTaxRateVersion(input: CreateTaxRateVersionInput) {
     closeAddTaxRateVersionDialog()
 
-    await pushErrorNotificationIfNecessary(() => {
+    await awaitActionAndPushErrorIfNecessary(() => {
         return client.createTaxRateVersion({
             input: input,
         })

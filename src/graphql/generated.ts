@@ -1284,6 +1284,95 @@ export type CreateProductItemBatchMutation = {
     }>
 }
 
+export type GetShoppingCartOfUserQueryVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type GetShoppingCartOfUserQuery = {
+    __typename?: 'Query'
+    user: {
+        __typename: 'User'
+        id: any
+        shoppingcart: {
+            __typename?: 'ShoppingCart'
+            lastUpdatedAt: any
+            shoppingcartItems: {
+                __typename?: 'ShoppingCartItemConnection'
+                totalCount: number
+                nodes: Array<{
+                    __typename?: 'ShoppingCartItem'
+                    id: any
+                    count: number
+                    addedAt: any
+                    productVariant: {
+                        __typename?: 'ProductVariant'
+                        id: any
+                        currentVersion: {
+                            __typename?: 'ProductVariantVersion'
+                            name: string
+                            retailPrice: number
+                        }
+                        product: { __typename?: 'Product'; id: any }
+                    }
+                }>
+            }
+        }
+    }
+}
+
+export type AddItemToShoppingCartMutationVariables = Exact<{
+    input: AddShoppingCartItemInput
+}>
+
+export type AddItemToShoppingCartMutation = {
+    __typename?: 'Mutation'
+    addShoppingcartItem: {
+        __typename?: 'ShoppingCartItem'
+        id: any
+        count: number
+        addedAt: any
+        productVariant: {
+            __typename?: 'ProductVariant'
+            id: any
+            currentVersion: {
+                __typename?: 'ProductVariantVersion'
+                name: string
+            }
+        }
+    }
+}
+
+export type UpdateShoppingcartItemMutationVariables = Exact<{
+    input: UpdateShoppingCartItemInput
+}>
+
+export type UpdateShoppingcartItemMutation = {
+    __typename?: 'Mutation'
+    updateShoppingcartItem: {
+        __typename?: 'ShoppingCartItem'
+        id: any
+        count: number
+        addedAt: any
+        productVariant: {
+            __typename?: 'ProductVariant'
+            id: any
+            currentVersion: {
+                __typename?: 'ProductVariantVersion'
+                name: string
+            }
+        }
+    }
+}
+
+export type DeleteShoppingCartItemMutationVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type DeleteShoppingCartItemMutation = {
+    __typename?: 'Mutation'
+    deleteShoppingcartItem: boolean
+}
+
 export type TaxRateVersionFragment = {
     __typename?: 'TaxRateVersion'
     id: any
@@ -1962,6 +2051,70 @@ export const CreateProductItemBatchDocument = gql`
         }
     }
 `
+export const GetShoppingCartOfUserDocument = gql`
+    query getShoppingCartOfUser($id: UUID!) {
+        user(id: $id) {
+            __typename
+            id
+            shoppingcart {
+                lastUpdatedAt
+                shoppingcartItems {
+                    totalCount
+                    nodes {
+                        id
+                        count
+                        addedAt
+                        productVariant {
+                            id
+                            currentVersion {
+                                name
+                                retailPrice
+                            }
+                            product {
+                                id
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+`
+export const AddItemToShoppingCartDocument = gql`
+    mutation addItemToShoppingCart($input: AddShoppingCartItemInput!) {
+        addShoppingcartItem(input: $input) {
+            id
+            count
+            addedAt
+            productVariant {
+                id
+                currentVersion {
+                    name
+                }
+            }
+        }
+    }
+`
+export const UpdateShoppingcartItemDocument = gql`
+    mutation updateShoppingcartItem($input: UpdateShoppingCartItemInput!) {
+        updateShoppingcartItem(input: $input) {
+            id
+            count
+            addedAt
+            productVariant {
+                id
+                currentVersion {
+                    name
+                }
+            }
+        }
+    }
+`
+export const DeleteShoppingCartItemDocument = gql`
+    mutation deleteShoppingCartItem($id: UUID!) {
+        deleteShoppingcartItem(id: $id)
+    }
+`
 export const GetTaxRatesDocument = gql`
     query getTaxRates($first: Int, $skip: Int, $orderBy: TaxRateOrderInput) {
         taxRates(first: $first, skip: $skip, orderBy: $orderBy) {
@@ -2414,6 +2567,70 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'createProductItemBatch',
+                'mutation',
+                variables
+            )
+        },
+        getShoppingCartOfUser(
+            variables: GetShoppingCartOfUserQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetShoppingCartOfUserQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetShoppingCartOfUserQuery>(
+                        GetShoppingCartOfUserDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getShoppingCartOfUser',
+                'query',
+                variables
+            )
+        },
+        addItemToShoppingCart(
+            variables: AddItemToShoppingCartMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<AddItemToShoppingCartMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<AddItemToShoppingCartMutation>(
+                        AddItemToShoppingCartDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'addItemToShoppingCart',
+                'mutation',
+                variables
+            )
+        },
+        updateShoppingcartItem(
+            variables: UpdateShoppingcartItemMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<UpdateShoppingcartItemMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<UpdateShoppingcartItemMutation>(
+                        UpdateShoppingcartItemDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'updateShoppingcartItem',
+                'mutation',
+                variables
+            )
+        },
+        deleteShoppingCartItem(
+            variables: DeleteShoppingCartItemMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<DeleteShoppingCartItemMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<DeleteShoppingCartItemMutation>(
+                        DeleteShoppingCartItemDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'deleteShoppingCartItem',
                 'mutation',
                 variables
             )

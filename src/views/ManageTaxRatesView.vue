@@ -12,7 +12,7 @@
         />
     </v-toolbar>
     <v-list
-        v-if="taxRates != null && taxRates && taxRates.taxRates.totalCount > 0"
+        v-if="taxRates != undefined && taxRates.taxRates.totalCount > 0"
         class="mx-2"
         lines="three"
     >
@@ -36,7 +36,7 @@ import { useClient } from '@/graphql/client'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
-    pushErrorNotificationIfNecessary,
+    awaitActionAndPushErrorIfNecessary,
 } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { ref } from 'vue'
@@ -108,7 +108,7 @@ function closeAddTaxRateDialog() {
 async function addTaxRate(input: CreateTaxRateInput) {
     closeAddTaxRateDialog()
 
-    await pushErrorNotificationIfNecessary(() => {
+    await awaitActionAndPushErrorIfNecessary(() => {
         return client.createTaxRate({
             input: input,
         })
