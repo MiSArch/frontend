@@ -106,7 +106,7 @@
 <script lang="ts" setup>
 import { useClient } from '@/graphql/client'
 import { errorMessages } from '@/strings/errorMessages'
-import { pushErrorNotificationIfNecessary } from '@/util/errorHandler'
+import { awaitActionAndPushErrorIfNecessary } from '@/util/errorHandler'
 import { ref } from 'vue'
 
 /**
@@ -190,7 +190,7 @@ async function save() {
         }
     })
 
-    await pushErrorNotificationIfNecessary(() => {
+    await awaitActionAndPushErrorIfNecessary(() => {
         return client.createCategory({
             input: {
                 categoricalCharacteristics: categoricalCharacteristics,

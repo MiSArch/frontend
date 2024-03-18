@@ -36,7 +36,7 @@ import { useClient } from '@/graphql/client'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
-    pushErrorNotificationIfNecessary,
+    awaitActionAndPushErrorIfNecessary,
 } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { ref } from 'vue'
@@ -108,7 +108,7 @@ function closeAddTaxRateDialog() {
 async function addTaxRate(input: CreateTaxRateInput) {
     closeAddTaxRateDialog()
 
-    await pushErrorNotificationIfNecessary(() => {
+    await awaitActionAndPushErrorIfNecessary(() => {
         return client.createTaxRate({
             input: input,
         })

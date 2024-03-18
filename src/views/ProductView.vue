@@ -275,16 +275,20 @@
                         <v-select
                             :items="quantityOptions"
                             density="compact"
-                            :disabled="!inStock"
+                            :disabled="!inStock || !shoppingCartIsEnabled"
                             hint="Choose how many to add to the cart."
                             label="Amount"
                             persistent-hint
                             variant="solo"
+                            v-model="amount"
                         ></v-select>
                     </div>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn :disabled="!inStock" prepend-icon="mdi-cart"
+                        <v-btn
+                            :disabled="!inStock || !shoppingCartIsEnabled"
+                            prepend-icon="mdi-cart"
+                            @click="addToCart"
                             >Add To Cart</v-btn
                         >
                     </v-card-actions>
@@ -368,10 +372,10 @@
                         <v-list-item>
                             <ProductSummary
                                 :product-id="product?.product.id"
-                                :internal-name="v.currentVersion.name"
+                                :product-variant-id="v.id"
+                                :name="v.currentVersion.name"
                                 :price="v.currentVersion.retailPrice"
                                 :retail-price="v.currentVersion.retailPrice"
-                                :product-variant-id="v.id"
                             />
                         </v-list-item>
                     </v-list>
@@ -408,7 +412,7 @@ import { commonStrings } from '@/strings/commonStrings'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     pushErrorNotification,
-    pushErrorNotificationIfNecessary,
+    awaitActionAndPushErrorIfNecessary,
 } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
@@ -423,7 +427,8 @@ const defaultMaximumNumberOfItemsABuyerCanOrder = 10
 
 const store = useAppStore()
 
-const { activeUserRoleIsEitherAdminOrEmployee } = storeToRefs(store)
+const { activeUserRoleIsEitherAdminOrEmployee, shoppingCartIsEnabled } =
+    storeToRefs(store)
 
 /**
  * The GraphQL client to use for all GraphQL requests.
@@ -639,7 +644,7 @@ async function updateWishlists(input: UpdateWishlistInput[]) {
 
     input.forEach(async (updateWishlistInput) => {
         try {
-            await pushErrorNotificationIfNecessary(() => {
+            await awaitActionAndPushErrorIfNecessary(() => {
                 return client.updateWishlist({
                     input: updateWishlistInput,
                 })
@@ -884,5 +889,34 @@ function closeRestockDialog() {
  */
 function reloadInventoryStatus() {
     triggerGetInventoryStatusOfProductItemsQuery.value++
+}
+
+/**
+ * How many of the product variant should be added to the cart.
+ */
+const amount = ref<string | null>(null)
+
+/**
+ * Whether or not the product variant can be added to the cart.
+ */
+const canAddToCart = computed(() => {
+    return (
+        shoppingCartIsEnabled &&
+        productVariantId.value != undefined &&
+        amount.value !== null
+    )
+})
+
+/**
+ * Asynchronously adds the product variant to the shopping cart based on the specified amount
+ * if the product variant can actually be added to the cart.
+ */
+async function addToCart() {
+    if (canAddToCart.value && amount.value !== null) {
+        await store.addProductVariantToShoppingCart(
+            productVariantId.value,
+            parseInt(amount.value)
+        )
+    }
 }
 </script>

@@ -10,6 +10,7 @@ export interface AccessRights {
     canAccessStorefront: boolean
     canAccessProduct: boolean
     canAccessProducts: boolean
+    canAccessShoppingCart: boolean
     canAccessCategory: boolean
     canAccessWishlist: boolean
     canAccessWishlists: boolean
@@ -26,6 +27,7 @@ export const buyerAccessRights: AccessRights = {
     canAccessStorefront: true,
     canAccessProduct: true,
     canAccessProducts: true,
+    canAccessShoppingCart: true,
     canAccessCategory: true,
     canAccessWishlist: true,
     canAccessWishlists: true,
@@ -42,6 +44,7 @@ export const employeeAccessRights: AccessRights = {
     canAccessStorefront: true,
     canAccessProduct: true,
     canAccessProducts: true,
+    canAccessShoppingCart: false,
     canAccessCategory: true,
     canAccessWishlist: false,
     canAccessWishlists: false,
@@ -58,6 +61,7 @@ export const adminAccessRights: AccessRights = {
     canAccessStorefront: true,
     canAccessProduct: true,
     canAccessProducts: true,
+    canAccessShoppingCart: false,
     canAccessCategory: true,
     canAccessWishlist: false,
     canAccessWishlists: false,
@@ -103,6 +107,7 @@ export function canAccess(
         Storefront: 'canAccessStorefront',
         Product: 'canAccessProduct',
         Products: 'canAccessProducts',
+        'Shopping Cart': 'canAccessShoppingCart',
         Category: 'canAccessCategory',
         Wishlist: 'canAccessWishlist',
         Wishlists: 'canAccessWishlists',

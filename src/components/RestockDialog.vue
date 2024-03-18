@@ -75,8 +75,8 @@ import { useClient } from '@/graphql/client'
 import { useAppStore } from '@/store/app'
 import { errorMessages } from '@/strings/errorMessages'
 import {
+    awaitActionAndPushErrorIfNecessary,
     pushErrorNotification,
-    pushErrorNotificationIfNecessary,
 } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
@@ -274,7 +274,7 @@ const canRestock = computed(() => {
  */
 async function restock() {
     if (activeUserRoleIsEitherAdminOrEmployee.value && canRestock) {
-        await pushErrorNotificationIfNecessary(() => {
+        await awaitActionAndPushErrorIfNecessary(() => {
             return client.createProductItemBatch({
                 input: {
                     productVariantId: selectedProductVariantId.value,
