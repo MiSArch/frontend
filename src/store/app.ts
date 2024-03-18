@@ -307,7 +307,7 @@ export const useAppStore = defineStore('app', {
          * @throws Throws an error if keycloak is null or undefined or if the token refresh fails.
          */
         async refreshAccessToken(keycloak: Keycloak): Promise<boolean> {
-            if (keycloak === null || keycloak === undefined) {
+            if (keycloak == null) {
                 throw new Error('keycloak cannot be null or undefined')
             }
 

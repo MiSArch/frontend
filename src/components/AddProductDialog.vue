@@ -335,7 +335,7 @@ async function save() {
     const productId = product.createProduct.id
 
     for (const variant of variants.value) {
-        if (variant.tempId != defaultVariant.value) {
+        if (variant.tempId !== defaultVariant.value) {
             const variantInput: CreateProductVariantInput = {
                 productId,
                 initialVersion: {

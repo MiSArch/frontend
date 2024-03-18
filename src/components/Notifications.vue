@@ -70,7 +70,7 @@ const pushedNotifications = ref<Alert[]>([])
 const hasAnyPushedNotificationsThatShouldBeVisible = computed(() => {
     return (
         pushedNotifications.value.filter(
-            (pushedNotification) => pushedNotification.shouldBeVisible == true
+            (pushedNotification) => pushedNotification.shouldBeVisible === true
         ).length >= 1
     )
 })

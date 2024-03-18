@@ -126,7 +126,7 @@ const categoriesWithAtLeastOneVisibleProduct = computed(() => {
 
     const totalCountOfCategories =
         categoriesWithTotalCountOfProducts.value.categories.totalCount
-    if (totalCountOfCategories == 0) {
+    if (totalCountOfCategories === 0) {
         return []
     }
 
@@ -153,7 +153,7 @@ const hasAtLeastOneCategoryWithAtLeastOneVisibleProduct = computed(() => {
 
     const totalCountOfCategories =
         categoriesWithTotalCountOfProducts.value.categories.totalCount
-    if (totalCountOfCategories == 0) {
+    if (totalCountOfCategories === 0) {
         return false
     }
 
