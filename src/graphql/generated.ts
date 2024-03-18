@@ -729,13 +729,13 @@ export type DefaultProductVariantFragment = {
         currentVersion: {
             __typename?: 'ProductVariantVersion'
             id: any
-            name: string
-            description: string
-            retailPrice: number
-            weight: number
-            canBeReturnedForDays?: number | null
             version: number
             createdAt: any
+            name: string
+            retailPrice: number
+            weight: number
+            description: string
+            canBeReturnedForDays?: number | null
         }
     }
     variants: { __typename?: 'ProductVariantConnection'; totalCount: number }
@@ -744,13 +744,13 @@ export type DefaultProductVariantFragment = {
 export type CurrentVersionFragment = {
     __typename?: 'ProductVariantVersion'
     id: any
-    name: string
-    description: string
-    retailPrice: number
-    weight: number
-    canBeReturnedForDays?: number | null
     version: number
     createdAt: any
+    name: string
+    retailPrice: number
+    weight: number
+    description: string
+    canBeReturnedForDays?: number | null
 }
 
 type Characteristic_CategoricalCategoryCharacteristic_Fragment = {
@@ -801,13 +801,13 @@ export type GetDefaultProductVariantsQuery = {
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
                     id: any
-                    name: string
-                    description: string
-                    retailPrice: number
-                    weight: number
-                    canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
+                    name: string
+                    retailPrice: number
+                    weight: number
+                    description: string
+                    canBeReturnedForDays?: number | null
                 }
             }
             variants: {
@@ -873,13 +873,13 @@ export type GetCategoryWithCharacteristicsAndDefaultProductVariantsQuery = {
                     currentVersion: {
                         __typename?: 'ProductVariantVersion'
                         id: any
-                        name: string
-                        description: string
-                        retailPrice: number
-                        weight: number
-                        canBeReturnedForDays?: number | null
                         version: number
                         createdAt: any
+                        name: string
+                        retailPrice: number
+                        weight: number
+                        description: string
+                        canBeReturnedForDays?: number | null
                     }
                 }
                 variants: {
@@ -994,13 +994,13 @@ export type GetProductQuery = {
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
                     id: any
-                    name: string
-                    description: string
-                    retailPrice: number
-                    weight: number
-                    canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
+                    name: string
+                    retailPrice: number
+                    weight: number
+                    description: string
+                    canBeReturnedForDays?: number | null
                     taxRate: {
                         __typename?: 'TaxRate'
                         id: any
@@ -1014,6 +1014,95 @@ export type GetProductQuery = {
                             createdAt: any
                         }
                     }
+                    characteristicValues: {
+                        __typename?: 'CategoryCharacteristicValueConnection'
+                        totalCount: number
+                        nodes: Array<
+                            | {
+                                  __typename: 'CategoricalCategoryCharacteristicValue'
+                                  categoricalValue: string
+                                  characteristic:
+                                      | {
+                                            __typename?: 'CategoricalCategoryCharacteristic'
+                                            id: any
+                                            name: string
+                                            category: {
+                                                __typename?: 'Category'
+                                                id: any
+                                            }
+                                        }
+                                      | {
+                                            __typename?: 'NumericalCategoryCharacteristic'
+                                            id: any
+                                            name: string
+                                            category: {
+                                                __typename?: 'Category'
+                                                id: any
+                                            }
+                                        }
+                              }
+                            | {
+                                  __typename: 'NumericalCategoryCharacteristicValue'
+                                  numericalValue: number
+                                  characteristic:
+                                      | {
+                                            __typename?: 'CategoricalCategoryCharacteristic'
+                                            id: any
+                                            name: string
+                                            category: {
+                                                __typename?: 'Category'
+                                                id: any
+                                            }
+                                        }
+                                      | {
+                                            __typename?: 'NumericalCategoryCharacteristic'
+                                            id: any
+                                            name: string
+                                            category: {
+                                                __typename?: 'Category'
+                                                id: any
+                                            }
+                                        }
+                              }
+                        >
+                    }
+                }
+            }>
+        }
+        categories: {
+            __typename?: 'CategoryConnection'
+            totalCount: number
+            nodes: Array<{ __typename?: 'Category'; id: any; name: string }>
+        }
+    }
+}
+
+export type GetProductForBuyerQueryVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type GetProductForBuyerQuery = {
+    __typename?: 'Query'
+    product: {
+        __typename?: 'Product'
+        id: any
+        defaultVariant: { __typename?: 'ProductVariant'; id: any }
+        variants: {
+            __typename?: 'ProductVariantConnection'
+            totalCount: number
+            nodes: Array<{
+                __typename?: 'ProductVariant'
+                id: any
+                currentVersion: {
+                    __typename?: 'ProductVariantVersion'
+                    id: any
+                    version: number
+                    createdAt: any
+                    name: string
+                    retailPrice: number
+                    weight: number
+                    description: string
+                    canBeReturnedForDays?: number | null
                     characteristicValues: {
                         __typename?: 'CategoryCharacteristicValueConnection'
                         totalCount: number
@@ -1487,13 +1576,13 @@ export type UpdateWishlistMutation = {
 export const CurrentVersionFragmentDoc = gql`
     fragment currentVersion on ProductVariantVersion {
         id
-        name
-        description
-        retailPrice
-        weight
-        canBeReturnedForDays
         version
         createdAt
+        name
+        retailPrice
+        weight
+        description
+        canBeReturnedForDays
     }
 `
 export const DefaultProductVariantFragmentDoc = gql`
@@ -1680,10 +1769,12 @@ export const GetProductDocument = gql`
                     isPubliclyVisible
                     currentVersion {
                         id
+                        version
+                        createdAt
                         name
-                        description
                         retailPrice
                         weight
+                        description
                         canBeReturnedForDays
                         taxRate {
                             id
@@ -1696,8 +1787,58 @@ export const GetProductDocument = gql`
                                 createdAt
                             }
                         }
+                        characteristicValues {
+                            totalCount
+                            nodes {
+                                __typename
+                                characteristic {
+                                    id
+                                    name
+                                    category {
+                                        id
+                                    }
+                                }
+                                ... on CategoricalCategoryCharacteristicValue {
+                                    categoricalValue: value
+                                }
+                                ... on NumericalCategoryCharacteristicValue {
+                                    numericalValue: value
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            categories {
+                totalCount
+                nodes {
+                    id
+                    name
+                }
+            }
+        }
+    }
+`
+export const GetProductForBuyerDocument = gql`
+    query getProductForBuyer($id: UUID!) {
+        product(id: $id) {
+            id
+            defaultVariant {
+                id
+            }
+            variants {
+                totalCount
+                nodes {
+                    id
+                    currentVersion {
+                        id
                         version
                         createdAt
+                        name
+                        retailPrice
+                        weight
+                        description
+                        canBeReturnedForDays
                         characteristicValues {
                             totalCount
                             nodes {
@@ -2113,6 +2254,22 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'getProduct',
+                'query',
+                variables
+            )
+        },
+        getProductForBuyer(
+            variables: GetProductForBuyerQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetProductForBuyerQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetProductForBuyerQuery>(
+                        GetProductForBuyerDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getProductForBuyer',
                 'query',
                 variables
             )
