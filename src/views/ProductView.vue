@@ -107,7 +107,6 @@
                 <div
                     v-if="
                         productVariantInfoRelevantToAdminAndEmployee?.id ===
-                       
                         productInfoRelevantToAdminAndEmployee?.product
                             .defaultVariant.id
                     "
