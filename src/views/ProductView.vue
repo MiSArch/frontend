@@ -754,24 +754,28 @@ function goToWishlists() {
  * @returns True if there are product items in stock, false otherwise.
  */
 const inStock = computed(() => {
-    if (activeUserRoleIsEitherAdminOrEmployee.value) {
-        return (
-            productItemsCountOfItemsInStock.value != undefined &&
-            productItemsCountOfItemsInStock.value > 0
-        )
-    } else {
-        if (
-            productVariantInfoRelevantToBuyer.value?.productItems != undefined
-        ) {
-            return (
-                productVariantInfoRelevantToBuyer.value.productItems
-                    .totalCount > 0
-            )
-        } else {
-            return false
-        }
+    if (!activeUserRoleIsEitherAdminOrEmployee.value) {
+        const count = getProductItemsCountOfItemsInStockForBuyer()
+        return count != undefined && count > 0
     }
+
+    return (
+        productItemsCountOfItemsInStock.value != undefined &&
+        productItemsCountOfItemsInStock.value > 0
+    )
 })
+
+/**
+ * Gets the number of product items in stock
+ * by "querying" the product variant object.
+ */
+function getProductItemsCountOfItemsInStockForBuyer(): number | undefined {
+    if (productVariantInfoRelevantToBuyer.value?.productItems != undefined) {
+        return productVariantInfoRelevantToBuyer.value.productItems.totalCount
+    } else {
+        return undefined
+    }
+}
 
 /**
  * A ref to trigger the evaluation of the inventory status of the product variant:
@@ -786,6 +790,10 @@ const trigger = ref(0)
 const productItemsCountOfItemsInStock = asyncComputed(
     async () => {
         trigger.value
+
+        if (!activeUserRoleIsEitherAdminOrEmployee.value) {
+            return getProductItemsCountOfItemsInStockForBuyer()
+        }
 
         const queryResponse = await getProductItemsCountOfInventoryStatus(
             ProductItemStatus.InStorage
@@ -1018,6 +1026,7 @@ async function getProductItemsCountOfInventoryStatus(
  * it returns the default maximum value of 10.
  */
 const maximumNumberOfProductItemsABuyerCanOrder = computed(() => {
+    console.log(productItemsCountOfItemsInStock.value)
     if (productItemsCountOfItemsInStock.value != undefined) {
         const numberOfAvailableProductItems =
             productItemsCountOfItemsInStock.value
