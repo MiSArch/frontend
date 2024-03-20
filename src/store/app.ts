@@ -18,6 +18,7 @@ import {
     getShoppingCartOfUser,
     updateShoppingCartItem,
 } from './shoppingCartManagement'
+import { OrderInformationImpl } from '@/model/classes/OrderInformationImpl'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
@@ -48,6 +49,7 @@ export const useAppStore = defineStore('app', {
         activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
         shoppingCart: emptyShoppingCart,
+        orderInformation: new OrderInformationImpl(undefined, undefined)
     }),
     getters: {
         token(): string | undefined {
@@ -482,5 +484,16 @@ export const useAppStore = defineStore('app', {
 
             await this.restoreTheShoppingCart()
         },
+        /**
+         * Resets the order information to a state where no information has been provided.
+         */
+        resetOrderInformationToUndefined() {
+            if (this.orderInformation == undefined) {
+                return
+            }
+
+            this.orderInformation.billingAddress = undefined
+            this.orderInformation.deliveryAddress = undefined
+        }
     },
 })
