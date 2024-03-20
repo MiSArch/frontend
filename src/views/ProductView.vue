@@ -84,24 +84,26 @@
                         perspective="inventory manager"
                         :in-stock="inStock"
                         :number-of-product-items-in-stock="
-                            numberOfProductItemsInStock
+                            productItemsCountOfItemsInStock
                         "
                         :number-of-reserved-product-items="
-                            numberOfReservedProductItems
+                            productItemsCountOfReservedItems
                         "
                         :number-of-product-items-in-fullfillment="
-                            numberOfProductItemsInFullfillment
+                            productItemsCountOfItemsInFullfillment
                         "
                         :number-of-shipped-product-items="
-                            numberOfShippedProductItems
+                            productItemsCountOfShippedItems
                         "
                         :number-of-delivered-product-items="
-                            numberOfDeliveredProductItems
+                            productItemsCountOfDeliveredItems
                         "
                         :number-of-returned-product-items="
-                            numberOfReturnedProductItems
+                            productItemsCountOfReturnedItems
                         "
-                        :number-of-lost-product-items="numberOfLostProductItems"
+                        :number-of-lost-product-items="
+                            productItemsCountOfLostItems
+                        "
                     />
                 </v-card-text>
                 <div
@@ -436,7 +438,7 @@
         :preselected-product-variant-id="productVariantId"
         v-model="restockDialogOpen"
         @close="closeRestockDialog"
-        @restocked="reloadInventoryStatus"
+        @restocked="reevaluateInventoryStatus"
     />
 </template>
 
@@ -447,7 +449,11 @@ import ProductSummary from '@/components/ProductSummary.vue'
 import RelativeTime from '@/components/RelativeTime.vue'
 import RestockDialog from '@/components/RestockDialog.vue'
 import { useClient } from '@/graphql/client'
-import { ProductItemStatus, UpdateWishlistInput } from '@/graphql/generated'
+import {
+    GetProductItemsCountOfInventoryStatusQuery,
+    ProductItemStatus,
+    UpdateWishlistInput,
+} from '@/graphql/generated'
 import { useAppStore } from '@/store/app'
 import { commonStrings } from '@/strings/commonStrings'
 import { errorMessages } from '@/strings/errorMessages'
@@ -744,30 +750,58 @@ function goToWishlists() {
 }
 
 /**
- * Reference to trigger the getInventoryStatusOfProductItems query.
+ * Computed property indicating whether there are product items in stock.
+ * @returns True if there are product items in stock, false otherwise.
  */
-const triggerGetInventoryStatusOfProductItemsQuery = ref(0)
+const inStock = computed(() => {
+    if (activeUserRoleIsEitherAdminOrEmployee.value) {
+        return (
+            productItemsCountOfItemsInStock.value != undefined &&
+            productItemsCountOfItemsInStock.value > 0
+        )
+    } else {
+        if (
+            productVariantInfoRelevantToBuyer.value?.productItems != undefined
+        ) {
+            return (
+                productVariantInfoRelevantToBuyer.value.productItems
+                    .totalCount > 0
+            )
+        } else {
+            return false
+        }
+    }
+})
 
 /**
- * Asynchronously computes the inventory status of product items.
+ * A ref to trigger the evaluation of the inventory status of the product variant:
+ * For each product item status, how many product items have that status?
  */
-const getInventoryStatusOfProductItemsQuery = asyncComputed(
+const trigger = ref(0)
+
+/**
+ * Asynchronously computed property for the number of product items in stock.
+ * @returns The number of product items in stock or undefined if no data is available.
+ */
+const productItemsCountOfItemsInStock = asyncComputed(
     async () => {
-        triggerGetInventoryStatusOfProductItemsQuery.value
+        trigger.value
 
-        if (productVariantId.value !== undefined) {
-            return client.getInventoryStatusOfProductItems({
-                productVariantId: productVariantId.value,
-            })
+        const queryResponse = await getProductItemsCountOfInventoryStatus(
+            ProductItemStatus.InStorage
+        )
+
+        if (queryResponse != undefined) {
+            return queryResponse.productItems.totalCount
+        } else {
+            return undefined
         }
-
-        return null
     },
-    null,
+    undefined,
     {
         onError: (e) =>
             pushErrorNotification(
-                errorMessages.getInventoryStatusOfProductItems,
+                errorMessages.getProductItemsCountOfInventoryStatus,
                 e
             ),
         shallow: false,
@@ -775,142 +809,204 @@ const getInventoryStatusOfProductItemsQuery = asyncComputed(
 )
 
 /**
- * Computed property for the inventory status of product items.
- */
-const inventoryStatusOfProductItems = computed(() => {
-    if (getInventoryStatusOfProductItemsQuery.value !== null) {
-        const nodes =
-            getInventoryStatusOfProductItemsQuery.value
-                .productItemsByProductVariant.nodes
-        if (nodes !== null && nodes !== undefined) {
-            return nodes
-        }
-    }
-
-    return null
-})
-
-/**
- * Computed property indicating whether there are product items in stock.
- * @returns True if there are product items in stock, false otherwise.
- */
-const inStock = computed(() => {
-    if (inventoryStatusOfProductItems.value !== null) {
-        return (
-            inventoryStatusOfProductItems.value.filter(
-                (productItem) =>
-                    productItem.inventoryStatus === ProductItemStatus.InStorage
-            ).length > 0
-        )
-    }
-
-    return false
-})
-
-/**
- * Computed property for the number of product items in stock.
- * @returns The number of product items in stock or undefined if no data is available.
- */
-const numberOfProductItemsInStock = computed(() => {
-    if (inventoryStatusOfProductItems.value !== null) {
-        return inventoryStatusOfProductItems.value.filter(
-            (productItem) =>
-                productItem.inventoryStatus === ProductItemStatus.InStorage
-        ).length
-    }
-
-    return undefined
-})
-
-/**
- * Computed property for the number of reserved product items.
+ * Asynchronously computed property for the number of reserved product items.
  * @returns The number of reserved product items or undefined if no data is available.
  */
-const numberOfReservedProductItems = computed(() => {
-    if (inventoryStatusOfProductItems.value !== null) {
-        return inventoryStatusOfProductItems.value.filter(
-            (productItem) =>
-                productItem.inventoryStatus === ProductItemStatus.Reserved
-        ).length
-    }
+const productItemsCountOfReservedItems = asyncComputed(
+    async () => {
+        trigger.value
 
-    return undefined
-})
+        const queryResponse = await getProductItemsCountOfInventoryStatus(
+            ProductItemStatus.Reserved
+        )
+
+        if (queryResponse != undefined) {
+            return queryResponse.productItems.totalCount
+        } else {
+            return undefined
+        }
+    },
+    undefined,
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getProductItemsCountOfInventoryStatus,
+                e
+            ),
+        shallow: false,
+    }
+)
 
 /**
- * Computed property for the number of product items in fulfillment.
- * @returns The number of product items in fulfillment or undefined if no data is available.
+ * Asynchronously computed property for the number of product items in fullfillment.
+ * @returns The number of product items in fullfillment or undefined if no data is available.
  */
-const numberOfProductItemsInFullfillment = computed(() => {
-    if (inventoryStatusOfProductItems.value !== null) {
-        return inventoryStatusOfProductItems.value.filter(
-            (productItem) =>
-                productItem.inventoryStatus === ProductItemStatus.InFulfillment
-        ).length
-    }
+const productItemsCountOfItemsInFullfillment = asyncComputed(
+    async () => {
+        trigger.value
 
-    return undefined
-})
+        const queryResponse = await getProductItemsCountOfInventoryStatus(
+            ProductItemStatus.InFulfillment
+        )
+
+        if (queryResponse != undefined) {
+            return queryResponse.productItems.totalCount
+        } else {
+            return undefined
+        }
+    },
+    undefined,
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getProductItemsCountOfInventoryStatus,
+                e
+            ),
+        shallow: false,
+    }
+)
 
 /**
- * Computed property for the number of shipped product items.
+ * Asynchronously computed property for the number of shipped product items.
  * @returns The number of shipped product items or undefined if no data is available.
  */
-const numberOfShippedProductItems = computed(() => {
-    if (inventoryStatusOfProductItems.value !== null) {
-        return inventoryStatusOfProductItems.value.filter(
-            (productItem) =>
-                productItem.inventoryStatus === ProductItemStatus.Shipped
-        ).length
-    }
+const productItemsCountOfShippedItems = asyncComputed(
+    async () => {
+        trigger.value
 
-    return undefined
-})
+        const queryResponse = await getProductItemsCountOfInventoryStatus(
+            ProductItemStatus.Shipped
+        )
+
+        if (queryResponse != undefined) {
+            return queryResponse.productItems.totalCount
+        } else {
+            return undefined
+        }
+    },
+    undefined,
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getProductItemsCountOfInventoryStatus,
+                e
+            ),
+        shallow: false,
+    }
+)
 
 /**
- * Computed property for the number of delivered product items.
+ * Asynchronously computed property for the number of delivered product items.
  * @returns The number of delivered product items or undefined if no data is available.
  */
-const numberOfDeliveredProductItems = computed(() => {
-    if (inventoryStatusOfProductItems.value !== null) {
-        return inventoryStatusOfProductItems.value.filter(
-            (productItem) =>
-                productItem.inventoryStatus === ProductItemStatus.Delivered
-        ).length
-    }
+const productItemsCountOfDeliveredItems = asyncComputed(
+    async () => {
+        trigger.value
 
-    return undefined
-})
+        const queryResponse = await getProductItemsCountOfInventoryStatus(
+            ProductItemStatus.Delivered
+        )
+
+        if (queryResponse != undefined) {
+            return queryResponse.productItems.totalCount
+        } else {
+            return undefined
+        }
+    },
+    undefined,
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getProductItemsCountOfInventoryStatus,
+                e
+            ),
+        shallow: false,
+    }
+)
 
 /**
- * Computed property for the number of returned product items.
+ * Asynchronously computed property for the number of returned product items.
  * @returns The number of returned product items or undefined if no data is available.
  */
-const numberOfReturnedProductItems = computed(() => {
-    if (inventoryStatusOfProductItems.value !== null) {
-        return inventoryStatusOfProductItems.value.filter(
-            (productItem) =>
-                productItem.inventoryStatus === ProductItemStatus.Returned
-        ).length
-    }
+const productItemsCountOfReturnedItems = asyncComputed(
+    async () => {
+        trigger.value
 
-    return undefined
-})
+        const queryResponse = await getProductItemsCountOfInventoryStatus(
+            ProductItemStatus.Returned
+        )
+
+        if (queryResponse != undefined) {
+            return queryResponse.productItems.totalCount
+        } else {
+            return undefined
+        }
+    },
+    undefined,
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getProductItemsCountOfInventoryStatus,
+                e
+            ),
+        shallow: false,
+    }
+)
 
 /**
- * Computed property for the number of lost product items.
+ * Asynchronously computed property for the number of lost product items.
  * @returns The number of lost product items or undefined if no data is available.
  */
-const numberOfLostProductItems = computed(() => {
-    if (inventoryStatusOfProductItems.value !== null) {
-        return inventoryStatusOfProductItems.value.filter(
-            (productItem) =>
-                productItem.inventoryStatus === ProductItemStatus.Lost
-        ).length
+const productItemsCountOfLostItems = asyncComputed(
+    async () => {
+        trigger.value
+
+        const queryResponse = await getProductItemsCountOfInventoryStatus(
+            ProductItemStatus.Lost
+        )
+
+        if (queryResponse != undefined) {
+            return queryResponse.productItems.totalCount
+        } else {
+            return undefined
+        }
+    },
+    undefined,
+    {
+        onError: (e) =>
+            pushErrorNotification(
+                errorMessages.getProductItemsCountOfInventoryStatus,
+                e
+            ),
+        shallow: false,
+    }
+)
+
+/**
+ * Asynchronously gets the count of product items with a specified inventory status.
+ * @param inventoryStatus - The inventory status of the product items.
+ * @returns A promise that resolves to the query result containing the count of product items, or null if retrieval is not possible.
+ */
+async function getProductItemsCountOfInventoryStatus(
+    inventoryStatus: ProductItemStatus
+): Promise<GetProductItemsCountOfInventoryStatusQuery | null> {
+    if (inventoryStatus == undefined) {
+        return null
     }
 
-    return undefined
-})
+    if (!activeUserRoleIsEitherAdminOrEmployee.value) {
+        return null
+    }
+
+    if (productVariantId.value == undefined) {
+        return null
+    }
+
+    return client.getProductItemsCountOfInventoryStatus({
+        productVariant: productVariantId.value,
+        inventoryStatus: inventoryStatus,
+    })
+}
 
 /**
  * The maximum number of product items a buyer can order.
@@ -922,8 +1018,9 @@ const numberOfLostProductItems = computed(() => {
  * it returns the default maximum value of 10.
  */
 const maximumNumberOfProductItemsABuyerCanOrder = computed(() => {
-    if (numberOfProductItemsInStock.value !== undefined) {
-        const numberOfAvailableProductItems = numberOfProductItemsInStock.value
+    if (productItemsCountOfItemsInStock.value != undefined) {
+        const numberOfAvailableProductItems =
+            productItemsCountOfItemsInStock.value
 
         return numberOfAvailableProductItems <
             defaultMaximumNumberOfItemsABuyerCanOrder
@@ -965,11 +1062,10 @@ function closeRestockDialog() {
 }
 
 /**
- * Triggers the reloading of the inventory status information
- * by triggering the GetInventoryStatusOfProductItemsQuery to be executed again.
+ * Triggers the reevaluation of the inventory status of the product variant.
  */
-function reloadInventoryStatus() {
-    triggerGetInventoryStatusOfProductItemsQuery.value++
+function reevaluateInventoryStatus() {
+    trigger.value++
 }
 
 /**

@@ -1,13 +1,11 @@
 # Queries:
 
-# Gets the inventory status of each product item of a given product variant.
-query getInventoryStatusOfProductItems($productVariantId: UUID!, $first: Int, $skip: Int, $orderBy: ProductItemOrder) {
-  productItemsByProductVariant(first: $first, orderBy: $orderBy, productVariantId: $productVariantId, skip: $skip) {
+# Gets the number of product items that have the specified inventory status.
+query getProductItemsCountOfInventoryStatus($productVariant: UUID!, $inventoryStatus: ProductItemStatus!) {
+  productItems(
+    filter: {productVariant: $productVariant, inventoryStatus: $inventoryStatus}
+  ) {
     totalCount
-    hasNextPage
-    nodes {
-      inventoryStatus
-    }
   }
 }
 

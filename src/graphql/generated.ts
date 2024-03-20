@@ -64,10 +64,22 @@ export type AddWishlistInput = {
     userId: Scalars['UUID']['input']
 }
 
+/** Input for the archiveShipmentMethod mutation. */
+export type ArchiveShipmentMethodInput = {
+    /** The id of the shipment method to archive. */
+    id: Scalars['UUID']['input']
+}
+
 /** Input for the archiveUserAddress mutation. */
 export type ArchiveUserAddressInput = {
     /** The id of the user address to archive. */
     id: Scalars['UUID']['input']
+}
+
+/** Input for calculateShipmentFees query. */
+export type CalculateShipmentFeesInput = {
+    /** The items to calculate the shipment fees for. */
+    items: Array<ProductVariantVersionWithQuantityAndShipmentMethodInput>
 }
 
 /** Input to create a CategoricalCategoryCharacteristic for a Category */
@@ -144,22 +156,42 @@ export type CategoryOrderInput = {
     field?: InputMaybe<CategoryOrderField>
 }
 
-/**
- * Describes the fields that a foreign types can be ordered by.
- *
- * Only the Id valid at the moment.
- */
+/** Common order fields */
 export enum CommonOrderField {
-    /** Orders by "id". */
+    /** Order entities by their id */
     Id = 'ID',
 }
 
-/** Specifies the order of foreign types. */
+/** Discount order */
 export type CommonOrderInput = {
-    /** Order direction of shoppingcarts. */
+    /** The direction to order by */
     direction?: InputMaybe<OrderDirection>
-    /** Field that shoppingcarts should be ordered by. */
+    /** The field to order by */
     field?: InputMaybe<CommonOrderField>
+}
+
+/** Coupon filter */
+export type CouponFilterInput = {
+    /** Filter weather the user with the provided id own the coupon, other users than the authenticated user require at least EMPLOYEE */
+    userHasCoupon?: InputMaybe<Scalars['UUID']['input']>
+}
+
+/** Coupon order fields */
+export enum CouponOrderField {
+    /** Order coupons by their id */
+    Id = 'ID',
+    /** Order coupons by the valid from date */
+    ValidFrom = 'VALID_FROM',
+    /** Order coupons by the valid until date */
+    ValidUntil = 'VALID_UNTIL',
+}
+
+/** Coupon order */
+export type CouponOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<CouponOrderField>
 }
 
 /** Input for the createCategoricalCategoryCharacteristic mutation */
@@ -182,6 +214,40 @@ export type CreateCategoryInput = {
     name: Scalars['String']['input']
     /** The NumericalCategoryCharacteristics of the Category */
     numericalCharacteristics: Array<NumericalCategoryCharacteristicInput>
+}
+
+/** Input for the createCoupon mutation. */
+export type CreateCouponInput = {
+    /** The code of the coupon. */
+    code: Scalars['String']['input']
+    /** The id of the discount the coupon is for. */
+    discountId: Scalars['UUID']['input']
+    /** The maximum number of times the coupon can be used. */
+    maxUsages: Scalars['Int']['input']
+    /** The date and time from which the coupon is valid. */
+    validFrom: Scalars['DateTime']['input']
+    /** The date and time until which the coupon is valid. */
+    validUntil: Scalars['DateTime']['input']
+}
+
+/** Input for the createDiscount mutation. */
+export type CreateDiscountInput = {
+    /** The discount applied to the order item. */
+    discount: Scalars['Float']['input']
+    /** The category ids to which the discount applies. */
+    discountAppliesToCategoryIds: Array<Scalars['UUID']['input']>
+    /** The product ids to which the discount applies. */
+    discountAppliesToProductIds: Array<Scalars['UUID']['input']>
+    /** The product variant ids to which the discount applies. */
+    discountAppliesToProductVariantIds: Array<Scalars['UUID']['input']>
+    /** The maximum number of times a user can use this discount in bought ProductItems. */
+    maxUsagesPerUser: Scalars['Int']['input']
+    /** The minimum order amount required to use this discount. */
+    minOrderAmount?: InputMaybe<Scalars['Int']['input']>
+    /** The date and time from which the discount is valid. */
+    validFrom: Scalars['DateTime']['input']
+    /** The date and time until which the discount is valid. */
+    validUntil: Scalars['DateTime']['input']
 }
 
 /** Input for the createNotification mutation */
@@ -238,8 +304,8 @@ export type CreateProductVariantInput = {
 
 /** Input for the createProductVariantVersion mutation */
 export type CreateProductVariantVersionInput = {
-    /** The amount of days for which an instance of the ProductVariant can be returned after purchase */
-    canBeReturnedForDays?: InputMaybe<Scalars['Float']['input']>
+    /** The amount of days for which an instance of the ProductVariant can be returned after purchase, if null can be returned indefinitely. */
+    canBeReturnedForDays?: InputMaybe<Scalars['Int']['input']>
     /** The CategoricalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product. */
     categoricalCharacteristicValues: Array<CategoricalCategoryCharacteristicValueInput>
     /** The description of the ProductVariant. */
@@ -256,6 +322,30 @@ export type CreateProductVariantVersionInput = {
     taxRateId: Scalars['UUID']['input']
     /** The weight of a single instance of the ProductVariant. */
     weight: Scalars['Float']['input']
+}
+
+/** Input for the createReturn mutation */
+export type CreateReturnInput = {
+    /** The order items to return, must belong to the same order and must not be already returned. */
+    orderItemIds: Array<Scalars['UUID']['input']>
+    /** The reason for the return. */
+    reason: Scalars['String']['input']
+}
+
+/** Input for the createShipmentMethod mutation. */
+export type CreateShipmentMethodInput = {
+    /** The base fees for the shipment method. */
+    baseFees: Scalars['Int']['input']
+    /** The description of the shipment method. */
+    description: Scalars['String']['input']
+    /** The reference of the shipment method used by the external shipment provider. */
+    externalReference: Scalars['String']['input']
+    /** The fees per item for the shipment method. */
+    feesPerItem: Scalars['Int']['input']
+    /** The fees per kg for the shipment method. */
+    feesPerKg: Scalars['Int']['input']
+    /** The name of the shipment method. */
+    name: Scalars['String']['input']
 }
 
 /** Input for the createTaxRate mutation */
@@ -310,6 +400,60 @@ export type CreateVendorAddressInput = {
     street2: Scalars['String']['input']
 }
 
+/** Discount order fields */
+export enum DiscountOrderField {
+    /** Order discounts by their id */
+    Id = 'ID',
+    /** Order discounts by the valid from date */
+    ValidFrom = 'VALID_FROM',
+    /** Order discounts by the valid until date */
+    ValidUntil = 'VALID_UNTIL',
+}
+
+/** Discount order */
+export type DiscountOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<DiscountOrderField>
+}
+
+/** DiscountUsage order fields */
+export enum DiscountUsageOrderField {
+    /** Order discount usages by their id */
+    Id = 'ID',
+    /** Order discount usages by their usages */
+    Usages = 'USAGES',
+}
+
+/** DiscountUsage order */
+export type DiscountUsageOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<DiscountUsageOrderField>
+}
+
+/** Input for the findApplicableDiscounts query. */
+export type FindApplicableDiscountsInput = {
+    /** The order amount, used to filter applicable discounts. */
+    orderAmount: Scalars['Int']['input']
+    /** The list of product variants for which discounts should be computed. */
+    productVariants: Array<FindApplicableDiscountsProductVariantInput>
+    /** The user id for which discounts should be computed. */
+    userId: Scalars['UUID']['input']
+}
+
+/** Triple of a product variant id, a count, and a list of coupon ids for which discounts should be computed */
+export type FindApplicableDiscountsProductVariantInput = {
+    /** The number of items to which the discounts should be applied. */
+    count: Scalars['Int']['input']
+    /** The list of coupon ids for which discounts should be computed. */
+    couponIds: Array<Scalars['UUID']['input']>
+    /** The product variant id for which discounts should be computed. */
+    productVariantId: Scalars['UUID']['input']
+}
+
 /** The gender of a user */
 export enum Gender {
     /** Diverse gender */
@@ -362,9 +506,37 @@ export enum OrderDirection {
     Desc = 'DESC',
 }
 
+/** OrderItem order fields */
+export enum OrderItemOrderField {
+    /** Order order items by their id */
+    Id = 'ID',
+}
+
+/** OrderItem order */
+export type OrderItemOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<OrderItemOrderField>
+}
+
 /** Product filter */
 export type ProductFilterInput = {
     isPubliclyVisible?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Filtering options for product items */
+export type ProductItemFilter = {
+    /** Current product item status */
+    inventoryStatus?: InputMaybe<ProductItemStatus>
+    /** Linked product variant id */
+    productVariant?: InputMaybe<Scalars['UUID']['input']>
+}
+
+/** Filtering options for product items of product variants */
+export type ProductItemOfProductVariantFilter = {
+    /** Current product item status */
+    inventoryStatus?: InputMaybe<ProductItemStatus>
 }
 
 /** Ordering options for product items */
@@ -444,8 +616,8 @@ export type ProductVariantOrderInput = {
 
 /** Input for creating a ProductVariantVersion. */
 export type ProductVariantVersionInput = {
-    /** The amount of days for which an instance of the ProductVariant can be returned after purchase */
-    canBeReturnedForDays?: InputMaybe<Scalars['Float']['input']>
+    /** The amount of days for which an instance of the ProductVariant can be returned after purchase, if null can be returned indefinitely. */
+    canBeReturnedForDays?: InputMaybe<Scalars['Int']['input']>
     /** The CategoricalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product. */
     categoricalCharacteristicValues: Array<CategoricalCategoryCharacteristicValueInput>
     /** The description of the ProductVariant. */
@@ -480,6 +652,24 @@ export type ProductVariantVersionOrderInput = {
     field?: InputMaybe<ProductVariantVersionOrderField>
 }
 
+/** Input for a product variant version with a quantity and shipment method. */
+export type ProductVariantVersionWithQuantityAndShipmentMethodInput = {
+    /** The product variant version id. */
+    productVariantVersionId: Scalars['UUID']['input']
+    /** The quantity of the product variant version. */
+    quantity: Scalars['Int']['input']
+    /** The id of the shipment method. */
+    shipmentMethodId: Scalars['UUID']['input']
+}
+
+/** Input for a product variant version with a quantity. */
+export type ProductVariantVersionWithQuantityInput = {
+    /** The product variant version id. */
+    productVariantVersionId: Scalars['UUID']['input']
+    /** The quantity of the product variant version. */
+    quantity: Scalars['Int']['input']
+}
+
 export enum Rating {
     FiveStars = 'FIVE_STARS',
     FourStars = 'FOUR_STARS',
@@ -488,10 +678,20 @@ export enum Rating {
     TwoStars = 'TWO_STARS',
 }
 
+/** Input for the registerCoupon mutation */
+export type RegisterCouponInput = {
+    /** The code of the coupon. */
+    code: Scalars['String']['input']
+    /** The user who wants to register the coupon. */
+    userId: Scalars['UUID']['input']
+}
+
 /** The input to reserve a batch of product items */
 export type ReserveProductItemsBatchInput = {
     /** The number of product items to reserve */
     number: Scalars['Int']['input']
+    /** The order id that reserves the product items */
+    orderId: Scalars['UUID']['input']
     /** The product variant id of the product item */
     productVariantId: Scalars['UUID']['input']
 }
@@ -516,6 +716,58 @@ export type ReviewOrderInput = {
     direction?: InputMaybe<OrderDirection>
     /** Field that reviews should be ordered by. */
     field?: InputMaybe<ReviewOrderField>
+}
+
+/** Shipment filter */
+export type ShipmentFilterInput = {
+    /** Filter shipments by their status */
+    status?: InputMaybe<ShipmentStatus>
+}
+
+/** Shipment method filter */
+export type ShipmentMethodFilterInput = {
+    /** Filter shipment methods by their archived status */
+    isArchived?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Shipment method order fields */
+export enum ShipmentMethodOrderField {
+    /** Order shipment methods by their id */
+    Id = 'ID',
+}
+
+/** Shipment method order */
+export type ShipmentMethodOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<ShipmentMethodOrderField>
+}
+
+/** Shipment  order fields */
+export enum ShipmentOrderField {
+    /** Order shipment s by their id */
+    Id = 'ID',
+}
+
+/** Shipment  order */
+export type ShipmentOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<ShipmentOrderField>
+}
+
+/** The status of a shipment. */
+export enum ShipmentStatus {
+    /** The shipment has been delivered. */
+    Delivered = 'DELIVERED',
+    /** The shipment has failed. */
+    Failed = 'FAILED',
+    /** The shipment is in progress. */
+    InProgress = 'IN_PROGRESS',
+    /** The shipment is pending. */
+    Pending = 'PENDING',
 }
 
 export type ShoppingCartItemInput = {
@@ -563,6 +815,58 @@ export type TaxRateVersionOrderInput = {
     direction?: InputMaybe<OrderDirection>
     /** The field to order by */
     field?: InputMaybe<TaxRateVersionOrderField>
+}
+
+/** Input for the updateCoupon mutation. */
+export type UpdateCouponInput = {
+    /** The code of the coupon. */
+    code?: InputMaybe<Scalars['String']['input']>
+    /** The id of the coupon to update. */
+    id: Scalars['UUID']['input']
+    /** The maximum number of times the coupon can be used. */
+    maxUsages?: InputMaybe<Scalars['Int']['input']>
+    /** The date and time from which the coupon is valid. */
+    validFrom?: InputMaybe<Scalars['DateTime']['input']>
+    /** The date and time until which the coupon is valid. */
+    validUntil?: InputMaybe<Scalars['DateTime']['input']>
+}
+
+/** Input for the updateDiscount mutation. */
+export type UpdateDiscountInput = {
+    /** Added category ids to which the discount applies. */
+    addedDiscountAppliesToCategoryIds?: InputMaybe<
+        Array<Scalars['UUID']['input']>
+    >
+    /** Added product ids to which the discount applies. */
+    addedDiscountAppliesToProductIds?: InputMaybe<
+        Array<Scalars['UUID']['input']>
+    >
+    /** Added product variant ids to which the discount applies. */
+    addedDiscountAppliesToProductVariantIds?: InputMaybe<
+        Array<Scalars['UUID']['input']>
+    >
+    /** The id of the discount to update. */
+    id: Scalars['UUID']['input']
+    /** The discount applied to the order item. */
+    maxUsagesPerUser?: InputMaybe<Scalars['Int']['input']>
+    /** The minimum order amount required to use this discount. */
+    minOrderAmount?: InputMaybe<Scalars['Int']['input']>
+    /** Removed category ids to which the discount applies. */
+    removedDiscountAppliesToCategoryIds?: InputMaybe<
+        Array<Scalars['UUID']['input']>
+    >
+    /** Removed product ids to which the discount applies. */
+    removedDiscountAppliesToProductIds?: InputMaybe<
+        Array<Scalars['UUID']['input']>
+    >
+    /** Removed product variant ids to which the discount applies. */
+    removedDiscountAppliesToProductVariantIds?: InputMaybe<
+        Array<Scalars['UUID']['input']>
+    >
+    /** The date and time from which the discount is valid. */
+    validFrom?: InputMaybe<Scalars['DateTime']['input']>
+    /** The date and time until which the discount is valid. */
+    validUntil?: InputMaybe<Scalars['DateTime']['input']>
 }
 
 /** Input for the updateNotification mutation */
@@ -972,17 +1276,15 @@ export type GetCategoriesWithCharacteristicsQuery = {
     }
 }
 
-export type GetProductQueryVariables = Exact<{
+export type GetProductForBuyerQueryVariables = Exact<{
     id: Scalars['UUID']['input']
 }>
 
-export type GetProductQuery = {
+export type GetProductForBuyerQuery = {
     __typename?: 'Query'
     product: {
         __typename?: 'Product'
         id: any
-        isPubliclyVisible: boolean
-        internalName: string
         defaultVariant: { __typename?: 'ProductVariant'; id: any }
         variants: {
             __typename?: 'ProductVariantConnection'
@@ -990,7 +1292,6 @@ export type GetProductQuery = {
             nodes: Array<{
                 __typename?: 'ProductVariant'
                 id: any
-                isPubliclyVisible: boolean
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
                     id: any
@@ -1001,19 +1302,6 @@ export type GetProductQuery = {
                     weight: number
                     description: string
                     canBeReturnedForDays?: number | null
-                    taxRate: {
-                        __typename?: 'TaxRate'
-                        id: any
-                        name: string
-                        description: string
-                        currentVersion: {
-                            __typename?: 'TaxRateVersion'
-                            id: any
-                            rate: number
-                            version: number
-                            createdAt: any
-                        }
-                    }
                     characteristicValues: {
                         __typename?: 'CategoryCharacteristicValueConnection'
                         totalCount: number
@@ -1067,6 +1355,10 @@ export type GetProductQuery = {
                         >
                     }
                 }
+                productItems?: {
+                    __typename?: 'ProductItemConnection'
+                    totalCount: number
+                } | null
             }>
         }
         categories: {
@@ -1077,15 +1369,17 @@ export type GetProductQuery = {
     }
 }
 
-export type GetProductForBuyerQueryVariables = Exact<{
+export type GetProductQueryVariables = Exact<{
     id: Scalars['UUID']['input']
 }>
 
-export type GetProductForBuyerQuery = {
+export type GetProductQuery = {
     __typename?: 'Query'
     product: {
         __typename?: 'Product'
         id: any
+        isPubliclyVisible: boolean
+        internalName: string
         defaultVariant: { __typename?: 'ProductVariant'; id: any }
         variants: {
             __typename?: 'ProductVariantConnection'
@@ -1093,6 +1387,7 @@ export type GetProductForBuyerQuery = {
             nodes: Array<{
                 __typename?: 'ProductVariant'
                 id: any
+                isPubliclyVisible: boolean
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
                     id: any
@@ -1103,6 +1398,19 @@ export type GetProductForBuyerQuery = {
                     weight: number
                     description: string
                     canBeReturnedForDays?: number | null
+                    taxRate: {
+                        __typename?: 'TaxRate'
+                        id: any
+                        name: string
+                        description: string
+                        currentVersion: {
+                            __typename?: 'TaxRateVersion'
+                            id: any
+                            rate: number
+                            version: number
+                            createdAt: any
+                        }
+                    }
                     characteristicValues: {
                         __typename?: 'CategoryCharacteristicValueConnection'
                         totalCount: number
@@ -1251,24 +1559,14 @@ export type CreateNumericalCategoryCharacteristicMutation = {
     }
 }
 
-export type GetInventoryStatusOfProductItemsQueryVariables = Exact<{
-    productVariantId: Scalars['UUID']['input']
-    first?: InputMaybe<Scalars['Int']['input']>
-    skip?: InputMaybe<Scalars['Int']['input']>
-    orderBy?: InputMaybe<ProductItemOrder>
+export type GetProductItemsCountOfInventoryStatusQueryVariables = Exact<{
+    productVariant: Scalars['UUID']['input']
+    inventoryStatus: ProductItemStatus
 }>
 
-export type GetInventoryStatusOfProductItemsQuery = {
+export type GetProductItemsCountOfInventoryStatusQuery = {
     __typename?: 'Query'
-    productItemsByProductVariant: {
-        __typename?: 'ProductItemConnection'
-        totalCount: number
-        hasNextPage: boolean
-        nodes?: Array<{
-            __typename?: 'ProductItem'
-            inventoryStatus: ProductItemStatus
-        }> | null
-    }
+    productItems: { __typename?: 'ProductItemConnection'; totalCount: number }
 }
 
 export type CreateProductItemBatchMutationVariables = Exact<{
@@ -1842,6 +2140,61 @@ export const GetCategoriesWithCharacteristicsDocument = gql`
     }
     ${CharacteristicFragmentDoc}
 `
+export const GetProductForBuyerDocument = gql`
+    query getProductForBuyer($id: UUID!) {
+        product(id: $id) {
+            id
+            defaultVariant {
+                id
+            }
+            variants {
+                totalCount
+                nodes {
+                    id
+                    currentVersion {
+                        id
+                        version
+                        createdAt
+                        name
+                        retailPrice
+                        weight
+                        description
+                        canBeReturnedForDays
+                        characteristicValues {
+                            totalCount
+                            nodes {
+                                __typename
+                                characteristic {
+                                    id
+                                    name
+                                    category {
+                                        id
+                                    }
+                                }
+                                ... on CategoricalCategoryCharacteristicValue {
+                                    categoricalValue: value
+                                }
+                                ... on NumericalCategoryCharacteristicValue {
+                                    numericalValue: value
+                                }
+                            }
+                        }
+                    }
+                    productItems(filter: { inventoryStatus: IN_STORAGE }) {
+                        totalCount
+                    }
+                }
+            }
+            categories {
+                totalCount
+                nodes {
+                    id
+                    name
+                }
+            }
+        }
+    }
+`
 export const GetProductDocument = gql`
     query getProduct($id: UUID!) {
         product(id: $id) {
@@ -1876,58 +2229,6 @@ export const GetProductDocument = gql`
                                 createdAt
                             }
                         }
-                        characteristicValues {
-                            totalCount
-                            nodes {
-                                __typename
-                                characteristic {
-                                    id
-                                    name
-                                    category {
-                                        id
-                                    }
-                                }
-                                ... on CategoricalCategoryCharacteristicValue {
-                                    categoricalValue: value
-                                }
-                                ... on NumericalCategoryCharacteristicValue {
-                                    numericalValue: value
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            categories {
-                totalCount
-                nodes {
-                    id
-                    name
-                }
-            }
-        }
-    }
-`
-export const GetProductForBuyerDocument = gql`
-    query getProductForBuyer($id: UUID!) {
-        product(id: $id) {
-            id
-            defaultVariant {
-                id
-            }
-            variants {
-                totalCount
-                nodes {
-                    id
-                    currentVersion {
-                        id
-                        version
-                        createdAt
-                        name
-                        retailPrice
-                        weight
-                        description
-                        canBeReturnedForDays
                         characteristicValues {
                             totalCount
                             nodes {
@@ -2022,24 +2323,18 @@ export const CreateNumericalCategoryCharacteristicDocument = gql`
         }
     }
 `
-export const GetInventoryStatusOfProductItemsDocument = gql`
-    query getInventoryStatusOfProductItems(
-        $productVariantId: UUID!
-        $first: Int
-        $skip: Int
-        $orderBy: ProductItemOrder
+export const GetProductItemsCountOfInventoryStatusDocument = gql`
+    query getProductItemsCountOfInventoryStatus(
+        $productVariant: UUID!
+        $inventoryStatus: ProductItemStatus!
     ) {
-        productItemsByProductVariant(
-            first: $first
-            orderBy: $orderBy
-            productVariantId: $productVariantId
-            skip: $skip
+        productItems(
+            filter: {
+                productVariant: $productVariant
+                inventoryStatus: $inventoryStatus
+            }
         ) {
             totalCount
-            hasNextPage
-            nodes {
-                inventoryStatus
-            }
         }
     }
 `
@@ -2395,22 +2690,6 @@ export function getSdk(
                 variables
             )
         },
-        getProduct(
-            variables: GetProductQueryVariables,
-            requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetProductQuery> {
-            return withWrapper(
-                (wrappedRequestHeaders) =>
-                    client.request<GetProductQuery>(
-                        GetProductDocument,
-                        variables,
-                        { ...requestHeaders, ...wrappedRequestHeaders }
-                    ),
-                'getProduct',
-                'query',
-                variables
-            )
-        },
         getProductForBuyer(
             variables: GetProductForBuyerQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
@@ -2423,6 +2702,22 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'getProductForBuyer',
+                'query',
+                variables
+            )
+        },
+        getProduct(
+            variables: GetProductQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetProductQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetProductQuery>(
+                        GetProductDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getProduct',
                 'query',
                 variables
             )
@@ -2539,18 +2834,18 @@ export function getSdk(
                 variables
             )
         },
-        getInventoryStatusOfProductItems(
-            variables: GetInventoryStatusOfProductItemsQueryVariables,
+        getProductItemsCountOfInventoryStatus(
+            variables: GetProductItemsCountOfInventoryStatusQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<GetInventoryStatusOfProductItemsQuery> {
+        ): Promise<GetProductItemsCountOfInventoryStatusQuery> {
             return withWrapper(
                 (wrappedRequestHeaders) =>
-                    client.request<GetInventoryStatusOfProductItemsQuery>(
-                        GetInventoryStatusOfProductItemsDocument,
+                    client.request<GetProductItemsCountOfInventoryStatusQuery>(
+                        GetProductItemsCountOfInventoryStatusDocument,
                         variables,
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
-                'getInventoryStatusOfProductItems',
+                'getProductItemsCountOfInventoryStatus',
                 'query',
                 variables
             )
