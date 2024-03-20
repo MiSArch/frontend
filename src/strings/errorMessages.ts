@@ -44,7 +44,7 @@ export const errorMessages = {
     createTaxRateVersion: 'Could not create the new tax rate version.',
     updateTaxRate: 'Could not update the tax rate.',
     // inventory
-    getInventoryStatusOfProductItems:
+    getProductItemsCountOfInventoryStatus:
         'Could not load the inventory status of the product items of the product variant.',
     createProductItemBatch: 'Could not create the batch of product items.',
     // shopping cart

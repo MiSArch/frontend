@@ -164,6 +164,9 @@ query getProductForBuyer($id: UUID!) {
             }
           }
         }
+        productItems(filter: {inventoryStatus: IN_STORAGE}) {
+          totalCount
+        }
       }
     }
     categories {
