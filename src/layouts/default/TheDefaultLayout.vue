@@ -9,7 +9,7 @@
             <v-list density="compact" nav>
                 <v-list-item
                     title="All Products"
-                    :to="{ name: 'Products' }"
+                    :to="{ name: routeNames.products }"
                 ></v-list-item>
                 <v-divider class="mb-1"></v-divider>
                 <v-list-group
@@ -26,14 +26,14 @@
                         v-for="category in categoriesWithAtLeastOneVisibleProduct"
                         :title="category.name"
                         :to="{
-                            name: 'Category',
+                            name: routeNames.category,
                             params: { categoryid: category.id },
                         }"
                     ></v-list-item>
                 </v-list-group>
                 <v-list-item
                     title="Wishlists"
-                    :to="{ name: 'Wishlists' }"
+                    :to="{ name: routeNames.wishlists }"
                 ></v-list-item>
             </v-list>
         </v-navigation-drawer>
@@ -49,17 +49,17 @@
                 <v-list-item
                     prepend-icon="mdi-playlist-edit"
                     title="Manage Products"
-                    :to="{ name: 'Manage Products' }"
+                    :to="{ name: routeNames.manageProducts }"
                 ></v-list-item>
                 <v-list-item
                     prepend-icon="mdi-view-dashboard-edit"
                     title="Manage Categories"
-                    :to="{ name: 'Manage Categories' }"
+                    :to="{ name: routeNames.manageCategories }"
                 ></v-list-item>
                 <v-list-item
                     prepend-icon="mdi-file-percent"
                     title="Manage Tax Rates"
-                    :to="{ name: 'Manage Tax Rates' }"
+                    :to="{ name: routeNames.manageTaxRates }"
                 ></v-list-item>
             </v-list>
         </v-navigation-drawer>
@@ -78,6 +78,7 @@ import { useAppStore } from '@/store/app'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
+import { routeNames } from '@/router/routeNames'
 
 const { activeUserRoleIsBuyer, activeUserRoleIsEitherAdminOrEmployee } =
     storeToRefs(useAppStore())

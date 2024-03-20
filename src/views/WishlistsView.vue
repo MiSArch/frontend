@@ -51,6 +51,7 @@ import {
     OrderDirection,
     WishlistOrderField,
 } from '@/graphql/generated'
+import { routeNames } from '@/router/routeNames'
 import { useAppStore } from '@/store/app'
 import { errorMessages } from '@/strings/errorMessages'
 import {
@@ -201,7 +202,7 @@ async function addWishlist(input: AddWishlistInput) {
  */
 function navigateToWishlist(wishlistId: any) {
     router.push({
-        name: 'Wishlist',
+        name: routeNames.wishlist,
         params: {
             wishlistid: wishlistId,
         },

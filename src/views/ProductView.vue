@@ -448,6 +448,7 @@ import RelativeTime from '@/components/RelativeTime.vue'
 import RestockDialog from '@/components/RestockDialog.vue'
 import { useClient } from '@/graphql/client'
 import { ProductItemStatus, UpdateWishlistInput } from '@/graphql/generated'
+import { routeNames } from '@/router/routeNames'
 import { useAppStore } from '@/store/app'
 import { commonStrings } from '@/strings/commonStrings'
 import { errorMessages } from '@/strings/errorMessages'
@@ -671,7 +672,7 @@ const hasAnyNumericalCategoryCharacteristicValues = computed(() => {
  */
 function navigateToCategory(id: any) {
     router.push({
-        name: 'Category',
+        name: routeNames.category,
         params: {
             categoryid: id,
         },
@@ -685,7 +686,7 @@ function navigateToCategory(id: any) {
  */
 function navigateToTaxRate(id: any) {
     router.push({
-        name: 'Tax Rate',
+        name: routeNames.taxRate,
         params: {
             taxrateid: id,
         },
@@ -739,7 +740,7 @@ async function updateWishlists(input: UpdateWishlistInput[]) {
  */
 function goToWishlists() {
     router.push({
-        name: 'Wishlists',
+        name: routeNames.wishlists,
     })
 }
 

@@ -104,17 +104,17 @@ export function canAccess(
      * Lookup table that maps each individual route name to its corresponding AccessRights property.
      */
     const routeAccessMap: Record<string, keyof AccessRights> = {
-        Storefront: 'canAccessStorefront',
-        Product: 'canAccessProduct',
-        Products: 'canAccessProducts',
-        'Shopping Cart': 'canAccessShoppingCart',
-        Category: 'canAccessCategory',
-        Wishlist: 'canAccessWishlist',
-        Wishlists: 'canAccessWishlists',
-        'Manage Products': 'canAccessManageProducts',
-        'Manage Categories': 'canAccessManageCategories',
-        'Tax Rate': 'canAccessTaxRate',
-        'Manage Tax Rates': 'canAccessManageTaxRates',
+        category: 'canAccessCategory',
+        'manage-categories': 'canAccessManageCategories',
+        'manage-products': 'canAccessManageProducts',
+        'manage-tax-rates': 'canAccessManageTaxRates',
+        product: 'canAccessProduct',
+        products: 'canAccessProducts',
+        storefront: 'canAccessStorefront',
+        'shopping-cart': 'canAccessShoppingCart',
+        'tax-rate': 'canAccessTaxRate',
+        wishlist: 'canAccessWishlist',
+        wishlists: 'canAccessWishlists',
     }
 
     const accessKey = routeAccessMap[nameOfRoute]

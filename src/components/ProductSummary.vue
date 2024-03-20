@@ -44,6 +44,7 @@
 </template>
 
 <script lang="ts" setup>
+import { routeNames } from '@/router/routeNames';
 import ProductPrice from './ProductPrice.vue'
 import { computed, ref } from 'vue'
 
@@ -114,7 +115,7 @@ const emit = defineEmits<{
  */
 const link = computed(() => {
     return {
-        name: 'Product',
+        name: routeNames.product,
         params: {
             productid: props.productId,
             productvariantid: props.productVariantId,

@@ -30,6 +30,7 @@
 
 <script lang="ts" setup>
 import SwitchUserRoleDialog from '@/components/SwitchUserRoleDialog.vue'
+import { routeNames } from '@/router/routeNames'
 import { useAppStore } from '@/store/app'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
@@ -66,7 +67,7 @@ function closeSwitchUserRoleDialog(navigateToStorefront: boolean) {
 
     if (navigateToStorefront) {
         router.push({
-            name: 'Storefront',
+            name: routeNames.storefront,
         })
     }
 }
@@ -84,7 +85,7 @@ function loginOrLogout() {
  */
 async function goToShoppingCart() {
     router.push({
-        name: 'Shopping Cart',
+        name: routeNames.shoppingCart,
     })
 }
 </script>
