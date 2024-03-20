@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     environment:
       - GATEWAY_ENDPOINT=http://localhost:3500/v1.0/invoke/gateway/method/graphql
-      - KEYCLOAK_ENDPOINT=http://keycloak:80/keycloak
+      - KEYCLOAK_ENDPOINT=http://keycloak:80
   frontend-dapr:
     image: "daprio/daprd:edge"
     command: [
