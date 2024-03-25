@@ -796,15 +796,9 @@ const productItemsCountOfItemsInStock = asyncComputed(
             return getProductItemsCountOfItemsInStockForBuyer()
         }
 
-        const queryResponse = await getProductItemsCountOfInventoryStatus(
+        return await getProductItemsCountOfInventoryStatus(
             ProductItemStatus.InStorage
         )
-
-        if (queryResponse != undefined) {
-            return queryResponse.productItems.totalCount
-        } else {
-            return undefined
-        }
     },
     undefined,
     {
@@ -825,15 +819,9 @@ const productItemsCountOfReservedItems = asyncComputed(
     async () => {
         trigger.value
 
-        const queryResponse = await getProductItemsCountOfInventoryStatus(
+        return await getProductItemsCountOfInventoryStatus(
             ProductItemStatus.Reserved
         )
-
-        if (queryResponse != undefined) {
-            return queryResponse.productItems.totalCount
-        } else {
-            return undefined
-        }
     },
     undefined,
     {
@@ -854,15 +842,9 @@ const productItemsCountOfItemsInFullfillment = asyncComputed(
     async () => {
         trigger.value
 
-        const queryResponse = await getProductItemsCountOfInventoryStatus(
+        return await getProductItemsCountOfInventoryStatus(
             ProductItemStatus.InFulfillment
         )
-
-        if (queryResponse != undefined) {
-            return queryResponse.productItems.totalCount
-        } else {
-            return undefined
-        }
     },
     undefined,
     {
@@ -883,15 +865,9 @@ const productItemsCountOfShippedItems = asyncComputed(
     async () => {
         trigger.value
 
-        const queryResponse = await getProductItemsCountOfInventoryStatus(
+        return await getProductItemsCountOfInventoryStatus(
             ProductItemStatus.Shipped
         )
-
-        if (queryResponse != undefined) {
-            return queryResponse.productItems.totalCount
-        } else {
-            return undefined
-        }
     },
     undefined,
     {
@@ -912,15 +888,9 @@ const productItemsCountOfDeliveredItems = asyncComputed(
     async () => {
         trigger.value
 
-        const queryResponse = await getProductItemsCountOfInventoryStatus(
+        return await getProductItemsCountOfInventoryStatus(
             ProductItemStatus.Delivered
         )
-
-        if (queryResponse != undefined) {
-            return queryResponse.productItems.totalCount
-        } else {
-            return undefined
-        }
     },
     undefined,
     {
@@ -941,15 +911,9 @@ const productItemsCountOfReturnedItems = asyncComputed(
     async () => {
         trigger.value
 
-        const queryResponse = await getProductItemsCountOfInventoryStatus(
+        return await getProductItemsCountOfInventoryStatus(
             ProductItemStatus.Returned
         )
-
-        if (queryResponse != undefined) {
-            return queryResponse.productItems.totalCount
-        } else {
-            return undefined
-        }
     },
     undefined,
     {
@@ -970,15 +934,9 @@ const productItemsCountOfLostItems = asyncComputed(
     async () => {
         trigger.value
 
-        const queryResponse = await getProductItemsCountOfInventoryStatus(
+        return await getProductItemsCountOfInventoryStatus(
             ProductItemStatus.Lost
         )
-
-        if (queryResponse != undefined) {
-            return queryResponse.productItems.totalCount
-        } else {
-            return undefined
-        }
     },
     undefined,
     {
@@ -994,27 +952,33 @@ const productItemsCountOfLostItems = asyncComputed(
 /**
  * Asynchronously gets the count of product items with a specified inventory status.
  * @param inventoryStatus - The inventory status of the product items.
- * @returns A promise that resolves to the query result containing the count of product items, or null if retrieval is not possible.
+ * @returns A promise that resolves to the count of product items, or undefined if retrieval is not possible.
  */
 async function getProductItemsCountOfInventoryStatus(
     inventoryStatus: ProductItemStatus
-): Promise<GetProductItemsCountOfInventoryStatusQuery | null> {
+): Promise<number | undefined> {
     if (inventoryStatus == undefined) {
-        return null
+        return undefined
     }
 
     if (!activeUserRoleIsEitherAdminOrEmployee.value) {
-        return null
+        return undefined
     }
 
     if (productVariantId.value == undefined) {
-        return null
+        return undefined
     }
 
-    return client.getProductItemsCountOfInventoryStatus({
+    const query = await client.getProductItemsCountOfInventoryStatus({
         productVariant: productVariantId.value,
         inventoryStatus: inventoryStatus,
     })
+
+    if (query != undefined) {
+        return query.productItems.totalCount
+    } else {
+        return undefined
+    }
 }
 
 /**
