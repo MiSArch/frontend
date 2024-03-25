@@ -42,7 +42,7 @@ const selectedDeliveryAddress = ref<AddressImpl | undefined>(
 
 watch(
     () => selectedDeliveryAddress.value,
-    () => updateDeliveryAddressOfOrderInformation()
+    () => onSelectedDeliveryAddressChanged()
 )
 
 const triggerForQueryingOfBillingAddresses = ref<number>(0)
@@ -71,6 +71,20 @@ watch(
         }
     }
 )
+
+/**
+ * Function called when the selected delivery address is changed.
+ * Updates the delivery address of the order information.
+ * If the billing address does not differ from the delivery address,
+ * sets the selected billing address to the selected delivery address.
+ */
+function onSelectedDeliveryAddressChanged() {
+    updateDeliveryAddressOfOrderInformation()
+
+    if (billingAddressDiffersFromDeliveryAddress.value === false) {
+        selectedBillingAddress.value = selectedDeliveryAddress.value
+    }
+}
 
 /**
  * Updates the delivery address of the order information to the currently selected delivery address.

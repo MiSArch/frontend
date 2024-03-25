@@ -58,7 +58,7 @@ const addressInformationComplete = computed(() => {
 })
 
 const paymentInformationComplete = computed(() => {
-    return true
+    return orderInformation.value.paymentInformation?.id
 })
 
 const userHasArrivedAtCheckoutSummary = computed(() => {
