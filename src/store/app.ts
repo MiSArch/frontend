@@ -49,7 +49,7 @@ export const useAppStore = defineStore('app', {
         activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
         shoppingCart: emptyShoppingCart,
-        orderInformation: new OrderInformationImpl(undefined, undefined),
+        orderInformation: new OrderInformationImpl(),
     }),
     getters: {
         token(): string | undefined {
@@ -494,6 +494,7 @@ export const useAppStore = defineStore('app', {
 
             this.orderInformation.billingAddress = undefined
             this.orderInformation.deliveryAddress = undefined
+            this.orderInformation.paymentInformation = undefined
         },
     },
 })
