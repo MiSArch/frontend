@@ -1022,6 +1022,40 @@ export type WishlistOrderInput = {
     field?: InputMaybe<WishlistOrderField>
 }
 
+export type GetActiveAddressesOfCurrentUserQueryVariables = Exact<{
+    orderBy?: InputMaybe<UserAddressOrderInput>
+}>
+
+export type GetActiveAddressesOfCurrentUserQuery = {
+    __typename?: 'Query'
+    currentUser?: {
+        __typename?: 'User'
+        addresses: {
+            __typename?: 'UserAddressConnection'
+            totalCount: number
+            nodes: Array<{
+                __typename?: 'UserAddress'
+                id: any
+                city: string
+                companyName?: string | null
+                country: string
+                postalCode: string
+                street1: string
+                street2: string
+            }>
+        }
+    } | null
+}
+
+export type CreateUserAddressMutationVariables = Exact<{
+    input: CreateUserAddressInput
+}>
+
+export type CreateUserAddressMutation = {
+    __typename?: 'Mutation'
+    createUserAddress: { __typename?: 'UserAddress'; id: any }
+}
+
 export type DefaultProductVariantFragment = {
     __typename?: 'Product'
     id: any
@@ -2040,6 +2074,33 @@ export const WishlistWithProductVariantsFragmentDoc = gql`
         }
     }
 `
+export const GetActiveAddressesOfCurrentUserDocument = gql`
+    query getActiveAddressesOfCurrentUser(
+        $orderBy: UserAddressOrderInput = {}
+    ) {
+        currentUser {
+            addresses(orderBy: $orderBy, filter: { isArchived: false }) {
+                totalCount
+                nodes {
+                    id
+                    city
+                    companyName
+                    country
+                    postalCode
+                    street1
+                    street2
+                }
+            }
+        }
+    }
+`
+export const CreateUserAddressDocument = gql`
+    mutation createUserAddress($input: CreateUserAddressInput!) {
+        createUserAddress(input: $input) {
+            id
+        }
+    }
+`
 export const GetDefaultProductVariantsDocument = gql`
     query getDefaultProductVariants(
         $first: Int
@@ -2626,6 +2687,38 @@ export function getSdk(
     withWrapper: SdkFunctionWrapper = defaultWrapper
 ) {
     return {
+        getActiveAddressesOfCurrentUser(
+            variables?: GetActiveAddressesOfCurrentUserQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetActiveAddressesOfCurrentUserQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetActiveAddressesOfCurrentUserQuery>(
+                        GetActiveAddressesOfCurrentUserDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getActiveAddressesOfCurrentUser',
+                'query',
+                variables
+            )
+        },
+        createUserAddress(
+            variables: CreateUserAddressMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateUserAddressMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateUserAddressMutation>(
+                        CreateUserAddressDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createUserAddress',
+                'mutation',
+                variables
+            )
+        },
         getDefaultProductVariants(
             variables?: GetDefaultProductVariantsQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders

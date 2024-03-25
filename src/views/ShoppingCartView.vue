@@ -1,7 +1,7 @@
 <template>
     <ShoppingCartToolbar
         :total="total"
-        @checkout-initiated="console.log('checkout initiated')"
+        @checkout-initiated="userWantsToProceedToCheckout"
     />
     <div class="text-body-1 pa-4">
         The products in your shopping cart are not reserved for you.
@@ -37,12 +37,14 @@
 <script lang="ts" setup>
 import ProductSummary from '@/components/ProductSummary.vue'
 import ShoppingCartToolbar from '@/components/ShoppingCartToolbar.vue'
+import { routeNames } from '@/router/routeNames'
 import { useAppStore } from '@/store/app'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const store = useAppStore()
-
 const { shoppingCart } = storeToRefs(store)
 
 /**
@@ -74,5 +76,25 @@ async function updateShoppingCartItem(
  */
 async function removeShoppingCartItem(idOfShoppingCartItem: any) {
     await store.deleteShoppingCartItem(idOfShoppingCartItem)
+}
+
+/**
+ * Initiates the checkout process by resetting order information and navigating to the checkout view.
+ * This function is typically called when the user wants to proceed to checkout.
+ */
+function userWantsToProceedToCheckout(): void {
+    // Reset order information to undefined to clear any previous selections
+    store.resetOrderInformationToUndefined()
+
+    navigateToCheckoutView()
+}
+
+/**
+ * Navigates the user to the checkout.
+ */
+function navigateToCheckoutView() {
+    router.push({
+        name: routeNames.checkoutAddress,
+    })
 }
 </script>

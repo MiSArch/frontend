@@ -53,4 +53,8 @@ export const errorMessages = {
         'Could not add the product variant to the shopping cart.',
     updateShoppingCartItem: 'Could not update the shopping cart item.',
     deleteShoppingCartItem: 'Could not remove the shopping cart item.',
+    // address
+    createUserAddress: 'Could not add new address of user.',
+    getActiveAddressesOfCurrentUser:
+        'Could not load the addresses of the user.',
 }

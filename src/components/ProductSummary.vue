@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts" setup>
-import { routeNames } from '@/router/routeNames';
+import { routeNames } from '@/router/routeNames'
 import ProductPrice from './ProductPrice.vue'
 import { computed, ref } from 'vue'
 

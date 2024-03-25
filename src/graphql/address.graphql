@@ -1,0 +1,28 @@
+# Queries
+
+# Gets exactly those addresses of the current user that have not been archived and are therefore active.
+query getActiveAddressesOfCurrentUser($orderBy: UserAddressOrderInput = {}) {
+  currentUser {
+    addresses(orderBy: $orderBy, filter: {isArchived: false}) {
+      totalCount
+      nodes {
+        id
+        city
+        companyName
+        country
+        postalCode
+        street1
+        street2
+      }
+    }
+  }
+}
+
+# Mutations
+
+# Creates an address for a user.
+mutation createUserAddress($input: CreateUserAddressInput!) {
+  createUserAddress(input: $input) {
+    id
+  }
+}

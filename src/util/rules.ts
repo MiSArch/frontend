@@ -32,3 +32,17 @@ export function weightInputIsValid(input: string): boolean | string {
 
     return 'The weight of the product must be specified. It must be entered as a positive decimal number, e.g., 0.5'
 }
+
+/**
+ * Checks if the input is required.
+ * Returns true if the input is a non-empty string, otherwise returns a string indicating it is mandatory.
+ * @param input - The input to check.
+ * @returns True if the input is a non-empty string, otherwise 'Mandatory'.
+ */
+export function inputIsRequired(input: string): boolean | string {
+    if (typeof input === 'string' && input.length > 0) {
+        return true
+    } else {
+        return 'Mandatory'
+    }
+}

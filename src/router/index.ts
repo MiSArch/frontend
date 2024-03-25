@@ -69,6 +69,30 @@ const routes = [
             },
         ],
     },
+    {
+        path: '/checkout',
+        children: [
+            {
+                path: 'address',
+                name: routeNames.checkoutAddress,
+                component: () =>
+                    import('@/views/checkout/AddressInformationView.vue'),
+            },
+            {
+                path: 'payment',
+                name: routeNames.checkoutPayment,
+                component: () =>
+                    import('@/views/checkout/PaymentInformationView.vue'),
+            },
+            {
+                path: 'summary',
+                name: routeNames.checkoutSummary,
+                component: () =>
+                    import('@/views/checkout/OrderSummaryView.vue'),
+            },
+        ],
+        component: () => import('@/layouts/checkout/TheCheckoutLayout.vue'),
+    },
 ]
 
 const router = createRouter({
