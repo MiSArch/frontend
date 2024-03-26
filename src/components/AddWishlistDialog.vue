@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts" setup>
-import { AddWishlistInput } from '@/graphql/generated'
+import { CreateWishlistInput } from '@/graphql/generated'
 import { useAppStore } from '@/store/app'
 import { ref } from 'vue'
 
@@ -30,7 +30,7 @@ import { ref } from 'vue'
  * close-addwishlistdialog -- The dialog has to be closed.
  */
 const emit = defineEmits<{
-    (event: 'add-wishlist', input: AddWishlistInput): void
+    (event: 'add-wishlist', input: CreateWishlistInput): void
     (event: 'close-addwishlistdialog'): void
 }>()
 
@@ -61,7 +61,7 @@ function cancel() {
  * has the view's model cleared.
  */
 function save() {
-    const input: AddWishlistInput = {
+    const input: CreateWishlistInput = {
         name: name.value,
         productVariantIds: [],
         userId: useAppStore().currentUserId,

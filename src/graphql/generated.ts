@@ -32,36 +32,8 @@ export type Scalars = {
     Float: { input: number; output: number }
     Date: { input: any; output: any }
     DateTime: { input: any; output: any }
+    JSONObject: { input: any; output: any }
     UUID: { input: any; output: any }
-}
-
-export type AddReviewInput = {
-    /** Body of Review. */
-    body: Scalars['String']['input']
-    /** Flag if review is visible, by default set to true. */
-    isVisible?: InputMaybe<Scalars['Boolean']['input']>
-    /** UUID of product variant in review. */
-    productVariantId: Scalars['UUID']['input']
-    /** Rating of Review in 1-5 stars. */
-    rating: Rating
-    /** UUID of user owning the review. */
-    userId: Scalars['UUID']['input']
-}
-
-export type AddShoppingCartItemInput = {
-    /** UUID of user owning the shopping cart. */
-    id: Scalars['UUID']['input']
-    /** ShoppingCartItem in shoppingcart to update */
-    shoppingCartItem: ShoppingCartItemInput
-}
-
-export type AddWishlistInput = {
-    /** Wishlist name. */
-    name: Scalars['String']['input']
-    /** UUIDs of product variants in wishlist. */
-    productVariantIds: Array<Scalars['UUID']['input']>
-    /** UUID of user owning the wishlist. */
-    userId: Scalars['UUID']['input']
 }
 
 /** Input for the archiveShipmentMethod mutation. */
@@ -230,6 +202,16 @@ export type CreateCouponInput = {
     validUntil: Scalars['DateTime']['input']
 }
 
+/** All required informations to save an credit card */
+export type CreateCreditCardInformationInput = {
+    /** The card holders name */
+    cardHolder: Scalars['String']['input']
+    /** The credit cards number */
+    cardNumber: Scalars['String']['input']
+    /** The credit cards expiration date */
+    expirationDate: Scalars['String']['input']
+}
+
 /** Input for the createDiscount mutation. */
 export type CreateDiscountInput = {
     /** The discount applied to the order item. */
@@ -332,6 +314,19 @@ export type CreateReturnInput = {
     reason: Scalars['String']['input']
 }
 
+export type CreateReviewInput = {
+    /** Body of Review. */
+    body: Scalars['String']['input']
+    /** Flag if review is visible, by default set to true. */
+    isVisible?: InputMaybe<Scalars['Boolean']['input']>
+    /** UUID of product variant in review. */
+    productVariantId: Scalars['UUID']['input']
+    /** Rating of Review in 1-5 stars. */
+    rating: Rating
+    /** UUID of user owning the review. */
+    userId: Scalars['UUID']['input']
+}
+
 /** Input for the createShipmentMethod mutation. */
 export type CreateShipmentMethodInput = {
     /** The base fees for the shipment method. */
@@ -346,6 +341,13 @@ export type CreateShipmentMethodInput = {
     feesPerKg: Scalars['Int']['input']
     /** The name of the shipment method. */
     name: Scalars['String']['input']
+}
+
+export type CreateShoppingCartItemInput = {
+    /** UUID of user owning the shopping cart. */
+    id: Scalars['UUID']['input']
+    /** ShoppingCartItem in shoppingcart to update */
+    shoppingCartItem: ShoppingCartItemInput
 }
 
 /** Input for the createTaxRate mutation */
@@ -398,6 +400,15 @@ export type CreateVendorAddressInput = {
     street1: Scalars['String']['input']
     /** The second part of the street part of the address to create */
     street2: Scalars['String']['input']
+}
+
+export type CreateWishlistInput = {
+    /** Wishlist name. */
+    name: Scalars['String']['input']
+    /** UUIDs of product variants in wishlist. */
+    productVariantIds: Array<Scalars['UUID']['input']>
+    /** UUID of user owning the wishlist. */
+    userId: Scalars['UUID']['input']
 }
 
 /** Discount order fields */
@@ -518,6 +529,80 @@ export type OrderItemOrderInput = {
     direction?: InputMaybe<OrderDirection>
     /** The field to order by */
     field?: InputMaybe<OrderItemOrderField>
+}
+
+/** Filtering options for payments */
+export type PaymentFilter = {
+    /** Timebox start for payment creation */
+    from?: InputMaybe<Scalars['DateTime']['input']>
+    /** Payment Information ID */
+    paymentInformationId?: InputMaybe<Scalars['String']['input']>
+    /** Payment method */
+    paymentMethod?: InputMaybe<Scalars['String']['input']>
+    /** Current payment status */
+    status?: InputMaybe<PaymentStatus>
+    /** Timebox end for payment creation */
+    to?: InputMaybe<Scalars['DateTime']['input']>
+}
+
+/** Filtering options for payment informations */
+export type PaymentInformationFilter = {
+    /** Linked payment method */
+    paymentMethod?: InputMaybe<PaymentMethod>
+    /** Connected user id */
+    user?: InputMaybe<Scalars['UUID']['input']>
+}
+
+/** Ordering options for payment informations */
+export type PaymentInformationOrder = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<PaymentInformationOrderField>
+}
+
+/** The field to order payment informations by */
+export enum PaymentInformationOrderField {
+    /** Order payment informations by their id */
+    Id = 'ID',
+}
+
+/** The supported payment methods */
+export enum PaymentMethod {
+    /** The amount is charged to the users credit card */
+    CreditCard = 'CREDIT_CARD',
+    /** The user pays after ordering the product */
+    Invoice = 'INVOICE',
+    /** The user pays before the product is shipped */
+    Prepayment = 'PREPAYMENT',
+}
+
+/** Ordering options for payments */
+export type PaymentOrder = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<PaymentOrderField>
+}
+
+/** The field to order Payments by */
+export enum PaymentOrderField {
+    /** Order Payments by their ID */
+    Id = 'ID',
+}
+
+/** The status of an payment of an invoice or return */
+export enum PaymentStatus {
+    /** The payment processing failed indefinetely */
+    Failed = 'FAILED',
+    /** The payment was sold to external inkasso service */
+    Inkasso = 'INKASSO',
+    /** The payment was created but not yet processed */
+    Open = 'OPEN',
+    /** The payment is currently being processed */
+    Pending = 'PENDING',
+    /** The payment was successfully processed and the amount was transfered */
+    Succeeded = 'SUCCEEDED',
 }
 
 /** Product filter */
@@ -694,6 +779,20 @@ export type ReserveProductItemsBatchInput = {
     orderId: Scalars['UUID']['input']
     /** The product variant id of the product item */
     productVariantId: Scalars['UUID']['input']
+}
+
+/** Return order fields */
+export enum ReturnOrderField {
+    /** Order returns by their id */
+    Id = 'ID',
+}
+
+/** Direction to sort returns in */
+export type ReturnOrderInput = {
+    /** The direction to order by */
+    direction?: InputMaybe<OrderDirection>
+    /** The field to order by */
+    field?: InputMaybe<ReturnOrderField>
 }
 
 /** Describes the fields that a review can be ordered by. */
@@ -1653,12 +1752,12 @@ export type GetShoppingCartOfUserQuery = {
 }
 
 export type AddItemToShoppingCartMutationVariables = Exact<{
-    input: AddShoppingCartItemInput
+    input: CreateShoppingCartItemInput
 }>
 
 export type AddItemToShoppingCartMutation = {
     __typename?: 'Mutation'
-    addShoppingcartItem: {
+    createShoppingcartItem: {
         __typename?: 'ShoppingCartItem'
         id: any
         count: number
@@ -1958,12 +2057,12 @@ export type GetWishlistQuery = {
 }
 
 export type AddWishlistMutationVariables = Exact<{
-    input: AddWishlistInput
+    input: CreateWishlistInput
 }>
 
 export type AddWishlistMutation = {
     __typename?: 'Mutation'
-    addWishlist: {
+    createWishlist: {
         __typename?: 'Wishlist'
         id: any
         name: string
@@ -2437,8 +2536,8 @@ export const GetShoppingCartOfUserDocument = gql`
     }
 `
 export const AddItemToShoppingCartDocument = gql`
-    mutation addItemToShoppingCart($input: AddShoppingCartItemInput!) {
-        addShoppingcartItem(input: $input) {
+    mutation addItemToShoppingCart($input: CreateShoppingCartItemInput!) {
+        createShoppingcartItem(input: $input) {
             id
             count
             addedAt
@@ -2648,8 +2747,8 @@ export const GetWishlistDocument = gql`
     }
 `
 export const AddWishlistDocument = gql`
-    mutation addWishlist($input: AddWishlistInput!) {
-        addWishlist(input: $input) {
+    mutation addWishlist($input: CreateWishlistInput!) {
+        createWishlist(input: $input) {
             ...wishlist
         }
     }

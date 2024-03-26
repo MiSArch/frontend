@@ -90,8 +90,8 @@ query getWishlist($id: UUID!, $firstProductVariants: Int, $skipProductVariants: 
 # Mutations:
 
 # Adds a wishlist.
-mutation addWishlist($input: AddWishlistInput!) {
-  addWishlist(input: $input) {
+mutation addWishlist($input: CreateWishlistInput!) {
+  createWishlist(input: $input) {
     ... wishlist
   }
 }
