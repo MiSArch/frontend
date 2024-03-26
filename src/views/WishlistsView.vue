@@ -47,7 +47,7 @@ import AddWishlistDialog from '@/components/AddWishlistDialog.vue'
 import RelativeTime from '@/components/RelativeTime.vue'
 import { useClient } from '@/graphql/client'
 import {
-    AddWishlistInput,
+    CreateWishlistInput,
     OrderDirection,
     WishlistOrderField,
 } from '@/graphql/generated'
@@ -183,7 +183,7 @@ function closeAddWishlistDialog() {
  * Tries to add a new wishlist.
  * @param input The wishlist to add.
  */
-async function addWishlist(input: AddWishlistInput) {
+async function addWishlist(input: CreateWishlistInput) {
     closeAddWishlistDialog()
 
     await awaitActionAndPushErrorIfNecessary(() => {
