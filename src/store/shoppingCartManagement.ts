@@ -1,6 +1,6 @@
 import { useClient } from '@/graphql/client'
 import {
-    AddShoppingCartItemInput,
+    CreateShoppingCartItemInput,
     GetShoppingCartOfUserQuery,
     UpdateShoppingCartItemInput,
 } from '@/graphql/generated'
@@ -65,7 +65,9 @@ export function extractShoppingCartInstanceFromQuery(
  * @param input - The input data for adding an item to the shopping cart.
  * @returns A promise that resolves to the item that has been added to the shopping cart.
  */
-export async function addItemToShoppingCart(input: AddShoppingCartItemInput) {
+export async function addItemToShoppingCart(
+    input: CreateShoppingCartItemInput
+) {
     return await awaitActionAndPushErrorIfNecessary(() => {
         return useClient().addItemToShoppingCart({
             input: input,
