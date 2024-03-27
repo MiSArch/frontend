@@ -492,8 +492,9 @@ export const useAppStore = defineStore('app', {
                 return
             }
 
-            this.orderInformation.billingAddress = undefined
             this.orderInformation.deliveryAddress = undefined
+            this.orderInformation.billingAddress = undefined
+            this.orderInformation.shipmentMethod = undefined
             this.orderInformation.paymentInformation = undefined
         },
     },
