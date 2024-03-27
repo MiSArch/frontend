@@ -1715,6 +1715,39 @@ export type CreateProductItemBatchMutation = {
     }>
 }
 
+export type CreateCreditCardPaymentInformationMutationVariables = Exact<{
+    input: CreateCreditCardInformationInput
+}>
+
+export type CreateCreditCardPaymentInformationMutation = {
+    __typename?: 'Mutation'
+    createCreditCardPaymentInformation: {
+        __typename?: 'PaymentInformation'
+        id: any
+    }
+}
+
+export type GetShipmentMethodsQueryVariables = Exact<{
+    isArchived?: InputMaybe<Scalars['Boolean']['input']>
+}>
+
+export type GetShipmentMethodsQuery = {
+    __typename?: 'Query'
+    shipmentMethods: {
+        __typename?: 'ShipmentMethodConnection'
+        totalCount: number
+        nodes: Array<{
+            __typename?: 'ShipmentMethod'
+            id: any
+            baseFees: number
+            description: string
+            feesPerItem: number
+            feesPerKg: number
+            name: string
+        }>
+    }
+}
+
 export type GetShoppingCartOfUserQueryVariables = Exact<{
     id: Scalars['UUID']['input']
 }>
@@ -1928,6 +1961,28 @@ export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never }>
 export type GetCurrentUserQuery = {
     __typename?: 'Query'
     currentUser?: { __typename?: 'User'; id: any } | null
+}
+
+export type GetPaymentInformationOfCurrentUserQueryVariables = Exact<{
+    paymentMethod?: InputMaybe<PaymentMethod>
+}>
+
+export type GetPaymentInformationOfCurrentUserQuery = {
+    __typename?: 'Query'
+    currentUser?: {
+        __typename?: 'User'
+        id: any
+        paymentInformations?: {
+            __typename?: 'PaymentInformationConnection'
+            totalCount: number
+            nodes?: Array<{
+                __typename?: 'PaymentInformation'
+                id: any
+                paymentMethod: PaymentMethod
+                publicMethodDetails?: any | null
+            }> | null
+        } | null
+    } | null
 }
 
 export type WishlistFragment = {
@@ -2506,6 +2561,30 @@ export const CreateProductItemBatchDocument = gql`
         }
     }
 `
+export const CreateCreditCardPaymentInformationDocument = gql`
+    mutation createCreditCardPaymentInformation(
+        $input: CreateCreditCardInformationInput!
+    ) {
+        createCreditCardPaymentInformation(input: $input) {
+            id
+        }
+    }
+`
+export const GetShipmentMethodsDocument = gql`
+    query getShipmentMethods($isArchived: Boolean = false) {
+        shipmentMethods(filter: { isArchived: $isArchived }) {
+            totalCount
+            nodes {
+                id
+                baseFees
+                description
+                feesPerItem
+                feesPerKg
+                name
+            }
+        }
+    }
+`
 export const GetShoppingCartOfUserDocument = gql`
     query getShoppingCartOfUser($id: UUID!) {
         user(id: $id) {
@@ -2657,6 +2736,21 @@ export const GetCurrentUserDocument = gql`
     query getCurrentUser {
         currentUser {
             id
+        }
+    }
+`
+export const GetPaymentInformationOfCurrentUserDocument = gql`
+    query getPaymentInformationOfCurrentUser($paymentMethod: PaymentMethod) {
+        currentUser {
+            id
+            paymentInformations(filter: { paymentMethod: $paymentMethod }) {
+                totalCount
+                nodes {
+                    id
+                    paymentMethod
+                    publicMethodDetails
+                }
+            }
         }
     }
 `
@@ -3058,6 +3152,38 @@ export function getSdk(
                 variables
             )
         },
+        createCreditCardPaymentInformation(
+            variables: CreateCreditCardPaymentInformationMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateCreditCardPaymentInformationMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateCreditCardPaymentInformationMutation>(
+                        CreateCreditCardPaymentInformationDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createCreditCardPaymentInformation',
+                'mutation',
+                variables
+            )
+        },
+        getShipmentMethods(
+            variables?: GetShipmentMethodsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetShipmentMethodsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetShipmentMethodsQuery>(
+                        GetShipmentMethodsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getShipmentMethods',
+                'query',
+                variables
+            )
+        },
         getShoppingCartOfUser(
             variables: GetShoppingCartOfUserQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
@@ -3230,6 +3356,22 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'getCurrentUser',
+                'query',
+                variables
+            )
+        },
+        getPaymentInformationOfCurrentUser(
+            variables?: GetPaymentInformationOfCurrentUserQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetPaymentInformationOfCurrentUserQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetPaymentInformationOfCurrentUserQuery>(
+                        GetPaymentInformationOfCurrentUserDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getPaymentInformationOfCurrentUser',
                 'query',
                 variables
             )

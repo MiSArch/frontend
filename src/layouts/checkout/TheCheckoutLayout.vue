@@ -4,7 +4,7 @@
         <v-main>
             <v-toolbar>
                 <v-btn
-                    :disabled="backButtonDisabled"
+                    :disabled="backButtonIsDisabled"
                     icon="mdi-arrow-left"
                     @click="back"
                 ></v-btn>
@@ -17,13 +17,13 @@
                     >cancel</v-btn
                 >
                 <v-btn
-                    :disabled="backButtonDisabled"
+                    :disabled="backButtonIsDisabled"
                     prepend-icon="mdi-arrow-left"
                     @click="back"
                     >back</v-btn
                 >
                 <v-btn
-                    v-if="!proceedButtonInvisible"
+                    v-if="!proceedButtonIsInvisible"
                     :disabled="proceedButtonDisabled"
                     prepend-icon="mdi-arrow-right"
                     @click="proceed"
@@ -45,86 +45,126 @@ import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-const router = useRouter()
 const route = useRoute()
+const router = useRouter()
 const store = useAppStore()
-const { orderInformation } = storeToRefs(store)
+const {
+    addressInformationIsComplete,
+    shipmentInformationIsComplete,
+    paymentInformationIsComplete,
+} = storeToRefs(store)
 
-const addressInformationComplete = computed(() => {
-    return (
-        orderInformation.value.billingAddress != undefined &&
-        orderInformation.value.deliveryAddress != undefined
-    )
-})
-
-const paymentInformationComplete = computed(() => {
-    return orderInformation.value.paymentInformation?.id
-})
-
+/**
+ * Whether the user has arrived at the checkout summary page.
+ */
 const userHasArrivedAtCheckoutSummary = computed(() => {
     return route.name === routeNames.checkoutSummary
 })
 
+/**
+ * Whether the user cannot cancel the checkout process.
+ */
 const userCannotCancel = computed(() => {
     return userHasArrivedAtCheckoutSummary.value
 })
 
-const backButtonDisabled = computed(() => {
+/**
+ * Whether the back button is disabled.
+ */
+const backButtonIsDisabled = computed(() => {
     return userHasArrivedAtCheckoutSummary.value
 })
 
-const proceedButtonDisabled = computed(() => {
-    if (route.name === routeNames.checkoutAddress) {
-        return !addressInformationComplete.value
-    } else if (route.name === routeNames.checkoutPayment) {
-        return !paymentInformationComplete.value
-    } else {
-        return userHasArrivedAtCheckoutSummary.value
-    }
-})
-
-const proceedButtonInvisible = computed(() => {
+/**
+ * Whether the proceed button is invisible.
+ */
+const proceedButtonIsInvisible = computed(() => {
     return userHasArrivedAtCheckoutSummary.value
 })
 
-const checkoutAddressDisabled = computed(() => {
+/**
+ * Whether the stage for the address information is disabled.
+ */
+const addressStageIsDisabled = computed(() => {
     return userHasArrivedAtCheckoutSummary.value
 })
 
-const checkoutPaymentDisabled = computed(() => {
+/**
+ * Whether the stage for the shipment information is disabled.
+ */
+const shipmentStageIsDisabled = computed(() => {
     return (
         userHasArrivedAtCheckoutSummary.value ||
-        !addressInformationComplete.value
+        !addressInformationIsComplete.value
     )
 })
 
-const checkoutSummaryDisabled = computed(() => {
+/**
+ * Whether the stage for the payment information is disabled.
+ */
+const paymentStageIsDisabled = computed(() => {
+    return (
+        userHasArrivedAtCheckoutSummary.value ||
+        !addressInformationIsComplete.value ||
+        !shipmentInformationIsComplete.value
+    )
+})
+
+/**
+ * Whether the stage for the order summary is disabled.
+ */
+const summaryStageIsDisabled = computed(() => {
     return !userHasArrivedAtCheckoutSummary.value
 })
 
+/**
+ * The stages (or steps) of the checkout process for the v-breadcrumbs component.
+ */
 const checkoutStages = ref([
     {
         title: 'Address',
-        disabled: checkoutAddressDisabled,
+        disabled: addressStageIsDisabled,
         to: {
             name: routeNames.checkoutAddress,
         },
     },
     {
+        title: 'Shipment',
+        disabled: shipmentStageIsDisabled,
+        to: {
+            name: routeNames.checkoutShipment,
+        },
+    },
+    {
         title: 'Payment',
-        disabled: checkoutPaymentDisabled,
+        disabled: paymentStageIsDisabled,
         to: {
             name: routeNames.checkoutPayment,
         },
     },
     {
         title: 'Summary',
-        disabled: checkoutSummaryDisabled,
+        disabled: summaryStageIsDisabled,
         to: {
             name: routeNames.checkoutSummary,
         },
     },
 ])
+
+/**
+ * Whether the proceed button is disabled.
+ */
+const proceedButtonDisabled = computed(() => {
+    if (route.name === routeNames.checkoutAddress) {
+        return shipmentStageIsDisabled.value
+    } else if (route.name === routeNames.checkoutShipment) {
+        return paymentStageIsDisabled.value
+    } else if (route.name === routeNames.checkoutPayment) {
+        return !paymentInformationIsComplete.value
+    } else {
+        return userHasArrivedAtCheckoutSummary.value
+    }
+})
 
 /**
  * Navigates back to the previous page using the router.
@@ -144,10 +184,11 @@ function cancel(): void {
 }
 
 /**
- * Proceeds to the next step of the checkout process if conditions are met.
- * If the user has arrived at the checkout summary, returns early.
- * If the user is at the checkout address step and the address information is complete, proceeds to the checkout payment step.
- * If the user is at the checkout payment step and the payment information is complete, proceeds to the checkout summary step.
+ * Proceeds to the next step in the checkout process based on the current route and button state.
+ * If the user has already arrived at the checkout summary, the function does nothing.
+ * If the current route is checkout address and the proceed button is enabled, navigates to checkout shipment.
+ * If the current route is checkout shipment and the proceed button is enabled, navigates to checkout payment.
+ * If the current route is checkout payment and the proceed button is enabled, makes the order and navigates to checkout summary.
  */
 function proceed(): void {
     if (userHasArrivedAtCheckoutSummary.value) {
@@ -156,13 +197,19 @@ function proceed(): void {
 
     var whereToPushTo: string | null = null
     if (route.name === routeNames.checkoutAddress) {
-        if (addressInformationComplete.value) {
+        if (!proceedButtonDisabled.value) {
+            whereToPushTo = routeNames.checkoutShipment
+        } else {
+            return
+        }
+    } else if (route.name === routeNames.checkoutShipment) {
+        if (!proceedButtonDisabled.value) {
             whereToPushTo = routeNames.checkoutPayment
         } else {
             return
         }
     } else if (route.name === routeNames.checkoutPayment) {
-        if (paymentInformationComplete.value) {
+        if (!proceedButtonDisabled.value) {
             // TODO: Make the order
 
             whereToPushTo = routeNames.checkoutSummary
@@ -171,7 +218,7 @@ function proceed(): void {
         }
     }
 
-    if (whereToPushTo != undefined) {
+    if (whereToPushTo) {
         router.push({
             name: whereToPushTo,
         })

@@ -46,3 +46,49 @@ export function inputIsRequired(input: string): boolean | string {
         return 'Mandatory'
     }
 }
+
+/**
+ * Checks if the provided string is a valid credit card number.
+ * @param input - The credit card number to validate.
+ * @returns - Returns true if the input is a valid credit card number,
+ * otherwise returns a string indicating the validation error
+ * or false if the input is empty or not a string.
+ */
+export function isValidCreditCardNumber(input: string): boolean | string {
+    if (typeof input !== 'string' || input.length === 0) {
+        return false
+    }
+
+    // Remove white space characters from the input string
+    const strippedInput = input.replace(/\s/g, '')
+
+    // Check if the stripped input contains only digits and has a length between 12 and 16
+    if (/^\d{12,16}$/.test(strippedInput)) {
+        return true
+    } else {
+        return 'Please enter a valid credit card number with 12 to 16 digits.'
+    }
+}
+
+/**
+ * Checks if the provided string is a valid credit card expiration date in the MM/YY or MM/YYYY format.
+ * @param input - The expiration date to validate.
+ * @returns - Returns true if the input is a valid expiration date,
+ * otherwise returns a string indicating the validation error
+ * or false if the input is empty or not a string.
+ */
+export function isValidCreditCardExpirationDate(
+    input: string
+): boolean | string {
+    if (typeof input !== 'string' || input.length === 0) {
+        return false
+    }
+
+    const regex = /^(0[1-9]|1[0-2])\/(20)?\d{2}$/ // Regular expression to match MM/YY or MM/YYYY format
+
+    if (regex.test(input)) {
+        return true
+    } else {
+        return 'The input does not match the MM/YY or MM/YYYY format. Example: 01/24 or 01/2024'
+    }
+}

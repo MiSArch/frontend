@@ -111,6 +111,30 @@ export const useAppStore = defineStore('app', {
         shoppingCartIsEnabled(): boolean {
             return this.isLoggedIn && this.activeUserRoleIsBuyer
         },
+        /**
+         * Checks whether the address information for the order is complete.
+         * @returns - Returns true if both the delivery and billing addresses have valid IDs, otherwise returns false.
+         */
+        addressInformationIsComplete(): boolean {
+            return (
+                this.orderInformation.deliveryAddress?.id != undefined &&
+                this.orderInformation.billingAddress?.id != undefined
+            )
+        },
+        /**
+         * Checks whether the shipment information for the order is complete.
+         * @returns - Returns true if the shipment method has a valid ID, otherwise returns false.
+         */
+        shipmentInformationIsComplete(): boolean {
+            return this.orderInformation.shipmentMethod?.id != undefined
+        },
+        /**
+         * Checks whether the payment information for the order is complete.
+         * @returns - Returns true if the payment information has a valid ID, otherwise returns false.
+         */
+        paymentInformationIsComplete(): boolean {
+            return this.orderInformation.paymentInformation?.id != undefined
+        },
     },
     actions: {
         /**

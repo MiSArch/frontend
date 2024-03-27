@@ -79,6 +79,12 @@ const routes = [
                     import('@/views/checkout/AddressInformationView.vue'),
             },
             {
+                path: 'shipment',
+                name: routeNames.checkoutShipment,
+                component: () =>
+                    import('@/views/checkout/ShipmentInformationView.vue'),
+            },
+            {
                 path: 'payment',
                 name: routeNames.checkoutPayment,
                 component: () =>

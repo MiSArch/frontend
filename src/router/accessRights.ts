@@ -112,6 +112,7 @@ export function canAccess(
         checkout: 'canAccessCheckout',
         'checkout-address': 'canAccessCheckout',
         'checkout-payment': 'canAccessCheckout',
+        'checkout-shipment': 'canAccessCheckout',
         'checkout-summary': 'canAccessCheckout',
         'manage-categories': 'canAccessManageCategories',
         'manage-products': 'canAccessManageProducts',

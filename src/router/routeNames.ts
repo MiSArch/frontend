@@ -6,6 +6,7 @@ export const routeNames: { [key: string]: string } = {
     category: 'category',
     checkoutAddress: 'checkout-address',
     checkoutPayment: 'checkout-payment',
+    checkoutShipment: 'checkout-shipment',
     checkoutSummary: 'checkout-summary',
     manageCategories: 'manage-categories',
     manageProducts: 'manage-products',
