@@ -64,4 +64,6 @@ export const errorMessages = {
         'Could not add new credit card information.',
     // shipment
     getShipmentMethods: 'Could not get the shipment methods.',
+    // order
+    createOrder: 'Could not create the order.',
 }

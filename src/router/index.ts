@@ -91,10 +91,11 @@ const routes = [
                     import('@/views/checkout/PaymentInformationView.vue'),
             },
             {
-                path: 'summary',
+                path: 'summary/:orderId',
                 name: routeNames.checkoutSummary,
                 component: () =>
                     import('@/views/checkout/OrderSummaryView.vue'),
+                props: true,
             },
         ],
         component: () => import('@/layouts/checkout/TheCheckoutLayout.vue'),

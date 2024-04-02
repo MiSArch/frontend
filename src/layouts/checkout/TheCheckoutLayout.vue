@@ -41,6 +41,7 @@ import TheAppBar from '../default/TheAppBar.vue'
 import Notifications from '@/components/Notifications.vue'
 import { routeNames } from '@/router/routeNames'
 import { useAppStore } from '@/store/app'
+import { createOrder } from '@/store/orderManagement'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -50,8 +51,10 @@ const router = useRouter()
 const store = useAppStore()
 const {
     addressInformationIsComplete,
-    shipmentInformationIsComplete,
+    currentUserId,
+    order,
     paymentInformationIsComplete,
+    shipmentInformationIsComplete,
 } = storeToRefs(store)
 
 /**
@@ -111,13 +114,6 @@ const paymentStageIsDisabled = computed(() => {
 })
 
 /**
- * Whether the stage for the order summary is disabled.
- */
-const summaryStageIsDisabled = computed(() => {
-    return !userHasArrivedAtCheckoutSummary.value
-})
-
-/**
  * The stages (or steps) of the checkout process for the v-breadcrumbs component.
  */
 const checkoutStages = ref([
@@ -140,13 +136,6 @@ const checkoutStages = ref([
         disabled: paymentStageIsDisabled,
         to: {
             name: routeNames.checkoutPayment,
-        },
-    },
-    {
-        title: 'Summary',
-        disabled: summaryStageIsDisabled,
-        to: {
-            name: routeNames.checkoutSummary,
         },
     },
 ])
@@ -188,9 +177,9 @@ function cancel(): void {
  * If the user has already arrived at the checkout summary, the function does nothing.
  * If the current route is checkout address and the proceed button is enabled, navigates to checkout shipment.
  * If the current route is checkout shipment and the proceed button is enabled, navigates to checkout payment.
- * If the current route is checkout payment and the proceed button is enabled, makes the order and navigates to checkout summary.
+ * If the current route is checkout payment and the proceed button is enabled, makes the order and navigates to the order summary.
  */
-function proceed(): void {
+async function proceed(): Promise<void> {
     if (userHasArrivedAtCheckoutSummary.value) {
         return
     }
@@ -210,12 +199,10 @@ function proceed(): void {
         }
     } else if (route.name === routeNames.checkoutPayment) {
         if (!proceedButtonDisabled.value) {
-            // TODO: Make the order
-
-            whereToPushTo = routeNames.checkoutSummary
-        } else {
-            return
+            await createOrderAndNavigateToOrderSummary()
         }
+
+        return
     }
 
     if (whereToPushTo) {
@@ -223,5 +210,22 @@ function proceed(): void {
             name: whereToPushTo,
         })
     }
+}
+
+/**
+ * Creates an order based on the current order details and user ID, then navigates to the order summary page.
+ * @returns - A promise that resolves after the order is created and the navigation to the order summary page is completed.
+ */
+async function createOrderAndNavigateToOrderSummary(): Promise<void> {
+    if (currentUserId.value == undefined) {
+        return
+    }
+    const idOfCreatedOrder = await createOrder(order.value, currentUserId.value)
+    router.push({
+        name: routeNames.checkoutSummary,
+        params: {
+            orderId: idOfCreatedOrder,
+        },
+    })
 }
 </script>
