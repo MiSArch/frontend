@@ -18,7 +18,8 @@ import {
     getShoppingCartOfUser,
     updateShoppingCartItem,
 } from './shoppingCartManagement'
-import { OrderInformationImpl } from '@/model/classes/OrderInformationImpl'
+import { OrderImpl } from '@/model/classes/orderImpl'
+import { OrderItemImpl } from '@/model/classes/orderItemImpl'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
@@ -49,7 +50,7 @@ export const useAppStore = defineStore('app', {
         activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
         shoppingCart: emptyShoppingCart,
-        orderInformation: new OrderInformationImpl(),
+        order: new OrderImpl(),
     }),
     getters: {
         token(): string | undefined {
@@ -117,23 +118,27 @@ export const useAppStore = defineStore('app', {
          */
         addressInformationIsComplete(): boolean {
             return (
-                this.orderInformation.deliveryAddress?.id != undefined &&
-                this.orderInformation.billingAddress?.id != undefined
+                this.order.deliveryAddress?.id != undefined &&
+                this.order.billingAddress?.id != undefined
             )
         },
         /**
          * Checks whether the shipment information for the order is complete.
-         * @returns - Returns true if the shipment method has a valid ID, otherwise returns false.
+         * @returns - Returns true if for each order item the shipment method has a valid ID, otherwise returns false.
          */
         shipmentInformationIsComplete(): boolean {
-            return this.orderInformation.shipmentMethod?.id != undefined
+            return (
+                this.order.items?.filter(
+                    (orderItem) => orderItem.shipmentMethod?.id == undefined
+                ).length === 0
+            )
         },
         /**
          * Checks whether the payment information for the order is complete.
          * @returns - Returns true if the payment information has a valid ID, otherwise returns false.
          */
         paymentInformationIsComplete(): boolean {
-            return this.orderInformation.paymentInformation?.id != undefined
+            return this.order.paymentInformation?.id != undefined
         },
     },
     actions: {
@@ -509,17 +514,23 @@ export const useAppStore = defineStore('app', {
             await this.restoreTheShoppingCart()
         },
         /**
-         * Resets the order information to a state where no information has been provided.
+         * Resets the order to a state where no information has been provided.
          */
-        resetOrderInformationToUndefined() {
-            if (this.orderInformation == undefined) {
+        resetOrderToUndefined() {
+            this.order = new OrderImpl()
+        },
+        /**
+         * Creates order items based on the items in the shopping cart and assigns them to the order.
+         * If the order is undefined, the function returns without creating order items.
+         */
+        createOrderItems() {
+            if (this.order == undefined) {
                 return
             }
 
-            this.orderInformation.deliveryAddress = undefined
-            this.orderInformation.billingAddress = undefined
-            this.orderInformation.shipmentMethod = undefined
-            this.orderInformation.paymentInformation = undefined
+            this.order.items = this.shoppingCart.items.map(
+                (shoppingCartItem) => new OrderItemImpl(shoppingCartItem)
+            )
         },
     },
 })

@@ -32,12 +32,12 @@ import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 
 const store = useAppStore()
-const { orderInformation } = storeToRefs(store)
+const { order } = storeToRefs(store)
 
 const triggerForQueryingOfDeliveryAddresses = ref<number>(0)
 
 const selectedDeliveryAddress = ref<AddressImpl | undefined>(
-    orderInformation.value.deliveryAddress
+    order.value.deliveryAddress
 )
 
 watch(
@@ -48,7 +48,7 @@ watch(
 const triggerForQueryingOfBillingAddresses = ref<number>(0)
 
 const selectedBillingAddress = ref<AddressImpl | undefined>(
-    orderInformation.value.billingAddress
+    order.value.billingAddress
 )
 
 watch(
@@ -57,8 +57,7 @@ watch(
 )
 
 const billingAddressDiffersFromDeliveryAddress = ref(
-    orderInformation.value.billingAddress?.id !==
-        orderInformation.value.deliveryAddress?.id
+    order.value.billingAddress?.id !== order.value.deliveryAddress?.id
 )
 
 watch(
@@ -90,13 +89,13 @@ function onSelectedDeliveryAddressChanged() {
  * Updates the delivery address of the order information to the currently selected delivery address.
  */
 function updateDeliveryAddressOfOrderInformation(): void {
-    orderInformation.value.deliveryAddress = selectedDeliveryAddress.value
+    order.value.deliveryAddress = selectedDeliveryAddress.value
 }
 
 /**
  * Updates the billing address of the order information to the currently selected billing address.
  */
 function updateBillingAddressOfOrderInformation() {
-    orderInformation.value.billingAddress = selectedBillingAddress.value
+    order.value.billingAddress = selectedBillingAddress.value
 }
 </script>

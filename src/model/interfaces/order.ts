@@ -1,18 +1,18 @@
 import { Address } from './Address'
+import { OrderItem } from './orderItem'
 import { PaymentInformation } from './PaymentInformation'
-import { ShipmentMethod } from './ShipmentMethod'
 
 /**
- * Interface representing information required to make an order.
+ * Interface representing an order.
  * @interface
+ * @property [items] - The items that make up the order.
  * @property [deliveryAddress] - The delivery address for the order.
  * @property [billingAddress] - The billing address for the order.
- * @property [shipmentMethod] - The shipment method for the delivery of the order.
  * @property [paymentInformation] - The payment information for the order.
  */
-export interface OrderInformation {
+export interface Order {
+    items?: OrderItem[]
     deliveryAddress?: Address
     billingAddress?: Address
-    shipmentMethod?: ShipmentMethod
     paymentInformation?: PaymentInformation
 }

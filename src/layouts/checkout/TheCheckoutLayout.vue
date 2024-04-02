@@ -180,7 +180,7 @@ function cancel(): void {
     router.push({
         name: routeNames.shoppingCart,
     })
-    store.resetOrderInformationToUndefined()
+    store.resetOrderToUndefined()
 }
 
 /**

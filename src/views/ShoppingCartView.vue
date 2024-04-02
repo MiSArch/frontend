@@ -79,12 +79,13 @@ async function removeShoppingCartItem(idOfShoppingCartItem: any) {
 }
 
 /**
- * Initiates the checkout process by resetting order information and navigating to the checkout view.
+ * Initiates the checkout process by resetting order information,
+ * creating the order items, and navigating to the checkout view.
  * This function is typically called when the user wants to proceed to checkout.
  */
 function userWantsToProceedToCheckout(): void {
-    // Reset order information to undefined to clear any previous selections
-    store.resetOrderInformationToUndefined()
+    store.resetOrderToUndefined()
+    store.createOrderItems()
 
     navigateToCheckoutView()
 }

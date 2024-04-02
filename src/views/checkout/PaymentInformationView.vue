@@ -38,13 +38,13 @@ import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 
 const store = useAppStore()
-const { orderInformation } = storeToRefs(store)
+const { order } = storeToRefs(store)
 
 /**
  * The payment method selected by the user.
  */
 const selectedPaymentMethod = ref<PaymentMethod | undefined>(
-    orderInformation.value.paymentInformation?.paymentMethod
+    order.value.paymentInformation?.paymentMethod
 )
 
 /**
@@ -130,9 +130,8 @@ const singlePrepaymentPaymentInformation = computed(() => {
  * The credit card selected by the user.
  */
 const selectedCreditCard = ref(
-    orderInformation.value.paymentInformation?.paymentMethod ===
-        PaymentMethod.CreditCard
-        ? orderInformation.value.paymentInformation
+    order.value.paymentInformation?.paymentMethod === PaymentMethod.CreditCard
+        ? order.value.paymentInformation
         : undefined
 )
 
@@ -171,8 +170,7 @@ function onSelectedPaymentMethodChanged() {
  */
 function onUserSelectedInvoice(): void {
     if (singleInvoicePaymentInformation.value) {
-        orderInformation.value.paymentInformation =
-            singleInvoicePaymentInformation.value
+        order.value.paymentInformation = singleInvoicePaymentInformation.value
     }
 }
 
@@ -182,7 +180,7 @@ function onUserSelectedInvoice(): void {
  */
 function onUserSelectedPrepayment(): void {
     if (singlePrepaymentPaymentInformation.value) {
-        orderInformation.value.paymentInformation =
+        order.value.paymentInformation =
             singlePrepaymentPaymentInformation.value
     }
 }
@@ -192,7 +190,7 @@ function onUserSelectedPrepayment(): void {
  * Sets the payment information for the order to the selected credit card.
  */
 function onUserSelectedCreditCard(): void {
-    orderInformation.value.paymentInformation = selectedCreditCard.value
+    order.value.paymentInformation = selectedCreditCard.value
 }
 
 /**

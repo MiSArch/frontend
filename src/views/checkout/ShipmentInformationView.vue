@@ -54,14 +54,12 @@ import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
 const store = useAppStore()
-const { orderInformation } = storeToRefs(store)
+const { order } = storeToRefs(store)
 
 /**
  * The shipment method selected by the user.
  */
-const selectedShipmentMethod = ref<ShipmentMethodImpl | undefined>(
-    orderInformation.value.shipmentMethod
-)
+const selectedShipmentMethod = ref<ShipmentMethodImpl | undefined>()
 
 /**
  * Watches the shipment method selected by the user and
@@ -69,7 +67,12 @@ const selectedShipmentMethod = ref<ShipmentMethodImpl | undefined>(
  */
 watch(
     () => selectedShipmentMethod.value,
-    () => (orderInformation.value.shipmentMethod = selectedShipmentMethod.value)
+    () => {
+        order.value.items?.forEach(
+            (orderItem) =>
+                (orderItem.shipmentMethod = selectedShipmentMethod.value)
+        )
+    }
 )
 
 /**
