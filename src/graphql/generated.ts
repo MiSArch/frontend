@@ -1748,6 +1748,30 @@ export type GetShipmentMethodsQuery = {
     }
 }
 
+export type GetAvailableShipmentMethodsQueryVariables = Exact<{
+    items:
+        | Array<ProductVariantVersionWithQuantityInput>
+        | ProductVariantVersionWithQuantityInput
+}>
+
+export type GetAvailableShipmentMethodsQuery = {
+    __typename?: 'Query'
+    shipmentMethods: {
+        __typename?: 'ShipmentMethodConnection'
+        totalCount: number
+        nodes: Array<{
+            __typename?: 'ShipmentMethod'
+            id: any
+            baseFees: number
+            description: string
+            feesPerItem: number
+            feesPerKg: number
+            name: string
+            calculatedFees: number
+        }>
+    }
+}
+
 export type GetShoppingCartOfUserQueryVariables = Exact<{
     id: Scalars['UUID']['input']
 }>
@@ -1773,6 +1797,7 @@ export type GetShoppingCartOfUserQuery = {
                         id: any
                         currentVersion: {
                             __typename?: 'ProductVariantVersion'
+                            id: any
                             name: string
                             retailPrice: number
                         }
@@ -2585,6 +2610,24 @@ export const GetShipmentMethodsDocument = gql`
         }
     }
 `
+export const GetAvailableShipmentMethodsDocument = gql`
+    query getAvailableShipmentMethods(
+        $items: [ProductVariantVersionWithQuantityInput!]!
+    ) {
+        shipmentMethods {
+            totalCount
+            nodes {
+                id
+                baseFees
+                description
+                feesPerItem
+                feesPerKg
+                name
+                calculatedFees: calculateFees(items: $items)
+            }
+        }
+    }
+`
 export const GetShoppingCartOfUserDocument = gql`
     query getShoppingCartOfUser($id: UUID!) {
         user(id: $id) {
@@ -2601,6 +2644,7 @@ export const GetShoppingCartOfUserDocument = gql`
                         productVariant {
                             id
                             currentVersion {
+                                id
                                 name
                                 retailPrice
                             }
@@ -3180,6 +3224,22 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'getShipmentMethods',
+                'query',
+                variables
+            )
+        },
+        getAvailableShipmentMethods(
+            variables: GetAvailableShipmentMethodsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetAvailableShipmentMethodsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetAvailableShipmentMethodsQuery>(
+                        GetAvailableShipmentMethodsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getAvailableShipmentMethods',
                 'query',
                 variables
             )

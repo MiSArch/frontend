@@ -8,6 +8,7 @@
  * @property productId - The unique identifier of the product associated with the item.
  * @property nameOfProductVariant - The name of the product variant.
  * @property retailPrice - The retail price of the product variant.
+ * @property productVariantVersionId - The unique identifier of the product variant version associated with the item.
  */
 export interface ShoppingCartItem {
     id: string
@@ -17,4 +18,5 @@ export interface ShoppingCartItem {
     productId: string
     nameOfProductVariant: string
     retailPrice: number
+    productVariantVersionId: string
 }

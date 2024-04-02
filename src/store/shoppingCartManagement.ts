@@ -51,6 +51,7 @@ export function extractShoppingCartInstanceFromQuery(
             productId: item.productVariant.product.id,
             nameOfProductVariant: item.productVariant.currentVersion.name,
             retailPrice: item.productVariant.currentVersion.retailPrice,
+            productVariantVersionId: item.productVariant.currentVersion.id,
         })
     })
 

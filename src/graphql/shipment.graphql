@@ -15,3 +15,20 @@ query getShipmentMethods($isArchived: Boolean = false) {
     }
   }
 }
+
+# For given product variant version and a quantity,
+# this query gets the shipment methods available to the user.
+query getAvailableShipmentMethods($items: [ProductVariantVersionWithQuantityInput!]!) {
+  shipmentMethods {
+    totalCount
+    nodes {
+      id
+      baseFees
+      description
+      feesPerItem
+      feesPerKg
+      name
+      calculatedFees: calculateFees(items: $items)
+    }
+  }
+}

@@ -25,6 +25,7 @@
                             :items="countOptions"
                             label="Amount"
                             v-model="selectedCount"
+                            :readonly="readonly"
                             style="min-width: 96px"
                             @update:model-value="emitCountChangedIfPossible"
                         ></v-select>
@@ -32,6 +33,7 @@
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn
+                            :disabled="readonly"
                             prepend-icon="mdi-delete"
                             @click="emitDeletedIfPossible"
                             >delete</v-btn
@@ -92,6 +94,10 @@ const props = defineProps({
     maximumCount: {
         type: Number,
         default: 10,
+    },
+    readonly: {
+        type: Boolean,
+        default: false,
     },
 })
 

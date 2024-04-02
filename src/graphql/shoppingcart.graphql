@@ -16,6 +16,7 @@ query getShoppingCartOfUser($id: UUID!) {
           productVariant {
             id
             currentVersion {
+              id
               name
               retailPrice
             }
