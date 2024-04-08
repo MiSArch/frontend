@@ -3,6 +3,11 @@ import { getSdk } from './generated'
 import { useAppStore } from '@/store/app'
 
 /**
+ * Type simply representing the return type of the useClient function.
+ */
+export type Client = ReturnType<typeof useClient>
+
+/**
  * Gets the GraphQL client to use for all GraphQL requests.
  *
  * @returns The GraphQL client.
