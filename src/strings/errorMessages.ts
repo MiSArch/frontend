@@ -66,4 +66,5 @@ export const errorMessages = {
     getShipmentMethods: 'Could not get the shipment methods.',
     // order
     createOrder: 'Could not create the order.',
+    getOrder: 'Could not load the order.',
 }

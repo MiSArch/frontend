@@ -214,6 +214,7 @@ async function proceed(): Promise<void> {
 
 /**
  * Creates an order based on the current order details and user ID, then navigates to the order summary page.
+ * Additionally "clears" or resets the order information of the app store to undefined.
  * @returns - A promise that resolves after the order is created and the navigation to the order summary page is completed.
  */
 async function createOrderAndNavigateToOrderSummary(): Promise<void> {
@@ -221,6 +222,7 @@ async function createOrderAndNavigateToOrderSummary(): Promise<void> {
         return
     }
     const idOfCreatedOrder = await createOrder(order.value, currentUserId.value)
+    store.resetOrderToUndefined()
     router.push({
         name: routeNames.checkoutSummary,
         params: {

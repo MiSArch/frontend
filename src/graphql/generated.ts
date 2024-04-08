@@ -1781,6 +1781,24 @@ export type CreateProductItemBatchMutation = {
     }>
 }
 
+export type GetOrderQueryVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type GetOrderQuery = {
+    __typename?: 'Query'
+    order: {
+        __typename?: 'Order'
+        id: any
+        compensatableOrderAmount: number
+        createdAt: any
+        orderStatus: OrderStatus
+        paymentInformationId: any
+        placedAt?: any | null
+        rejectionReason?: RejectionReason | null
+    }
+}
+
 export type CreateOrderMutationVariables = Exact<{
     input: CreateOrderInput
 }>
@@ -2661,6 +2679,19 @@ export const CreateProductItemBatchDocument = gql`
         }
     }
 `
+export const GetOrderDocument = gql`
+    query getOrder($id: UUID!) {
+        order(id: $id) {
+            id
+            compensatableOrderAmount
+            createdAt
+            orderStatus
+            paymentInformationId
+            placedAt
+            rejectionReason
+        }
+    }
+`
 export const CreateOrderDocument = gql`
     mutation CreateOrder($input: CreateOrderInput!) {
         createOrder(input: $input) {
@@ -3275,6 +3306,21 @@ export function getSdk(
                     ),
                 'createProductItemBatch',
                 'mutation',
+                variables
+            )
+        },
+        getOrder(
+            variables: GetOrderQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetOrderQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetOrderQuery>(GetOrderDocument, variables, {
+                        ...requestHeaders,
+                        ...wrappedRequestHeaders,
+                    }),
+                'getOrder',
+                'query',
                 variables
             )
         },

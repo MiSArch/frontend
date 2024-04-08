@@ -1,3 +1,19 @@
+# Queries:
+
+# Gets the order that has the specified ID.
+# Note, that this query does not get any associated entities of an order.
+query getOrder($id: UUID!) {
+  order(id: $id) {
+    id
+    compensatableOrderAmount
+    createdAt
+    orderStatus
+    paymentInformationId
+    placedAt
+    rejectionReason
+  }
+}
+
 # Mutations:
 
 # Creates an order based on the provided CreateOrderInput.
