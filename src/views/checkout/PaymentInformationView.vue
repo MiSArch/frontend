@@ -1,5 +1,6 @@
 <template>
     <div class="d-flex flex-column pa-4">
+        <div class="text-h5 pa-4">Total: {{ total }} EUR</div>
         <v-radio-group
             label="Choose a payment method"
             v-model="selectedPaymentMethod"
@@ -39,6 +40,13 @@ import { ref, watch } from 'vue'
 
 const store = useAppStore()
 const { order } = storeToRefs(store)
+
+/**
+ * The total value of the order -- what the user would have to pay.
+ */
+const total = computed(() => {
+    return order.value.calculateTotalCost()
+})
 
 /**
  * The payment method selected by the user.

@@ -86,7 +86,6 @@ import { errorMessages } from '@/strings/errorMessages'
 import { pushErrorNotification } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
-import OrderItem from './OrderItem.vue'
 
 const props = defineProps({
     orderItem: {
@@ -112,18 +111,6 @@ watch(
     () => selectedShipmentMethod.value,
     () => onSelectedShipmentMethodChanged()
 )
-
-/**
- * The fees calculated for the selected shipment method.
- */
-const calculatedFees = computed(() => {
-    if (selectedShipmentMethod.value) {
-        return shipmentMethodsNodes.value?.find(
-            (shipmentMethod) =>
-                shipmentMethod.id === selectedShipmentMethod.value?.id
-        )?.calculatedFees
-    }
-})
 
 /**
  * Query for getting the shipment methods available to the user.
@@ -189,6 +176,23 @@ const shipmentMethods = computed(() => {
 })
 
 /**
+ * The fees calculated for the selected shipment method.
+ */
+const calculatedFees = computed(() => {
+    if (selectedShipmentMethod.value) {
+        return shipmentMethodsNodes.value?.find(
+            (shipmentMethod) =>
+                shipmentMethod.id === selectedShipmentMethod.value?.id
+        )?.calculatedFees
+    }
+})
+
+watch(
+    () => calculatedFees.value,
+    () => onCalculatedFeesChanged()
+)
+
+/**
  * Whether the details regarding a shipment method are visible to the user.
  */
 const detailsVisible = ref(false)
@@ -201,5 +205,14 @@ function onSelectedShipmentMethodChanged(): void {
     props.orderItem.shipmentMethod = selectedShipmentMethod.value
 
     emits('update:orderItem', props.orderItem)
+}
+
+/**
+ * Takes the value of the calculatedFees computed ref and
+ * sets it on the orderItem.
+ * This function is intended to be called whenever the value of calculatedFees changes.
+ */
+function onCalculatedFeesChanged(): void {
+    props.orderItem.shippingFees = calculatedFees.value
 }
 </script>

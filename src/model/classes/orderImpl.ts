@@ -21,4 +21,21 @@ export class OrderImpl implements Order {
         public billingAddress?: Address,
         public paymentInformation?: PaymentInformation
     ) {}
+
+    /**
+     * Calculates the total cost of the order.
+     *
+     * This function computes the total cost of the order by summing up the total cost of each item.
+     *
+     * @returns The total cost of the order.
+     */
+    calculateTotalCost(): number {
+        const totalCostOfEachItem: number[] =
+            this.items?.map((orderItem) => orderItem.calculateTotalCost()) ?? []
+        const sumOfTotalCostOfEachItem: number = totalCostOfEachItem.reduce(
+            (accumulator, currentValue) => accumulator + currentValue,
+            0
+        )
+        return sumOfTotalCostOfEachItem
+    }
 }

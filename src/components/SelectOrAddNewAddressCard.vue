@@ -171,7 +171,6 @@ import {
 } from '@/graphql/generated'
 import { AddressImpl } from '@/model/classes/AddressImpl'
 import { Address } from '@/model/interfaces/Address'
-import { useAppStore } from '@/store/app'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     awaitActionAndPushErrorIfNecessary,
@@ -336,6 +335,11 @@ async function saveAddress(): Promise<void> {
             })
         }, errorMessages.createUserAddress)
 
+    store.pushNotification({
+        text: 'The address was saved.',
+        title: 'Address Saved',
+        type: 'success',
+    })
     emits('newAddressSaved')
     idOfSelectedAddress.value = response.createUserAddress.id
     queryAddressesOnceAgain()

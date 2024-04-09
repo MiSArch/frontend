@@ -13,7 +13,7 @@
                 <v-btn
                     :disabled="userCannotCancel"
                     prepend-icon="mdi-close"
-                    @click="cancel"
+                    @click="onUserWantsToCancel"
                     >cancel</v-btn
                 >
                 <v-btn
@@ -31,6 +31,18 @@
                 >
             </v-toolbar>
             <router-view />
+            <ConfirmOrCancelDialog
+                v-model="dialogToConfirmCancelationIsOpen"
+                message="Click confirm to cancel the checkout."
+                @canceled="closeDialogToConfirmCancelation"
+                @confirmed="onUserConfirmedCancellation"
+            />
+            <ConfirmOrCancelDialog
+                v-model="confirmOrCancelDialogIsOpen"
+                message="Click confirm to make the order."
+                @canceled="closeConfirmOrCancelDialog"
+                @confirmed="onUserConfirmedOrderCreation"
+            />
             <Notifications />
         </v-main>
     </v-app>
@@ -45,6 +57,7 @@ import { createOrder } from '@/store/orderManagement'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import ConfirmOrCancelDialog from '@/components/ConfirmOrCancelDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -163,6 +176,52 @@ function back(): void {
 }
 
 /**
+ * Whether the dialog that lets the user confirm (or cancel)
+ * the cancelation of the checkout is open or not.
+ */
+const dialogToConfirmCancelationIsOpen = ref(false)
+
+/**
+ * Opens the the dialog that lets the user confirm (or cancel)
+ * the cancelation of the checkout.
+ */
+function openDialogToConfirmCancelation(): void {
+    dialogToConfirmCancelationIsOpen.value = true
+}
+
+/**
+ * Closes the the dialog that lets the user confirm (or cancel)
+ * the cancelation of the checkout.
+ */
+function closeDialogToConfirmCancelation(): void {
+    dialogToConfirmCancelationIsOpen.value = false
+}
+
+/**
+ * Closes the the dialog that lets the user confirm (or cancel)
+ * the cancelation of the checkout and
+ * initiates the cancellation of the checkout.
+ */
+function onUserConfirmedCancellation(): void {
+    closeDialogToConfirmCancelation()
+    cancel()
+}
+
+/**
+ * Opens the the dialog that lets the user confirm (or cancel)
+ * the cancelation of the checkout if the user has not arrived at
+ * the checkout summary. If the user has actually already arrived at
+ * the checkout summary, the function simply initiates the cancellation of the checkout.
+ */
+function onUserWantsToCancel(): void {
+    if (userHasArrivedAtCheckoutSummary.value) {
+        cancel()
+    } else {
+        openDialogToConfirmCancelation()
+    }
+}
+
+/**
  * Navigates to the shopping cart page using the router and resets the order information.
  */
 function cancel(): void {
@@ -199,7 +258,7 @@ async function proceed(): Promise<void> {
         }
     } else if (route.name === routeNames.checkoutPayment) {
         if (!proceedButtonDisabled.value) {
-            await createOrderAndNavigateToOrderSummary()
+            openConfirmOrCancelDialog()
         }
 
         return
@@ -229,5 +288,34 @@ async function createOrderAndNavigateToOrderSummary(): Promise<void> {
             orderId: idOfCreatedOrder,
         },
     })
+}
+
+/**
+ * Whether the confirmation dialog is open.
+ */
+const confirmOrCancelDialogIsOpen = ref(false)
+
+/**
+ * Opens the confirmation dialog.
+ */
+function openConfirmOrCancelDialog(): void {
+    confirmOrCancelDialogIsOpen.value = true
+}
+
+/**
+ * Closes the confirmation dialog.
+ */
+function closeConfirmOrCancelDialog(): void {
+    confirmOrCancelDialogIsOpen.value = false
+}
+
+/**
+ * Closes the confirmation dialog,
+ * awaits the creation of the order,
+ * and navigates to the order summary.
+ */
+async function onUserConfirmedOrderCreation(): Promise<void> {
+    closeConfirmOrCancelDialog()
+    await createOrderAndNavigateToOrderSummary()
 }
 </script>
