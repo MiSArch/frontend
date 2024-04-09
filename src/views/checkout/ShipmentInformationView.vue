@@ -1,6 +1,6 @@
 <template>
-    <div class="d-flex flex-column pa-4">
-        <div class="d-flex h-auto">
+    <div class="d-flex justify-center">
+        <div class="d-flex h-auto w-75">
             <v-virtual-scroll :items="order.items">
                 <template v-slot:default="{ item }">
                     <v-list-item>

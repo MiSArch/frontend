@@ -1,26 +1,28 @@
 <template>
-    <div class="d-flex flex-column pa-4">
-        <SelectOrAddNewAddressCard
-            purpose="delivery"
-            :trigger-for-querying-of-addresses="
-                triggerForQueryingOfDeliveryAddresses
-            "
-            v-model:address="selectedDeliveryAddress"
-            @new-address-saved="triggerForQueryingOfBillingAddresses++"
-        />
-        <v-checkbox
-            label="The billing address differs from the delivery address."
-            v-model="billingAddressDiffersFromDeliveryAddress"
-        ></v-checkbox>
-        <SelectOrAddNewAddressCard
-            v-show="billingAddressDiffersFromDeliveryAddress"
-            purpose="billing"
-            :trigger-for-querying-of-addresses="
-                triggerForQueryingOfBillingAddresses
-            "
-            v-model:address="selectedBillingAddress"
-            @new-address-saved="triggerForQueryingOfDeliveryAddresses++"
-        />
+    <div class="d-flex justify-center">
+        <div class="d-flex flex-column w-75 ga-4">
+            <SelectOrAddNewAddressCard
+                purpose="delivery"
+                :trigger-for-querying-of-addresses="
+                    triggerForQueryingOfDeliveryAddresses
+                "
+                v-model:address="selectedDeliveryAddress"
+                @new-address-saved="triggerForQueryingOfBillingAddresses++"
+            />
+            <v-checkbox
+                label="The billing address differs from the delivery address."
+                v-model="billingAddressDiffersFromDeliveryAddress"
+            ></v-checkbox>
+            <SelectOrAddNewAddressCard
+                v-show="billingAddressDiffersFromDeliveryAddress"
+                purpose="billing"
+                :trigger-for-querying-of-addresses="
+                    triggerForQueryingOfBillingAddresses
+                "
+                v-model:address="selectedBillingAddress"
+                @new-address-saved="triggerForQueryingOfDeliveryAddresses++"
+            />
+        </div>
     </div>
 </template>
 

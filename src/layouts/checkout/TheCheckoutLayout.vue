@@ -30,7 +30,7 @@
                     >proceed</v-btn
                 >
             </v-toolbar>
-            <router-view />
+            <router-view class="pa-4" />
             <ConfirmOrCancelDialog
                 v-model="dialogToConfirmCancelationIsOpen"
                 message="Click confirm to cancel the checkout."

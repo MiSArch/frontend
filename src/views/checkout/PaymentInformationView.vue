@@ -1,29 +1,31 @@
 <template>
-    <div class="d-flex flex-column pa-4">
-        <div class="text-h5 pa-4">Total: {{ total }} EUR</div>
-        <v-radio-group
-            label="Choose a payment method"
-            v-model="selectedPaymentMethod"
-        >
-            <v-radio
-                v-if="singleInvoicePaymentInformation"
-                label="Invoice"
-                :value="PaymentMethod.Invoice"
-            ></v-radio>
-            <v-radio
-                v-if="singlePrepaymentPaymentInformation"
-                label="Prepayment"
-                :value="PaymentMethod.Prepayment"
-            ></v-radio>
-            <v-radio
-                label="Credit Card"
-                :value="PaymentMethod.CreditCard"
-            ></v-radio>
-        </v-radio-group>
-        <SelectOrAddNewCreditCardCard
-            v-show="selectedPaymentMethodIsCreditCard"
-            v-model:credit-card="selectedCreditCard"
-        />
+    <div class="d-flex justify-center">
+        <div class="d-flex flex-column w-75 ga-4">
+            <div class="text-h5 pa-4">Total: {{ total }} EUR</div>
+            <v-radio-group
+                label="Choose a payment method"
+                v-model="selectedPaymentMethod"
+            >
+                <v-radio
+                    v-if="singleInvoicePaymentInformation"
+                    label="Invoice"
+                    :value="PaymentMethod.Invoice"
+                ></v-radio>
+                <v-radio
+                    v-if="singlePrepaymentPaymentInformation"
+                    label="Prepayment"
+                    :value="PaymentMethod.Prepayment"
+                ></v-radio>
+                <v-radio
+                    label="Credit Card"
+                    :value="PaymentMethod.CreditCard"
+                ></v-radio>
+            </v-radio-group>
+            <SelectOrAddNewCreditCardCard
+                v-show="selectedPaymentMethodIsCreditCard"
+                v-model:credit-card="selectedCreditCard"
+            />
+        </div>
     </div>
 </template>
 
