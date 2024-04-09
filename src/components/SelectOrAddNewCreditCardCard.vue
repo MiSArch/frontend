@@ -123,7 +123,6 @@ import {
     isValidCreditCardExpirationDate,
 } from '@/util/rules'
 import { asyncComputed } from '@vueuse/core'
-import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
@@ -150,6 +149,8 @@ watch(
  * newCreditCardSaved -- Says that a new credit card has been saved for the current user.
  */
 const emits = defineEmits(['update:creditCard', 'newCreditCardSaved'])
+
+const store = useAppStore()
 
 const client = useClient()
 
@@ -296,6 +297,11 @@ async function saveCreditCard(): Promise<void> {
             })
         }, errorMessages.createCreditCardPaymentInformation)
 
+    store.pushNotification({
+        text: 'The credit card was saved.',
+        title: 'Credit Card Saved',
+        type: 'success',
+    })
     emits('newCreditCardSaved')
     idOfSelectedCreditCard.value =
         response.createCreditCardPaymentInformation.id

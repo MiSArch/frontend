@@ -171,6 +171,7 @@ import {
 } from '@/graphql/generated'
 import { AddressImpl } from '@/model/classes/AddressImpl'
 import { Address } from '@/model/interfaces/Address'
+import { useAppStore } from '@/store/app'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     awaitActionAndPushErrorIfNecessary,
