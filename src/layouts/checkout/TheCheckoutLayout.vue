@@ -44,6 +44,16 @@
                 @confirmed="onUserConfirmedOrderCreation"
             />
             <Notifications />
+            <v-overlay
+                class="d-flex align-center justify-center"
+                v-model="isAwaitingOrderCreation"
+                persistent
+            >
+                <v-progress-circular
+                    color="primary"
+                    indeterminate
+                ></v-progress-circular>
+            </v-overlay>
         </v-main>
     </v-app>
 </template>
@@ -69,6 +79,11 @@ const {
     paymentInformationIsComplete,
     shipmentInformationIsComplete,
 } = storeToRefs(store)
+
+/**
+ * Whether this component is awaiting the order service's creation of the order right now.
+ */
+const isAwaitingOrderCreation = ref(false)
 
 /**
  * Whether the user has arrived at the checkout summary page.
@@ -280,7 +295,17 @@ async function createOrderAndNavigateToOrderSummary(): Promise<void> {
     if (currentUserId.value == undefined) {
         return
     }
-    const idOfCreatedOrder = await createOrder(order.value, currentUserId.value)
+    isAwaitingOrderCreation.value = true
+    try {
+        var idOfCreatedOrder = await createOrder(
+            order.value,
+            currentUserId.value
+        )
+    } catch (error) {
+        throw error
+    } finally {
+        isAwaitingOrderCreation.value = false
+    }
     store.resetOrderToUndefined()
     router.push({
         name: routeNames.checkoutSummary,
