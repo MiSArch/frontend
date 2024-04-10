@@ -1,26 +1,40 @@
 <template>
     <div class="d-flex justify-center">
         <div class="d-flex flex-column w-75 ga-4">
-            <div class="text-h5 pa-4">Total: {{ total }} EUR</div>
+            <div class="text-h5">Total: {{ total }} EUR</div>
             <v-radio-group
                 label="Choose a payment method"
                 v-model="selectedPaymentMethod"
             >
                 <v-radio
                     v-if="singleInvoicePaymentInformation"
-                    label="Invoice"
+                    class="text-capitalize"
+                    :label="PaymentMethod.Invoice"
                     :value="PaymentMethod.Invoice"
                 ></v-radio>
                 <v-radio
                     v-if="singlePrepaymentPaymentInformation"
-                    label="Prepayment"
+                    class="text-capitalize"
+                    :label="PaymentMethod.Prepayment"
                     :value="PaymentMethod.Prepayment"
                 ></v-radio>
                 <v-radio
-                    label="Credit Card"
+                    class="text-capitalize"
+                    :label="PaymentMethod.CreditCard"
                     :value="PaymentMethod.CreditCard"
                 ></v-radio>
             </v-radio-group>
+            <div
+                v-if="selectedPaymentMethod != undefined"
+                class="d-flex flex-column w-50 ga-2 mb-4"
+            >
+                <div class="text-body-2">
+                    What the chosen payment method implies:
+                </div>
+                <div class="text-body-1">
+                    {{ paymentMethodDescription.get(selectedPaymentMethod) }}
+                </div>
+            </div>
             <SelectOrAddNewCreditCardCard
                 v-show="selectedPaymentMethodIsCreditCard"
                 v-model:credit-card="selectedCreditCard"
@@ -64,6 +78,24 @@ watch(
     () => selectedPaymentMethod.value,
     () => onSelectedPaymentMethodChanged()
 )
+
+/**
+ * Map containing descriptions for each order status.
+ */
+const paymentMethodDescription = new Map<PaymentMethod, string>([
+    [
+        PaymentMethod.Invoice,
+        'Receive now, pay later. With an invoice, you can get your item before paying, with the flexibility to settle the bill within a specified timeframe after delivery.',
+    ],
+    [
+        PaymentMethod.Prepayment,
+        'Pay upfront for peace of mind. With prepayment, you settle the bill before your items are shipped, ensuring a smooth transaction without any payment concerns upon delivery.',
+    ],
+    [
+        PaymentMethod.CreditCard,
+        "Instant convenience with your card. When you choose credit card payment, you can buy your item right away, and the amount is charged to your card. It's a quick and hassle-free way to shop online.",
+    ],
+])
 
 /**
  * Whether the selected payment method is a credit card.
