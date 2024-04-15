@@ -380,15 +380,13 @@
                             </v-row>
                             <v-row align="start" dense>
                                 <v-col>Returns:</v-col>
-                                <v-col
-                                    >Returnable within
-                                    {{
-                                        productVariantInfoRelevantToBuyer
-                                            ?.currentVersion
-                                            .canBeReturnedForDays
-                                    }}
-                                    days of receipt.</v-col
-                                >
+                                <v-col v-if="canBeReturnedAtAnyTime">
+                                    Can be returned at any time.
+                                </v-col>
+                                <v-col v-else>
+                                    Returnable within
+                                    {{ canBeReturnedForDays }} days of receipt.
+                                </v-col>
                             </v-row>
                         </v-container>
                     </v-card-text>
@@ -1069,4 +1067,21 @@ async function addToCart() {
         )
     }
 }
+
+/**
+ * Information on how long the product version can be returned, 'measured' in number of days.
+ */
+const canBeReturnedForDays = computed(() => {
+    if (productVariantInfoRelevantToBuyer.value) {
+        return productVariantInfoRelevantToBuyer.value.currentVersion
+            .canBeReturnedForDays
+    }
+})
+
+/**
+ * Whether the current product version can be returned at any time.
+ */
+const canBeReturnedAtAnyTime = computed(() => {
+    return canBeReturnedForDays.value === null
+})
 </script>
