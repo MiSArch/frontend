@@ -282,10 +282,17 @@ async function saveCreditCard(): Promise<void> {
         return
     }
 
+    const creditCardExpirationDateParsed = parseExpirationDate(
+        creditCardExpirationDate.value
+    )
+    if (creditCardExpirationDateParsed == undefined) {
+        return
+    }
+
     const input: CreateCreditCardInformationInput = {
         cardHolder: creditCardHolder.value,
         cardNumber: creditCardNumber.value,
-        expirationDate: creditCardExpirationDate.value,
+        expirationDate: creditCardExpirationDateParsed,
     }
 
     const response: CreateCreditCardPaymentInformationMutation =
@@ -368,5 +375,25 @@ function selectCreditCard(id: string): void {
         undefined
     console.log(foundCreditCard)
     selectedCreditCard.value = foundCreditCard
+}
+
+/**
+ * Parses the expiration date from the input string.
+ * @param input The input string representing the expiration date, formatted as "MM/YY" or "MM/YYYY".
+ * @returns A string representing the expiration date in the format "MM/YY", or undefined if the input is invalid.
+ */
+function parseExpirationDate(input: string): string | undefined {
+    if (isValidCreditCardExpirationDate(input) !== true) {
+        return undefined
+    }
+
+    const separator = '/'
+    const expirationDateParts = input.split(separator)
+    const expirationDateMonth = parseInt(expirationDateParts[0], 10)
+    const expirationDateYear =
+        parseInt(expirationDateParts[1], 10) -
+        (expirationDateParts[1].length === 2 ? 0 : 2000)
+
+    return expirationDateMonth + separator + expirationDateYear
 }
 </script>
