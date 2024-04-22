@@ -56,9 +56,8 @@
                             <v-row>
                                 <v-col cols="6">
                                     <v-text-field
-                                        class="text-capitalize"
                                         clearable
-                                        label="number"
+                                        label="Number"
                                         prepend-icon="mdi-credit-card"
                                         required
                                         :rules="[
@@ -72,9 +71,8 @@
                                 </v-col>
                                 <v-col cols="3">
                                     <v-text-field
-                                        class="text-capitalize"
                                         clearable
-                                        label="expiration date"
+                                        label="Expiration Date"
                                         prepend-icon="mdi-timer-sand-complete"
                                         required
                                         :rules="[

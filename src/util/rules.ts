@@ -73,9 +73,8 @@ export function isValidCreditCardNumber(input: string): boolean | string {
 /**
  * Checks if the provided string is a valid credit card expiration date in the MM/YY or MM/YYYY format.
  * @param input - The expiration date to validate.
- * @returns - Returns true if the input is a valid expiration date,
- * otherwise returns a string indicating the validation error
- * or false if the input is empty or not a string.
+ * @returns - Returns true if the input is a valid expiration date and is in the future,
+ * otherwise returns a string indicating the validation error or false if the input is empty or not a string.
  */
 export function isValidCreditCardExpirationDate(
     input: string
@@ -86,9 +85,21 @@ export function isValidCreditCardExpirationDate(
 
     const regex = /^(0[1-9]|1[0-2])\/(20)?\d{2}$/ // Regular expression to match MM/YY or MM/YYYY format
 
-    if (regex.test(input)) {
-        return true
-    } else {
+    if (!regex.test(input)) {
         return 'The input does not match the MM/YY or MM/YYYY format. Example: 01/24 or 01/2024'
     }
+
+    const currentDate = new Date()
+    const inputDateParts = input.split('/')
+    const inputMonth = parseInt(inputDateParts[0], 10)
+    const inputYear =
+        parseInt(inputDateParts[1], 10) +
+        (inputDateParts[1].length === 2 ? 2000 : 0)
+    const expirationDate = new Date(inputYear, inputMonth - 1) // Months are 0 indexed in JavaScript
+
+    if (expirationDate <= currentDate) {
+        return 'The expiration date must be in the future.'
+    }
+
+    return true
 }
