@@ -128,13 +128,17 @@ export type CategoryOrderInput = {
     field?: InputMaybe<CategoryOrderField>
 }
 
-/** Common order fields */
+/**
+ * Describes the fields that a foreign types can be ordered by.
+ *
+ * Only the Id valid at the moment.
+ */
 export enum CommonOrderField {
-    /** Order entities by their id */
+    /** Orders by "id". */
     Id = 'ID',
 }
 
-/** Discount order */
+/** Specifies the order of foreign types. */
 export type CommonOrderInput = {
     /** The direction to order by */
     direction?: InputMaybe<OrderDirection>
@@ -252,6 +256,19 @@ export type CreateNumericalCategoryCharacteristicInput = {
     name: Scalars['String']['input']
     /** The unit of the NumericalCategoryCharacteristic */
     unit: Scalars['String']['input']
+}
+
+export type CreateOrderInput = {
+    /** UUID of address of invoice. */
+    invoiceAddressId: Scalars['UUID']['input']
+    /** OrderItems of order. */
+    orderItemInputs: Array<OrderItemInput>
+    /** UUID of payment information that the order should be processed with. */
+    paymentInformationId: Scalars['UUID']['input']
+    /** UUID of address to where the order should be shipped to. */
+    shipmentAddressId: Scalars['UUID']['input']
+    /** UUID of user owning the order. */
+    userId: Scalars['UUID']['input']
 }
 
 /** Input for the createProduct mutation */
@@ -517,6 +534,15 @@ export enum OrderDirection {
     Desc = 'DESC',
 }
 
+export type OrderItemInput = {
+    /** UUIDs of coupons to use with order item. */
+    couponIds: Array<Scalars['UUID']['input']>
+    /** UUID of shipment method to use with order item. */
+    shipmentMethodId: Scalars['UUID']['input']
+    /** UUID of shopping cart item associated with order item. */
+    shoppingCartItemId: Scalars['UUID']['input']
+}
+
 /** OrderItem order fields */
 export enum OrderItemOrderField {
     /** Order order items by their id */
@@ -529,6 +555,38 @@ export type OrderItemOrderInput = {
     direction?: InputMaybe<OrderDirection>
     /** The field to order by */
     field?: InputMaybe<OrderItemOrderField>
+}
+
+/** Describes the fields that a order can be ordered by. */
+export enum OrderOrderField {
+    /** Orders by "created_at". */
+    CreatedAt = 'CREATED_AT',
+    /** Orders by "id". */
+    Id = 'ID',
+    /** Orders by "last_updated_at". */
+    LastUpdatedAt = 'LAST_UPDATED_AT',
+    /** Orders by "name". */
+    Name = 'NAME',
+    /** Orders by "user_id". */
+    UserId = 'USER_ID',
+}
+
+/** Specifies the order of orders. */
+export type OrderOrderInput = {
+    /** Order direction of orders. */
+    direction?: InputMaybe<OrderDirection>
+    /** Field that orders should be ordered by. */
+    field?: InputMaybe<OrderOrderField>
+}
+
+/** Describes if Order is placed, or yet pending. An Order can be rejected during its lifetime. */
+export enum OrderStatus {
+    /** Order is saved a a template, this status can only last for max. 1 hour. */
+    Pending = 'PENDING',
+    /** Order is placed, which means SAGA for payment, fullfill and other validity checks need to be triggered. */
+    Placed = 'PLACED',
+    /** Something went wrong with the order and it was compensated in all relevant serivces. */
+    Rejected = 'REJECTED',
 }
 
 /** Filtering options for payments */
@@ -769,6 +827,14 @@ export type RegisterCouponInput = {
     code: Scalars['String']['input']
     /** The user who wants to register the coupon. */
     userId: Scalars['UUID']['input']
+}
+
+/** Describes the reason why an Order was rejected, in case of rejection: `OrderStatus::Rejected`. */
+export enum RejectionReason {
+    /** The order was rejected due to its invalid content. */
+    InvalidOrderData = 'INVALID_ORDER_DATA',
+    /** The inventory service was not able to reserve inventory items according to the order. */
+    InventoryReservationFailed = 'INVENTORY_RESERVATION_FAILED',
 }
 
 /** The input to reserve a batch of product items */
@@ -1391,6 +1457,7 @@ export type GetProductForBuyerQuery = {
             nodes: Array<{
                 __typename?: 'ProductVariant'
                 id: any
+                inventoryCount: number
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
                     id: any
@@ -1454,10 +1521,6 @@ export type GetProductForBuyerQuery = {
                         >
                     }
                 }
-                productItems?: {
-                    __typename?: 'ProductItemConnection'
-                    totalCount: number
-                } | null
             }>
         }
         categories: {
@@ -2279,9 +2342,7 @@ export const GetProductForBuyerDocument = gql`
                             }
                         }
                     }
-                    productItems(filter: { inventoryStatus: IN_STORAGE }) {
-                        totalCount
-                    }
+                    inventoryCount
                 }
             }
             categories {
