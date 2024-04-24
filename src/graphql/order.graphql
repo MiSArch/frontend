@@ -17,8 +17,18 @@ query getOrder($id: UUID!) {
 # Mutations:
 
 # Creates an order based on the provided CreateOrderInput.
-mutation CreateOrder($input: CreateOrderInput!) {
+mutation createOrder($input: CreateOrderInput!) {
   createOrder(input: $input) {
     id
+  }
+}
+
+# Places an existing order and returns the ID of the placed order and
+# the new order status indicating whether the placement was succesful or not.
+# We expect the order status to be 'PLACED'.
+mutation placeOrder($id: UUID!) {
+  placeOrder(id: $id) {
+    id
+    orderStatus
   }
 }

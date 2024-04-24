@@ -3,6 +3,8 @@ import {
     CreateOrderInput,
     CreateOrderMutation,
     OrderItemInput,
+    OrderStatus,
+    PlaceOrderMutation,
 } from '@/graphql/generated'
 import { Order } from '@/model/interfaces/order'
 import { OrderItem } from '@/model/interfaces/orderItem'
@@ -22,7 +24,7 @@ export async function createOrder(
 ): Promise<string> {
     const createOrderMutation: CreateOrderMutation =
         await awaitActionAndPushErrorIfNecessary(() => {
-            return useClient().CreateOrder({
+            return useClient().createOrder({
                 input: createInputObjectForOrderCreation(order, userId),
             })
         }, errorMessages.createOrder)
@@ -89,4 +91,21 @@ function createInputObjectForOrderCreation(
         invoiceAddressId: order.billingAddress.id,
         paymentInformationId: order.paymentInformation.id,
     }
+}
+
+/**
+ * Requests the placement of an order with the specified order ID.
+ * @param orderId - The ID of the order to be placed.
+ * @throws Throws an error if there is any issue while placing the order.
+ * @returns - A promise that resolves to true if the order was placed succesfully, false otherwise.
+ */
+export async function placeOrder(orderId: string): Promise<boolean> {
+    const placeOrderMutation: PlaceOrderMutation =
+        await awaitActionAndPushErrorIfNecessary(() => {
+            return useClient().placeOrder({
+                id: orderId,
+            })
+        }, errorMessages.placeOrder)
+
+    return placeOrderMutation.placeOrder.orderStatus === OrderStatus.Placed
 }

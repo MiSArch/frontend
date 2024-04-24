@@ -1808,6 +1808,15 @@ export type CreateOrderMutation = {
     createOrder: { __typename?: 'Order'; id: any }
 }
 
+export type PlaceOrderMutationVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type PlaceOrderMutation = {
+    __typename?: 'Mutation'
+    placeOrder: { __typename?: 'Order'; id: any; orderStatus: OrderStatus }
+}
+
 export type CreateCreditCardPaymentInformationMutationVariables = Exact<{
     input: CreateCreditCardInformationInput
 }>
@@ -2693,9 +2702,17 @@ export const GetOrderDocument = gql`
     }
 `
 export const CreateOrderDocument = gql`
-    mutation CreateOrder($input: CreateOrderInput!) {
+    mutation createOrder($input: CreateOrderInput!) {
         createOrder(input: $input) {
             id
+        }
+    }
+`
+export const PlaceOrderDocument = gql`
+    mutation placeOrder($id: UUID!) {
+        placeOrder(id: $id) {
+            id
+            orderStatus
         }
     }
 `
@@ -3324,7 +3341,7 @@ export function getSdk(
                 variables
             )
         },
-        CreateOrder(
+        createOrder(
             variables: CreateOrderMutationVariables,
             requestHeaders?: GraphQLClientRequestHeaders
         ): Promise<CreateOrderMutation> {
@@ -3335,7 +3352,23 @@ export function getSdk(
                         variables,
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
-                'CreateOrder',
+                'createOrder',
+                'mutation',
+                variables
+            )
+        },
+        placeOrder(
+            variables: PlaceOrderMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<PlaceOrderMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<PlaceOrderMutation>(
+                        PlaceOrderDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'placeOrder',
                 'mutation',
                 variables
             )

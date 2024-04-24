@@ -6,13 +6,13 @@
             </v-card-title>
             <v-card-subtitle>{{ order?.id }}</v-card-subtitle>
         </v-card-item>
-        <v-card-text>
-            Created <RelativeTime :time="order?.createdAt" />
-        </v-card-text>
         <v-card-item>
             <v-card-title class="text-capitalize">
                 status: {{ orderStatus }}
             </v-card-title>
+            <v-card-subtitle>
+                Created <RelativeTime :time="order?.createdAt" />
+            </v-card-subtitle>
             <v-card-subtitle v-if="orderStatus === OrderStatus.Placed">
                 Placed <RelativeTime :time="order?.placedAt" />
             </v-card-subtitle>
@@ -23,7 +23,20 @@
         <v-card-text v-if="orderStatus === OrderStatus.Rejected">
             {{ order?.rejectionReason }}
         </v-card-text>
-        <v-card-actions></v-card-actions>
+        <v-card-text v-if="orderStatus === OrderStatus.Pending && hasActions">
+            The order must be placed within one hour of its creation.
+        </v-card-text>
+        <v-card-actions v-if="hasActions">
+            <v-spacer></v-spacer>
+            <v-btn
+                v-if="orderStatus == OrderStatus.Pending"
+                class="text-capitalize"
+                color="primary"
+                variant="elevated"
+                @click="emits('order-placement-requested', orderId)"
+                >place order now</v-btn
+            >
+        </v-card-actions>
     </v-card>
 </template>
 
@@ -55,13 +68,40 @@ const props = defineProps({
         type: String,
         required: false,
     },
+    /**
+     * A trigger for the querying of the order.
+     */
+    triggerForQueryingOfOrder: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
+    /**
+     * Whether the card should have card-actions enabled or not.
+     */
+    hasActions: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
 })
+
+/**
+ * The events of this component:
+ *
+ * @event order-placement-requested - The user has requested the order to be placed.
+ */
+const emits = defineEmits<{
+    (event: 'order-placement-requested', orderId: string): void
+}>()
 
 /**
  * Asynchronously gets the order from the order service based on the provided order ID.
  */
 const getOrderQuery = asyncComputed(
     async () => {
+        console.log('getOrderQuery has been triggered.')
+        props.triggerForQueryingOfOrder
         return await useClient().getOrder({ id: props.orderId })
     },
     null,
@@ -97,9 +137,9 @@ const orderStatus = computed(() => {
 const icon = computed(() => {
     switch (orderStatus.value) {
         case OrderStatus.Pending:
-            return 'mdi-package'
+            return 'mdi-timer-sand'
         case OrderStatus.Placed:
-            return 'mdi-package-check'
+            return 'mdi-package'
         case OrderStatus.Rejected:
             return 'mdi-close-box'
         default:

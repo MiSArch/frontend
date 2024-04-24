@@ -27,7 +27,11 @@
                     :disabled="proceedButtonDisabled"
                     prepend-icon="mdi-arrow-right"
                     @click="proceed"
-                    >proceed</v-btn
+                    >{{
+                        route.name === routeNames.checkoutPayment
+                            ? 'create order'
+                            : 'proceed'
+                    }}</v-btn
                 >
             </v-toolbar>
             <router-view class="pa-4" />
@@ -36,12 +40,6 @@
                 message="Click confirm to cancel the checkout."
                 @canceled="closeDialogToConfirmCancelation"
                 @confirmed="onUserConfirmedCancellation"
-            />
-            <ConfirmOrCancelDialog
-                v-model="confirmOrCancelDialogIsOpen"
-                message="Click confirm to make the order."
-                @canceled="closeConfirmOrCancelDialog"
-                @confirmed="onUserConfirmedOrderCreation"
             />
             <Notifications />
             <v-overlay
@@ -251,7 +249,8 @@ function cancel(): void {
  * If the user has already arrived at the checkout summary, the function does nothing.
  * If the current route is checkout address and the proceed button is enabled, navigates to checkout shipment.
  * If the current route is checkout shipment and the proceed button is enabled, navigates to checkout payment.
- * If the current route is checkout payment and the proceed button is enabled, makes the order and navigates to the order summary.
+ * If the current route is checkout payment and the proceed button is enabled,
+ * requests the creation of the order and navigates to the order summary.
  */
 async function proceed(): Promise<void> {
     if (userHasArrivedAtCheckoutSummary.value) {
@@ -273,7 +272,7 @@ async function proceed(): Promise<void> {
         }
     } else if (route.name === routeNames.checkoutPayment) {
         if (!proceedButtonDisabled.value) {
-            openConfirmOrCancelDialog()
+            await createOrderAndNavigateToOrderSummary()
         }
 
         return
@@ -313,34 +312,5 @@ async function createOrderAndNavigateToOrderSummary(): Promise<void> {
             orderId: idOfCreatedOrder,
         },
     })
-}
-
-/**
- * Whether the confirmation dialog is open.
- */
-const confirmOrCancelDialogIsOpen = ref(false)
-
-/**
- * Opens the confirmation dialog.
- */
-function openConfirmOrCancelDialog(): void {
-    confirmOrCancelDialogIsOpen.value = true
-}
-
-/**
- * Closes the confirmation dialog.
- */
-function closeConfirmOrCancelDialog(): void {
-    confirmOrCancelDialogIsOpen.value = false
-}
-
-/**
- * Closes the confirmation dialog,
- * awaits the creation of the order,
- * and navigates to the order summary.
- */
-async function onUserConfirmedOrderCreation(): Promise<void> {
-    closeConfirmOrCancelDialog()
-    await createOrderAndNavigateToOrderSummary()
 }
 </script>
