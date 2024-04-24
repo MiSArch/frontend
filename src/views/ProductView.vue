@@ -755,7 +755,7 @@ function goToWishlists() {
  */
 const inStock = computed(() => {
     if (!activeUserRoleIsEitherAdminOrEmployee.value) {
-        const count = getProductItemsCountOfItemsInStockForBuyer()
+        const count = productVariantInfoRelevantToBuyer.value?.inventoryCount
         return count != undefined && count > 0
     }
 
@@ -764,18 +764,6 @@ const inStock = computed(() => {
         productItemsCountOfItemsInStock.value > 0
     )
 })
-
-/**
- * Gets the number of product items in stock
- * by "querying" the product variant object.
- */
-function getProductItemsCountOfItemsInStockForBuyer(): number | undefined {
-    if (productVariantInfoRelevantToBuyer.value?.productItems != undefined) {
-        return productVariantInfoRelevantToBuyer.value.productItems.totalCount
-    } else {
-        return undefined
-    }
-}
 
 /**
  * A ref to trigger the evaluation of the inventory status of the product variant:
@@ -792,7 +780,7 @@ const productItemsCountOfItemsInStock = asyncComputed(
         trigger.value
 
         if (!activeUserRoleIsEitherAdminOrEmployee.value) {
-            return getProductItemsCountOfItemsInStockForBuyer()
+            return productVariantInfoRelevantToBuyer.value?.inventoryCount
         }
 
         return await getProductItemsCountOfInventoryStatus(
