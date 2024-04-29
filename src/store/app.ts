@@ -18,6 +18,8 @@ import {
     getShoppingCartOfUser,
     updateShoppingCartItem,
 } from './shoppingCartManagement'
+import { OrderImpl } from '@/model/classes/orderImpl'
+import { OrderItemImpl } from '@/model/classes/orderItemImpl'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
@@ -48,6 +50,7 @@ export const useAppStore = defineStore('app', {
         activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
         shoppingCart: emptyShoppingCart,
+        order: new OrderImpl(),
     }),
     getters: {
         token(): string | undefined {
@@ -108,6 +111,34 @@ export const useAppStore = defineStore('app', {
          */
         shoppingCartIsEnabled(): boolean {
             return this.isLoggedIn && this.activeUserRoleIsBuyer
+        },
+        /**
+         * Checks whether the address information for the order is complete.
+         * @returns - Returns true if both the delivery and billing addresses have valid IDs, otherwise returns false.
+         */
+        addressInformationIsComplete(): boolean {
+            return (
+                this.order.deliveryAddress?.id != undefined &&
+                this.order.billingAddress?.id != undefined
+            )
+        },
+        /**
+         * Checks whether the shipment information for the order is complete.
+         * @returns - Returns true if for each order item the shipment method has a valid ID, otherwise returns false.
+         */
+        shipmentInformationIsComplete(): boolean {
+            return (
+                this.order.items?.filter(
+                    (orderItem) => orderItem.shipmentMethod?.id == undefined
+                ).length === 0
+            )
+        },
+        /**
+         * Checks whether the payment information for the order is complete.
+         * @returns - Returns true if the payment information has a valid ID, otherwise returns false.
+         */
+        paymentInformationIsComplete(): boolean {
+            return this.order.paymentInformation?.id != undefined
         },
     },
     actions: {
@@ -481,6 +512,25 @@ export const useAppStore = defineStore('app', {
             }
 
             await this.restoreTheShoppingCart()
+        },
+        /**
+         * Resets the order to a state where no information has been provided.
+         */
+        resetOrderToUndefined() {
+            this.order = new OrderImpl()
+        },
+        /**
+         * Creates order items based on the items in the shopping cart and assigns them to the order.
+         * If the order is undefined, the function returns without creating order items.
+         */
+        createOrderItems() {
+            if (this.order == undefined) {
+                return
+            }
+
+            this.order.items = this.shoppingCart.items.map(
+                (shoppingCartItem) => new OrderItemImpl(shoppingCartItem)
+            )
         },
     },
 })

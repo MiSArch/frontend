@@ -8,6 +8,8 @@ export const errorMessages = {
         "Could not reset the website's state related to the current user.",
     // user
     getCurrentUser: 'Could not load the current user.',
+    getPaymentInformationOfCurrentUser:
+        'Could not load the payment information of the current user.',
     // catalog
     getDefaultProductVariants: 'Could not load the products.',
     getCategoryWithCharacteristicsAndDefaultProductVariants:
@@ -53,4 +55,17 @@ export const errorMessages = {
         'Could not add the product variant to the shopping cart.',
     updateShoppingCartItem: 'Could not update the shopping cart item.',
     deleteShoppingCartItem: 'Could not remove the shopping cart item.',
+    // address
+    createUserAddress: 'Could not add new address of user.',
+    getActiveAddressesOfCurrentUser:
+        'Could not load the addresses of the user.',
+    // payment
+    createCreditCardPaymentInformation:
+        'Could not add new credit card information.',
+    // shipment
+    getShipmentMethods: 'Could not get the shipment methods.',
+    // order
+    createOrder: 'Could not create the order.',
+    getOrder: 'Could not load the order.',
+    placeOrder: 'Could not place the order.',
 }

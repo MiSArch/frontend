@@ -41,6 +41,7 @@ import {
 import { asyncComputed } from '@vueuse/core'
 import { ref } from 'vue'
 import router from '@/router'
+import { routeNames } from '@/router/routeNames'
 
 /**
  * The GraphQL client to use for all GraphQL requests.
@@ -123,7 +124,7 @@ async function addTaxRate(input: CreateTaxRateInput) {
  */
 function navigateToTaxRate(taxRateId: any) {
     router.push({
-        name: 'Tax Rate',
+        name: routeNames.taxRate,
         params: {
             taxrateid: taxRateId,
         },

@@ -1,0 +1,34 @@
+# Queries:
+
+# Gets the shipment methods that either have been archived or not
+# depending on the argument for $isArchived.
+query getShipmentMethods($isArchived: Boolean = false) {
+  shipmentMethods(filter: {isArchived: $isArchived}) {
+    totalCount
+    nodes {
+      id
+      baseFees
+      description
+      feesPerItem
+      feesPerKg
+      name
+    }
+  }
+}
+
+# For given product variant version and a quantity,
+# this query gets the shipment methods available to the user.
+query getAvailableShipmentMethods($items: [ProductVariantVersionWithQuantityInput!]!) {
+  shipmentMethods {
+    totalCount
+    nodes {
+      id
+      baseFees
+      description
+      feesPerItem
+      feesPerKg
+      name
+      calculatedFees: calculateFees(items: $items)
+    }
+  }
+}

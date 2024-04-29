@@ -6,3 +6,18 @@ query getCurrentUser {
     id
   }
 }
+
+# Gets the current user's payment information alongside the user's ID.
+query getPaymentInformationOfCurrentUser($paymentMethod: PaymentMethod) {
+  currentUser {
+    id
+    paymentInformations(filter: {paymentMethod: $paymentMethod}) {
+      totalCount
+      nodes {
+        id
+        paymentMethod
+        publicMethodDetails
+      }
+    }
+  }
+}

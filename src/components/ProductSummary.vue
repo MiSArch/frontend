@@ -25,6 +25,7 @@
                             :items="countOptions"
                             label="Amount"
                             v-model="selectedCount"
+                            :readonly="readonly"
                             style="min-width: 96px"
                             @update:model-value="emitCountChangedIfPossible"
                         ></v-select>
@@ -32,6 +33,7 @@
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn
+                            :disabled="readonly"
                             prepend-icon="mdi-delete"
                             @click="emitDeletedIfPossible"
                             >delete</v-btn
@@ -44,6 +46,7 @@
 </template>
 
 <script lang="ts" setup>
+import { routeNames } from '@/router/routeNames'
 import ProductPrice from './ProductPrice.vue'
 import { computed, ref } from 'vue'
 
@@ -92,6 +95,10 @@ const props = defineProps({
         type: Number,
         default: 10,
     },
+    readonly: {
+        type: Boolean,
+        default: false,
+    },
 })
 
 /**
@@ -114,7 +121,7 @@ const emit = defineEmits<{
  */
 const link = computed(() => {
     return {
-        name: 'Product',
+        name: routeNames.product,
         params: {
             productid: props.productId,
             productvariantid: props.productVariantId,

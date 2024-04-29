@@ -7,68 +7,72 @@ import { UserRole } from '@/store/userRole'
  * can be accessed by a user who has these access rights.
  */
 export interface AccessRights {
-    canAccessStorefront: boolean
+    canAccessCategory: boolean
+    canAccessCheckout: boolean
+    canAccessManageCategories: boolean
+    canAccessManageProducts: boolean
+    canAccessManageTaxRates: boolean
     canAccessProduct: boolean
     canAccessProducts: boolean
     canAccessShoppingCart: boolean
-    canAccessCategory: boolean
+    canAccessStorefront: boolean
+    canAccessTaxRate: boolean
     canAccessWishlist: boolean
     canAccessWishlists: boolean
-    canAccessManageProducts: boolean
-    canAccessManageCategories: boolean
-    canAccessTaxRate: boolean
-    canAccessManageTaxRates: boolean
 }
 
 /**
  * The access rights of a user with their active role being 'Buyer'.
  */
 export const buyerAccessRights: AccessRights = {
-    canAccessStorefront: true,
+    canAccessCategory: true,
+    canAccessCheckout: true,
+    canAccessManageCategories: false,
+    canAccessManageProducts: false,
+    canAccessManageTaxRates: false,
     canAccessProduct: true,
     canAccessProducts: true,
     canAccessShoppingCart: true,
-    canAccessCategory: true,
+    canAccessStorefront: true,
+    canAccessTaxRate: false,
     canAccessWishlist: true,
     canAccessWishlists: true,
-    canAccessManageProducts: false,
-    canAccessManageCategories: false,
-    canAccessTaxRate: false,
-    canAccessManageTaxRates: false,
 }
 
 /**
  * The access rights of a user with their active role being 'Employee'.
  */
 export const employeeAccessRights: AccessRights = {
-    canAccessStorefront: true,
+    canAccessCategory: true,
+    canAccessCheckout: false,
+    canAccessManageCategories: true,
+    canAccessManageProducts: true,
+    canAccessManageTaxRates: true,
     canAccessProduct: true,
     canAccessProducts: true,
     canAccessShoppingCart: false,
-    canAccessCategory: true,
+    canAccessStorefront: true,
+    canAccessTaxRate: true,
     canAccessWishlist: false,
     canAccessWishlists: false,
-    canAccessManageProducts: true,
-    canAccessManageCategories: true,
-    canAccessTaxRate: true,
-    canAccessManageTaxRates: true,
 }
 
 /**
  * The access rights of a user with their active role being 'Administrator'.
  */
 export const adminAccessRights: AccessRights = {
-    canAccessStorefront: true,
+    canAccessCategory: true,
+    canAccessCheckout: false,
     canAccessProduct: true,
     canAccessProducts: true,
+    canAccessManageCategories: true,
+    canAccessManageProducts: true,
+    canAccessManageTaxRates: true,
     canAccessShoppingCart: false,
-    canAccessCategory: true,
+    canAccessStorefront: true,
+    canAccessTaxRate: true,
     canAccessWishlist: false,
     canAccessWishlists: false,
-    canAccessManageProducts: true,
-    canAccessManageCategories: true,
-    canAccessTaxRate: true,
-    canAccessManageTaxRates: true,
 }
 
 /**
@@ -104,17 +108,22 @@ export function canAccess(
      * Lookup table that maps each individual route name to its corresponding AccessRights property.
      */
     const routeAccessMap: Record<string, keyof AccessRights> = {
-        Storefront: 'canAccessStorefront',
-        Product: 'canAccessProduct',
-        Products: 'canAccessProducts',
-        'Shopping Cart': 'canAccessShoppingCart',
-        Category: 'canAccessCategory',
-        Wishlist: 'canAccessWishlist',
-        Wishlists: 'canAccessWishlists',
-        'Manage Products': 'canAccessManageProducts',
-        'Manage Categories': 'canAccessManageCategories',
-        'Tax Rate': 'canAccessTaxRate',
-        'Manage Tax Rates': 'canAccessManageTaxRates',
+        category: 'canAccessCategory',
+        checkout: 'canAccessCheckout',
+        'checkout-address': 'canAccessCheckout',
+        'checkout-payment': 'canAccessCheckout',
+        'checkout-shipment': 'canAccessCheckout',
+        'checkout-summary': 'canAccessCheckout',
+        'manage-categories': 'canAccessManageCategories',
+        'manage-products': 'canAccessManageProducts',
+        'manage-tax-rates': 'canAccessManageTaxRates',
+        product: 'canAccessProduct',
+        products: 'canAccessProducts',
+        'shopping-cart': 'canAccessShoppingCart',
+        storefront: 'canAccessStorefront',
+        'tax-rate': 'canAccessTaxRate',
+        wishlist: 'canAccessWishlist',
+        wishlists: 'canAccessWishlists',
     }
 
     const accessKey = routeAccessMap[nameOfRoute]

@@ -2,6 +2,7 @@
 import { useAppStore } from '@/store/app'
 import { createRouter, createWebHistory } from 'vue-router'
 import { canAccess, getAccessRights } from './accessRights'
+import { routeNames } from './routeNames'
 
 const routes = [
     {
@@ -10,7 +11,7 @@ const routes = [
         children: [
             {
                 path: '',
-                name: 'Storefront',
+                name: routeNames.storefront,
                 // route level code-splitting
                 // this generates a separate chunk (Storefront-[hash].js) for this route
                 // which is lazy-loaded when the route is visited.
@@ -18,55 +19,86 @@ const routes = [
             },
             {
                 path: 'products',
-                name: 'Products',
+                name: routeNames.products,
                 component: () => import('@/views/ProductsView.vue'),
             },
             {
                 path: 'products/:productid/:productvariantid?',
-                name: 'Product',
+                name: routeNames.product,
                 component: () => import('@/views/ProductView.vue'),
             },
             {
                 path: 'categories/:categoryid',
-                name: 'Category',
+                name: routeNames.category,
                 component: () => import('@/views/CategoryView.vue'),
             },
             {
                 path: 'wishlists',
-                name: 'Wishlists',
+                name: routeNames.wishlists,
                 component: () => import('@/views/WishlistsView.vue'),
             },
             {
                 path: 'wishlists/:wishlistid',
-                name: 'Wishlist',
+                name: routeNames.wishlist,
                 component: () => import('@/views/WishlistView.vue'),
             },
             {
                 path: 'manage-products',
-                name: 'Manage Products',
+                name: routeNames.manageProducts,
                 component: () => import('@/views/ManageProductsView.vue'),
             },
             {
                 path: 'manage-categories',
-                name: 'Manage Categories',
+                name: routeNames.manageCategories,
                 component: () => import('@/views/ManageCategoriesView.vue'),
             },
             {
                 path: 'manage-tax-rates',
-                name: 'Manage Tax Rates',
+                name: routeNames.manageTaxRates,
                 component: () => import('@/views/ManageTaxRatesView.vue'),
             },
             {
                 path: 'tax-rates/:taxrateid',
-                name: 'Tax Rate',
+                name: routeNames.taxRate,
                 component: () => import('@/views/TaxRateView.vue'),
             },
             {
                 path: 'shopping-cart',
-                name: 'Shopping Cart',
+                name: routeNames.shoppingCart,
                 component: () => import('@/views/ShoppingCartView.vue'),
             },
         ],
+    },
+    {
+        path: '/checkout',
+        children: [
+            {
+                path: 'address',
+                name: routeNames.checkoutAddress,
+                component: () =>
+                    import('@/views/checkout/AddressInformationView.vue'),
+            },
+            {
+                path: 'shipment',
+                name: routeNames.checkoutShipment,
+                component: () =>
+                    import('@/views/checkout/ShipmentInformationView.vue'),
+            },
+            {
+                path: 'payment',
+                name: routeNames.checkoutPayment,
+                component: () =>
+                    import('@/views/checkout/PaymentInformationView.vue'),
+            },
+            {
+                path: 'summary/:orderId',
+                name: routeNames.checkoutSummary,
+                component: () =>
+                    import('@/views/checkout/OrderSummaryView.vue'),
+                props: true,
+            },
+        ],
+        component: () => import('@/layouts/checkout/TheCheckoutLayout.vue'),
     },
 ]
 

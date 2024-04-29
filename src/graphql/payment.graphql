@@ -1,0 +1,8 @@
+# Mutations:
+
+# Saves information about a single credit card belonging to the current user.
+mutation createCreditCardPaymentInformation($input: CreateCreditCardInformationInput!) {
+  createCreditCardPaymentInformation(input: $input) {
+    id
+  }
+}

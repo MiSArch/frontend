@@ -1187,6 +1187,40 @@ export type WishlistOrderInput = {
     field?: InputMaybe<WishlistOrderField>
 }
 
+export type GetActiveAddressesOfCurrentUserQueryVariables = Exact<{
+    orderBy?: InputMaybe<UserAddressOrderInput>
+}>
+
+export type GetActiveAddressesOfCurrentUserQuery = {
+    __typename?: 'Query'
+    currentUser?: {
+        __typename?: 'User'
+        addresses: {
+            __typename?: 'UserAddressConnection'
+            totalCount: number
+            nodes: Array<{
+                __typename?: 'UserAddress'
+                id: any
+                city: string
+                companyName?: string | null
+                country: string
+                postalCode: string
+                street1: string
+                street2: string
+            }>
+        }
+    } | null
+}
+
+export type CreateUserAddressMutationVariables = Exact<{
+    input: CreateUserAddressInput
+}>
+
+export type CreateUserAddressMutation = {
+    __typename?: 'Mutation'
+    createUserAddress: { __typename?: 'UserAddress'; id: any }
+}
+
 export type DefaultProductVariantFragment = {
     __typename?: 'Product'
     id: any
@@ -1744,6 +1778,99 @@ export type CreateProductItemBatchMutation = {
     }>
 }
 
+export type GetOrderQueryVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type GetOrderQuery = {
+    __typename?: 'Query'
+    order: {
+        __typename?: 'Order'
+        id: any
+        compensatableOrderAmount: number
+        createdAt: any
+        orderStatus: OrderStatus
+        paymentInformationId: any
+        placedAt?: any | null
+        rejectionReason?: RejectionReason | null
+    }
+}
+
+export type CreateOrderMutationVariables = Exact<{
+    input: CreateOrderInput
+}>
+
+export type CreateOrderMutation = {
+    __typename?: 'Mutation'
+    createOrder: { __typename?: 'Order'; id: any }
+}
+
+export type PlaceOrderMutationVariables = Exact<{
+    id: Scalars['UUID']['input']
+}>
+
+export type PlaceOrderMutation = {
+    __typename?: 'Mutation'
+    placeOrder: { __typename?: 'Order'; id: any; orderStatus: OrderStatus }
+}
+
+export type CreateCreditCardPaymentInformationMutationVariables = Exact<{
+    input: CreateCreditCardInformationInput
+}>
+
+export type CreateCreditCardPaymentInformationMutation = {
+    __typename?: 'Mutation'
+    createCreditCardPaymentInformation: {
+        __typename?: 'PaymentInformation'
+        id: any
+    }
+}
+
+export type GetShipmentMethodsQueryVariables = Exact<{
+    isArchived?: InputMaybe<Scalars['Boolean']['input']>
+}>
+
+export type GetShipmentMethodsQuery = {
+    __typename?: 'Query'
+    shipmentMethods: {
+        __typename?: 'ShipmentMethodConnection'
+        totalCount: number
+        nodes: Array<{
+            __typename?: 'ShipmentMethod'
+            id: any
+            baseFees: number
+            description: string
+            feesPerItem: number
+            feesPerKg: number
+            name: string
+        }>
+    }
+}
+
+export type GetAvailableShipmentMethodsQueryVariables = Exact<{
+    items:
+        | Array<ProductVariantVersionWithQuantityInput>
+        | ProductVariantVersionWithQuantityInput
+}>
+
+export type GetAvailableShipmentMethodsQuery = {
+    __typename?: 'Query'
+    shipmentMethods: {
+        __typename?: 'ShipmentMethodConnection'
+        totalCount: number
+        nodes: Array<{
+            __typename?: 'ShipmentMethod'
+            id: any
+            baseFees: number
+            description: string
+            feesPerItem: number
+            feesPerKg: number
+            name: string
+            calculatedFees: number
+        }>
+    }
+}
+
 export type GetShoppingCartOfUserQueryVariables = Exact<{
     id: Scalars['UUID']['input']
 }>
@@ -1769,6 +1896,7 @@ export type GetShoppingCartOfUserQuery = {
                         id: any
                         currentVersion: {
                             __typename?: 'ProductVariantVersion'
+                            id: any
                             name: string
                             retailPrice: number
                         }
@@ -1957,6 +2085,28 @@ export type GetCurrentUserQueryVariables = Exact<{ [key: string]: never }>
 export type GetCurrentUserQuery = {
     __typename?: 'Query'
     currentUser?: { __typename?: 'User'; id: any } | null
+}
+
+export type GetPaymentInformationOfCurrentUserQueryVariables = Exact<{
+    paymentMethod?: InputMaybe<PaymentMethod>
+}>
+
+export type GetPaymentInformationOfCurrentUserQuery = {
+    __typename?: 'Query'
+    currentUser?: {
+        __typename?: 'User'
+        id: any
+        paymentInformations?: {
+            __typename?: 'PaymentInformationConnection'
+            totalCount: number
+            nodes?: Array<{
+                __typename?: 'PaymentInformation'
+                id: any
+                paymentMethod: PaymentMethod
+                publicMethodDetails?: any | null
+            }> | null
+        } | null
+    } | null
 }
 
 export type WishlistFragment = {
@@ -2199,6 +2349,33 @@ export const WishlistWithProductVariantsFragmentDoc = gql`
             nodes {
                 id
             }
+        }
+    }
+`
+export const GetActiveAddressesOfCurrentUserDocument = gql`
+    query getActiveAddressesOfCurrentUser(
+        $orderBy: UserAddressOrderInput = {}
+    ) {
+        currentUser {
+            addresses(orderBy: $orderBy, filter: { isArchived: false }) {
+                totalCount
+                nodes {
+                    id
+                    city
+                    companyName
+                    country
+                    postalCode
+                    street1
+                    street2
+                }
+            }
+        }
+    }
+`
+export const CreateUserAddressDocument = gql`
+    mutation createUserAddress($input: CreateUserAddressInput!) {
+        createUserAddress(input: $input) {
+            id
         }
     }
 `
@@ -2506,6 +2683,76 @@ export const CreateProductItemBatchDocument = gql`
         }
     }
 `
+export const GetOrderDocument = gql`
+    query getOrder($id: UUID!) {
+        order(id: $id) {
+            id
+            compensatableOrderAmount
+            createdAt
+            orderStatus
+            paymentInformationId
+            placedAt
+            rejectionReason
+        }
+    }
+`
+export const CreateOrderDocument = gql`
+    mutation createOrder($input: CreateOrderInput!) {
+        createOrder(input: $input) {
+            id
+        }
+    }
+`
+export const PlaceOrderDocument = gql`
+    mutation placeOrder($id: UUID!) {
+        placeOrder(id: $id) {
+            id
+            orderStatus
+        }
+    }
+`
+export const CreateCreditCardPaymentInformationDocument = gql`
+    mutation createCreditCardPaymentInformation(
+        $input: CreateCreditCardInformationInput!
+    ) {
+        createCreditCardPaymentInformation(input: $input) {
+            id
+        }
+    }
+`
+export const GetShipmentMethodsDocument = gql`
+    query getShipmentMethods($isArchived: Boolean = false) {
+        shipmentMethods(filter: { isArchived: $isArchived }) {
+            totalCount
+            nodes {
+                id
+                baseFees
+                description
+                feesPerItem
+                feesPerKg
+                name
+            }
+        }
+    }
+`
+export const GetAvailableShipmentMethodsDocument = gql`
+    query getAvailableShipmentMethods(
+        $items: [ProductVariantVersionWithQuantityInput!]!
+    ) {
+        shipmentMethods {
+            totalCount
+            nodes {
+                id
+                baseFees
+                description
+                feesPerItem
+                feesPerKg
+                name
+                calculatedFees: calculateFees(items: $items)
+            }
+        }
+    }
+`
 export const GetShoppingCartOfUserDocument = gql`
     query getShoppingCartOfUser($id: UUID!) {
         user(id: $id) {
@@ -2522,6 +2769,7 @@ export const GetShoppingCartOfUserDocument = gql`
                         productVariant {
                             id
                             currentVersion {
+                                id
                                 name
                                 retailPrice
                             }
@@ -2660,6 +2908,21 @@ export const GetCurrentUserDocument = gql`
         }
     }
 `
+export const GetPaymentInformationOfCurrentUserDocument = gql`
+    query getPaymentInformationOfCurrentUser($paymentMethod: PaymentMethod) {
+        currentUser {
+            id
+            paymentInformations(filter: { paymentMethod: $paymentMethod }) {
+                totalCount
+                nodes {
+                    id
+                    paymentMethod
+                    publicMethodDetails
+                }
+            }
+        }
+    }
+`
 export const GetUserWithWishlistsDocument = gql`
     query getUserWithWishlists(
         $userId: UUID!
@@ -2786,6 +3049,38 @@ export function getSdk(
     withWrapper: SdkFunctionWrapper = defaultWrapper
 ) {
     return {
+        getActiveAddressesOfCurrentUser(
+            variables?: GetActiveAddressesOfCurrentUserQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetActiveAddressesOfCurrentUserQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetActiveAddressesOfCurrentUserQuery>(
+                        GetActiveAddressesOfCurrentUserDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getActiveAddressesOfCurrentUser',
+                'query',
+                variables
+            )
+        },
+        createUserAddress(
+            variables: CreateUserAddressMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateUserAddressMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateUserAddressMutation>(
+                        CreateUserAddressDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createUserAddress',
+                'mutation',
+                variables
+            )
+        },
         getDefaultProductVariants(
             variables?: GetDefaultProductVariantsQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
@@ -3026,6 +3321,101 @@ export function getSdk(
                 variables
             )
         },
+        getOrder(
+            variables: GetOrderQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetOrderQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetOrderQuery>(GetOrderDocument, variables, {
+                        ...requestHeaders,
+                        ...wrappedRequestHeaders,
+                    }),
+                'getOrder',
+                'query',
+                variables
+            )
+        },
+        createOrder(
+            variables: CreateOrderMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateOrderMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateOrderMutation>(
+                        CreateOrderDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createOrder',
+                'mutation',
+                variables
+            )
+        },
+        placeOrder(
+            variables: PlaceOrderMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<PlaceOrderMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<PlaceOrderMutation>(
+                        PlaceOrderDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'placeOrder',
+                'mutation',
+                variables
+            )
+        },
+        createCreditCardPaymentInformation(
+            variables: CreateCreditCardPaymentInformationMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<CreateCreditCardPaymentInformationMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<CreateCreditCardPaymentInformationMutation>(
+                        CreateCreditCardPaymentInformationDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'createCreditCardPaymentInformation',
+                'mutation',
+                variables
+            )
+        },
+        getShipmentMethods(
+            variables?: GetShipmentMethodsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetShipmentMethodsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetShipmentMethodsQuery>(
+                        GetShipmentMethodsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getShipmentMethods',
+                'query',
+                variables
+            )
+        },
+        getAvailableShipmentMethods(
+            variables: GetAvailableShipmentMethodsQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetAvailableShipmentMethodsQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetAvailableShipmentMethodsQuery>(
+                        GetAvailableShipmentMethodsDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getAvailableShipmentMethods',
+                'query',
+                variables
+            )
+        },
         getShoppingCartOfUser(
             variables: GetShoppingCartOfUserQueryVariables,
             requestHeaders?: GraphQLClientRequestHeaders
@@ -3198,6 +3588,22 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'getCurrentUser',
+                'query',
+                variables
+            )
+        },
+        getPaymentInformationOfCurrentUser(
+            variables?: GetPaymentInformationOfCurrentUserQueryVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<GetPaymentInformationOfCurrentUserQuery> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<GetPaymentInformationOfCurrentUserQuery>(
+                        GetPaymentInformationOfCurrentUserDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'getPaymentInformationOfCurrentUser',
                 'query',
                 variables
             )
