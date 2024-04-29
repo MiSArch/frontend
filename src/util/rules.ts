@@ -34,6 +34,21 @@ export function weightInputIsValid(input: string): boolean | string {
 }
 
 /**
+ * Determines whether the input string is a valid representation of the number of days within which a product version can be returned.
+ * @param input The input string representing the number of days.
+ * @returns Returns true if the input is a valid positive integer or 0, else returns a descriptive error message.
+ */
+export function canBeReturnedWithinNumberOfDaysInputIsValid(
+    input: string
+): boolean | string {
+    if (isNumber(input) && parseInt(input) >= 0) {
+        return true
+    }
+
+    return 'Information on how long the product version can be returned must be provided. It must be entered as a positive integer or 0.'
+}
+
+/**
  * Checks if the input is required.
  * Returns true if the input is a non-empty string, otherwise returns a string indicating it is mandatory.
  * @param input - The input to check.

@@ -380,15 +380,13 @@
                             </v-row>
                             <v-row align="start" dense>
                                 <v-col>Returns:</v-col>
-                                <v-col
-                                    >Returnable within
-                                    {{
-                                        productVariantInfoRelevantToBuyer
-                                            ?.currentVersion
-                                            .canBeReturnedForDays
-                                    }}
-                                    days of receipt.</v-col
-                                >
+                                <v-col v-if="canBeReturnedAtAnyTime">
+                                    Can be returned at any time.
+                                </v-col>
+                                <v-col v-else>
+                                    Returnable within
+                                    {{ canBeReturnedForDays }} days of receipt.
+                                </v-col>
                             </v-row>
                         </v-container>
                     </v-card-text>
@@ -756,7 +754,7 @@ function goToWishlists() {
  */
 const inStock = computed(() => {
     if (!activeUserRoleIsEitherAdminOrEmployee.value) {
-        const count = getProductItemsCountOfItemsInStockForBuyer()
+        const count = productVariantInfoRelevantToBuyer.value?.inventoryCount
         return count != undefined && count > 0
     }
 
@@ -765,18 +763,6 @@ const inStock = computed(() => {
         productItemsCountOfItemsInStock.value > 0
     )
 })
-
-/**
- * Gets the number of product items in stock
- * by "querying" the product variant object.
- */
-function getProductItemsCountOfItemsInStockForBuyer(): number | undefined {
-    if (productVariantInfoRelevantToBuyer.value?.productItems != undefined) {
-        return productVariantInfoRelevantToBuyer.value.productItems.totalCount
-    } else {
-        return undefined
-    }
-}
 
 /**
  * A ref to trigger the evaluation of the inventory status of the product variant:
@@ -793,7 +779,7 @@ const productItemsCountOfItemsInStock = asyncComputed(
         trigger.value
 
         if (!activeUserRoleIsEitherAdminOrEmployee.value) {
-            return getProductItemsCountOfItemsInStockForBuyer()
+            return productVariantInfoRelevantToBuyer.value?.inventoryCount
         }
 
         return await getProductItemsCountOfInventoryStatus(
@@ -1070,4 +1056,21 @@ async function addToCart() {
         )
     }
 }
+
+/**
+ * Information on how long the product version can be returned, 'measured' in number of days.
+ */
+const canBeReturnedForDays = computed(() => {
+    if (productVariantInfoRelevantToBuyer.value) {
+        return productVariantInfoRelevantToBuyer.value.currentVersion
+            .canBeReturnedForDays
+    }
+})
+
+/**
+ * Whether the current product version can be returned at any time.
+ */
+const canBeReturnedAtAnyTime = computed(() => {
+    return canBeReturnedForDays.value === null
+})
 </script>

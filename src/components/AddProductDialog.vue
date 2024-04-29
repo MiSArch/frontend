@@ -121,6 +121,23 @@
                                 v-model="variant.weight"
                             >
                             </v-text-field>
+                            <v-checkbox
+                                label="Can be returned at any time"
+                                v-model="variant.canBeReturnedAtAnyTime"
+                            ></v-checkbox>
+                            <v-text-field
+                                v-if="!variant.canBeReturnedAtAnyTime"
+                                class="mb-4"
+                                clearable
+                                hint="Enter either 0 or a positive integer, e.g. 30"
+                                label="Can be returned within this many days of receipt"
+                                :rules="[
+                                    canBeReturnedWithinNumberOfDaysInputIsValid,
+                                ]"
+                                type="input"
+                                v-model="variant.canBeReturnedForDays"
+                            >
+                            </v-text-field>
                             <v-file-input
                                 accept="image/*"
                                 chips
@@ -161,7 +178,10 @@ import {
     pushErrorNotification,
     awaitActionAndPushErrorIfNecessary,
 } from '@/util/errorHandler'
-import { weightInputIsValid } from '@/util/rules'
+import {
+    canBeReturnedWithinNumberOfDaysInputIsValid,
+    weightInputIsValid,
+} from '@/util/rules'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
@@ -182,7 +202,8 @@ interface Category {
 interface ProductVariant {
     invisible: boolean
     tempId: number
-    canBeReturnedForDays: number
+    canBeReturnedAtAnyTime: boolean
+    canBeReturnedForDays: string
     description: string
     name: string
     retailPrice: string
@@ -265,7 +286,8 @@ function addVariant() {
     const createdVariant = {
         invisible: false,
         tempId: tempIdCounter.value++,
-        canBeReturnedForDays: 30,
+        canBeReturnedAtAnyTime: false,
+        canBeReturnedForDays: '30',
         description: '',
         name: internalName.value ?? '',
         retailPrice: '0',
@@ -301,7 +323,9 @@ function transformVariant(
 ): CreateProductInput['defaultVariant'] {
     return {
         initialVersion: {
-            canBeReturnedForDays: variant.canBeReturnedForDays,
+            canBeReturnedForDays: variant.canBeReturnedAtAnyTime
+                ? null
+                : Number.parseInt(variant.canBeReturnedForDays),
             categoricalCharacteristicValues: [],
             description: variant.description,
             name: variant.name,
@@ -341,7 +365,9 @@ async function save() {
             const variantInput: CreateProductVariantInput = {
                 productId,
                 initialVersion: {
-                    canBeReturnedForDays: variant.canBeReturnedForDays,
+                    canBeReturnedForDays: variant.canBeReturnedAtAnyTime
+                        ? null
+                        : Number.parseInt(variant.canBeReturnedForDays),
                     categoricalCharacteristicValues: [],
                     description: variant.description,
                     name: variant.name,

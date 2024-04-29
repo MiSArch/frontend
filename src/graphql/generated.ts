@@ -1491,6 +1491,7 @@ export type GetProductForBuyerQuery = {
             nodes: Array<{
                 __typename?: 'ProductVariant'
                 id: any
+                inventoryCount: number
                 currentVersion: {
                     __typename?: 'ProductVariantVersion'
                     id: any
@@ -1554,10 +1555,6 @@ export type GetProductForBuyerQuery = {
                         >
                     }
                 }
-                productItems?: {
-                    __typename?: 'ProductItemConnection'
-                    totalCount: number
-                } | null
             }>
         }
         categories: {
@@ -2522,9 +2519,7 @@ export const GetProductForBuyerDocument = gql`
                             }
                         }
                     }
-                    productItems(filter: { inventoryStatus: IN_STORAGE }) {
-                        totalCount
-                    }
+                    inventoryCount
                 }
             }
             categories {
