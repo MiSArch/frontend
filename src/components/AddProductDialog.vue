@@ -209,6 +209,7 @@ interface ProductVariant {
     retailPrice: string
     taxRateId: string | undefined
     weight: string | undefined
+    mediaIds: string[]
 }
 
 /**
@@ -293,6 +294,7 @@ function addVariant() {
         retailPrice: '0',
         taxRateId: undefined,
         weight: undefined,
+        mediaIds: [],
     }
     variants.value.push(createdVariant)
     variantTab.value = createdVariant.tempId
@@ -334,6 +336,7 @@ function transformVariant(
             taxRateId: variant.taxRateId,
             weight:
                 variant.weight !== undefined ? parseFloat(variant.weight) : 0,
+            mediaIds: variant.mediaIds,
         },
         isPubliclyVisible: !variant.invisible,
     }
@@ -378,6 +381,7 @@ async function save() {
                         variant.weight !== undefined
                             ? parseFloat(variant.weight)
                             : 0,
+                    mediaIds: variant.mediaIds,
                 },
                 isPubliclyVisible: !variant.invisible,
             }
