@@ -2,8 +2,9 @@
  * The names of the routes of the Vue Router.
  * @constant
  */
-export const routeNames: { [key: string]: string } = {
+export const routeNames = {
     category: 'category',
+    checkout: 'checkout',
     checkoutAddress: 'checkout-address',
     checkoutPayment: 'checkout-payment',
     checkoutShipment: 'checkout-shipment',
@@ -18,4 +19,10 @@ export const routeNames: { [key: string]: string } = {
     taxRate: 'tax-rate',
     wishlist: 'wishlist',
     wishlists: 'wishlists',
-}
+    graphiql: 'graphiql',
+} as const
+
+/**
+ * The names of the routes of the Vue Router.
+ */
+export type RouteName = (typeof routeNames)[keyof typeof routeNames]

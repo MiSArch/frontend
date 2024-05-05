@@ -18,5 +18,5 @@ watch(
     }
 )
 
-store.initLogin(true)
+store.initLogin()
 </script>
