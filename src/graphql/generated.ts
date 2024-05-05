@@ -2282,6 +2282,10 @@ export type GetWishlistQuery = {
                     canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
+                    medias: {
+                        __typename?: 'MediaConnection'
+                        nodes: Array<{ __typename?: 'Media'; path: string }>
+                    }
                 }
                 product: { __typename?: 'Product'; id: any }
             }>
@@ -3082,6 +3086,11 @@ export const GetWishlistDocument = gql`
                         canBeReturnedForDays
                         version
                         createdAt
+                        medias(first: 1) {
+                            nodes {
+                                path
+                            }
+                        }
                     }
                     product {
                         id
