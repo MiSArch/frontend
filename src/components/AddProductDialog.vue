@@ -210,6 +210,7 @@ interface ProductVariant {
     retailPrice: string
     taxRateId: string | undefined
     weight: string | undefined
+    selectedFiles: File[]
     mediaIds: string[]
 }
 
@@ -297,6 +298,7 @@ function addVariant() {
         retailPrice: '0',
         taxRateId: undefined,
         weight: undefined,
+        selectedFiles: [],
         mediaIds: [],
     }
     variants.value.push(createdVariant)
@@ -379,7 +381,7 @@ async function uploadFileWorkaround(file: File) {
     let formData = new FormData()
     formData.append('operations', JSON.stringify(queryAndVariables))
     formData.append('map', JSON.stringify(map))
-    formData.append(0, file)
+    formData.append('0', file)
     const token = `Bearer ${await store.getAccessToken(true)}`
     const requestOptions = {
         method: 'POST',
@@ -423,10 +425,16 @@ async function save() {
 
     for (const variant of variants.value) {
         if (variant.tempId !== defaultVariant.value) {
-            const variantInput: CreateProductVariantInput =
-                transformVariant(variant)
+            const createProductInput = transformVariant(variant)
+            const createProductVariantInput: CreateProductVariantInput = {
+                productId: productId,
+                initialVersion: createProductInput.initialVersion,
+                isPubliclyVisible: createProductInput.isPubliclyVisible,
+            }
             await awaitActionAndPushErrorIfNecessary(() => {
-                return client.createProductVariant({ input: variantInput })
+                return client.createProductVariant({
+                    input: createProductVariantInput,
+                })
             }, errorMessages.createProductVariant)
         }
     }
