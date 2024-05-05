@@ -352,11 +352,8 @@ function transformVariant(
  * @param files Files to upload.
  */
 async function uploadMedias(files: File[]) {
-    let mediaIds = []
-    for (const file of files) {
-        const mediaId = await uploadFileWorkaround(file)
-        mediaIds.push(mediaId)
-    }
+    const uploadPromises = files.map(uploadFileWorkaround)
+    const mediaIds = await Promise.all(uploadPromises)
     return mediaIds
 }
 
