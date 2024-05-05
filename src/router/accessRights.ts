@@ -1,5 +1,5 @@
 import { UserRole } from '@/store/userRole'
-import { RouteName, routeNames } from './routeNames'
+import { RouteName } from './routeNames'
 
 /**
  * For each route of the application,
