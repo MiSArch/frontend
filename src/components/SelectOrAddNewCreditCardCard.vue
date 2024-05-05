@@ -373,7 +373,6 @@ function selectCreditCard(id: string): void {
     const foundCreditCard =
         creditCards.value?.find((creditCard) => creditCard.id === id) ??
         undefined
-    console.log(foundCreditCard)
     selectedCreditCard.value = foundCreditCard
 }
 

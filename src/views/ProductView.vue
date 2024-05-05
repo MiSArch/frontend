@@ -974,7 +974,6 @@ async function getProductItemsCountOfInventoryStatus(
  * it returns the default maximum value of 10.
  */
 const maximumNumberOfProductItemsABuyerCanOrder = computed(() => {
-    console.log(productItemsCountOfItemsInStock.value)
     if (productItemsCountOfItemsInStock.value != undefined) {
         const numberOfAvailableProductItems =
             productItemsCountOfItemsInStock.value

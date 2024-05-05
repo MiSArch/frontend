@@ -402,7 +402,6 @@ async function uploadFileWorkaround(file: File) {
 async function save() {
     for (const variant of variants.value) {
         const mediaIds = await uploadMedias(variant.selectedFiles)
-        console.log(mediaIds)
         variant.mediaIds = mediaIds
     }
 

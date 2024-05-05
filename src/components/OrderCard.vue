@@ -100,7 +100,6 @@ const emits = defineEmits<{
  */
 const getOrderQuery = asyncComputed(
     async () => {
-        console.log('getOrderQuery has been triggered.')
         props.triggerForQueryingOfOrder
         return await useClient().getOrder({ id: props.orderId })
     },
