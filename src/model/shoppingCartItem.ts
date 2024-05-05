@@ -19,4 +19,5 @@ export interface ShoppingCartItem {
     nameOfProductVariant: string
     retailPrice: number
     productVariantVersionId: string
+    imagePath: string
 }

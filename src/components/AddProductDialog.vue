@@ -143,11 +143,11 @@
                                 chips
                                 clearable
                                 counter
-                                disabled
                                 label="Add Images"
                                 multiple
                                 show-size
                                 variant="outlined"
+                                v-model="variant.selectedFiles"
                             ></v-file-input>
                             <v-card-actions>
                                 <v-btn
@@ -185,6 +185,7 @@ import {
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
+import { useAppStore } from '@/store/app'
 
 /**
  * A Category represents a simplified product category.
@@ -211,6 +212,8 @@ interface ProductVariant {
     weight: string | undefined
     mediaIds: string[]
 }
+
+const store = useAppStore()
 
 /**
  * The 'close-dialog' event tells the app to close this dialog.
@@ -343,9 +346,64 @@ function transformVariant(
 }
 
 /**
+ * Uploads files to the media service via GraphQL.
+ * @param files Files to upload.
+ */
+async function uploadMedias(files: File[]) {
+    let mediaIds = []
+    for (const file of files) {
+        const mediaId = await uploadFileWorkaround(file)
+        mediaIds.push(mediaId)
+    }
+    return mediaIds
+}
+
+/**
+ * Uploads file to media service via GraphQL.
+ * Uses manually constructed request as library dropped file-upload support.
+ * We do not want to use express.
+ * @param file The file to upload.
+ */
+async function uploadFileWorkaround(file: File) {
+    const queryAndVariables = {
+        query: `mutation ($file: Upload!) {
+          uploadMedia (mediaFile: $file)
+        }`,
+        variables: {
+            file: null,
+        },
+    }
+    const map = {
+        '0': ['variables.file'],
+    }
+    let formData = new FormData()
+    formData.append('operations', JSON.stringify(queryAndVariables))
+    formData.append('map', JSON.stringify(map))
+    formData.append(0, file)
+    const token = `Bearer ${await store.getAccessToken(true)}`
+    const requestOptions = {
+        method: 'POST',
+        headers: { Authorization: token },
+        body: formData,
+    }
+    const data = await fetch('/api/graphql', requestOptions).then(
+        (response) => {
+            return response.json()
+        }
+    )
+    return data.data.uploadMedia
+}
+
+/**
  * Tries to save the product and its variants (to the catalog service).
  */
 async function save() {
+    for (const variant of variants.value) {
+        const mediaIds = await uploadMedias(variant.selectedFiles)
+        console.log(mediaIds)
+        variant.mediaIds = mediaIds
+    }
+
     const defaultVariantValue = variants.value.find(
         (v) => v.tempId === defaultVariant.value
     )!
@@ -365,26 +423,8 @@ async function save() {
 
     for (const variant of variants.value) {
         if (variant.tempId !== defaultVariant.value) {
-            const variantInput: CreateProductVariantInput = {
-                productId,
-                initialVersion: {
-                    canBeReturnedForDays: variant.canBeReturnedAtAnyTime
-                        ? null
-                        : Number.parseInt(variant.canBeReturnedForDays),
-                    categoricalCharacteristicValues: [],
-                    description: variant.description,
-                    name: variant.name,
-                    numericalCharacteristicValues: [],
-                    retailPrice: Number.parseInt(variant.retailPrice),
-                    taxRateId: variant.taxRateId,
-                    weight:
-                        variant.weight !== undefined
-                            ? parseFloat(variant.weight)
-                            : 0,
-                    mediaIds: variant.mediaIds,
-                },
-                isPubliclyVisible: !variant.invisible,
-            }
+            const variantInput: CreateProductVariantInput =
+                transformVariant(variant)
             await awaitActionAndPushErrorIfNecessary(() => {
                 return client.createProductVariant({ input: variantInput })
             }, errorMessages.createProductVariant)

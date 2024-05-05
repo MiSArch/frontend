@@ -6,7 +6,7 @@
                     <v-img
                         :width="240"
                         aspect-ratio="4/3"
-                        src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+                        :src="imagePath"
                     ></v-img>
                 </div>
                 <div class="d-flex flex-column">
@@ -59,6 +59,7 @@ import { computed, ref } from 'vue'
  * the name of the product variant's current version.
  * @prop price - The current price of the product variant.
  * @prop retailPrice - The retail price of the produc variant's current version.
+ * @prop imagePath - The image path of the thumbnail.
  * @prop [idOfShoppingCartItem] - If the ProductSummary is supposed to represent one of the shopping cart's items
  * the ID of that item.
  * @prop [count] - The count of the shopping cart item.
@@ -83,6 +84,10 @@ const props = defineProps({
     },
     retailPrice: {
         type: Number,
+        required: true,
+    },
+    imagePath: {
+        type: String,
         required: true,
     },
     idOfShoppingCartItem: {

@@ -20,6 +20,7 @@
                         :price="item.retailPrice"
                         :retail-price="item.retailPrice"
                         :count="item.count"
+                        :image-path="item.imagePath"
                         @count-changed="updateShoppingCartItem"
                         @deleted="removeShoppingCartItem"
                     />

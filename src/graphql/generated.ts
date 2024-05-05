@@ -1240,6 +1240,10 @@ export type DefaultProductVariantFragment = {
             weight: number
             description: string
             canBeReturnedForDays?: number | null
+            medias: {
+                __typename?: 'MediaConnection'
+                nodes: Array<{ __typename?: 'Media'; id: any; path: string }>
+            }
         }
     }
     variants: { __typename?: 'ProductVariantConnection'; totalCount: number }
@@ -1255,6 +1259,10 @@ export type CurrentVersionFragment = {
     weight: number
     description: string
     canBeReturnedForDays?: number | null
+    medias: {
+        __typename?: 'MediaConnection'
+        nodes: Array<{ __typename?: 'Media'; id: any; path: string }>
+    }
 }
 
 type Characteristic_CategoricalCategoryCharacteristic_Fragment = {
@@ -1312,6 +1320,14 @@ export type GetDefaultProductVariantsQuery = {
                     weight: number
                     description: string
                     canBeReturnedForDays?: number | null
+                    medias: {
+                        __typename?: 'MediaConnection'
+                        nodes: Array<{
+                            __typename?: 'Media'
+                            id: any
+                            path: string
+                        }>
+                    }
                 }
             }
             variants: {
@@ -1384,6 +1400,14 @@ export type GetCategoryWithCharacteristicsAndDefaultProductVariantsQuery = {
                         weight: number
                         description: string
                         canBeReturnedForDays?: number | null
+                        medias: {
+                            __typename?: 'MediaConnection'
+                            nodes: Array<{
+                                __typename?: 'Media'
+                                id: any
+                                path: string
+                            }>
+                        }
                     }
                 }
                 variants: {
@@ -1555,6 +1579,14 @@ export type GetProductForBuyerQuery = {
                               }
                         >
                     }
+                    medias: {
+                        __typename?: 'MediaConnection'
+                        nodes: Array<{
+                            __typename?: 'Media'
+                            id: any
+                            path: string
+                        }>
+                    }
                 }
             }>
         }
@@ -1659,6 +1691,14 @@ export type GetProductQuery = {
                                         }
                               }
                         >
+                    }
+                    medias: {
+                        __typename?: 'MediaConnection'
+                        nodes: Array<{
+                            __typename?: 'Media'
+                            id: any
+                            path: string
+                        }>
                     }
                 }
             }>
@@ -1778,6 +1818,12 @@ export type CreateProductItemBatchMutation = {
         inventoryStatus: ProductItemStatus
     }>
 }
+
+export type UploadMediaMutationVariables = Exact<{
+    file: Scalars['Upload']['input']
+}>
+
+export type UploadMediaMutation = { __typename?: 'Mutation'; uploadMedia: any }
 
 export type GetOrderQueryVariables = Exact<{
     id: Scalars['UUID']['input']
@@ -1900,6 +1946,13 @@ export type GetShoppingCartOfUserQuery = {
                             id: any
                             name: string
                             retailPrice: number
+                            medias: {
+                                __typename?: 'MediaConnection'
+                                nodes: Array<{
+                                    __typename?: 'Media'
+                                    path: string
+                                }>
+                            }
                         }
                         product: { __typename?: 'Product'; id: any }
                     }
@@ -2283,6 +2336,12 @@ export const CurrentVersionFragmentDoc = gql`
         weight
         description
         canBeReturnedForDays
+        medias {
+            nodes {
+                id
+                path
+            }
+        }
     }
 `
 export const DefaultProductVariantFragmentDoc = gql`
@@ -2519,6 +2578,12 @@ export const GetProductForBuyerDocument = gql`
                                 }
                             }
                         }
+                        medias {
+                            nodes {
+                                id
+                                path
+                            }
+                        }
                     }
                     inventoryCount
                 }
@@ -2584,6 +2649,12 @@ export const GetProductDocument = gql`
                                 ... on NumericalCategoryCharacteristicValue {
                                     numericalValue: value
                                 }
+                            }
+                        }
+                        medias {
+                            nodes {
+                                id
+                                path
                             }
                         }
                     }
@@ -2684,6 +2755,11 @@ export const CreateProductItemBatchDocument = gql`
         }
     }
 `
+export const UploadMediaDocument = gql`
+    mutation uploadMedia($file: Upload!) {
+        uploadMedia(mediaFile: $file)
+    }
+`
 export const GetOrderDocument = gql`
     query getOrder($id: UUID!) {
         order(id: $id) {
@@ -2773,6 +2849,11 @@ export const GetShoppingCartOfUserDocument = gql`
                                 id
                                 name
                                 retailPrice
+                                medias(first: 1) {
+                                    nodes {
+                                        path
+                                    }
+                                }
                             }
                             product {
                                 id
@@ -3318,6 +3399,22 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'createProductItemBatch',
+                'mutation',
+                variables
+            )
+        },
+        uploadMedia(
+            variables: UploadMediaMutationVariables,
+            requestHeaders?: GraphQLClientRequestHeaders
+        ): Promise<UploadMediaMutation> {
+            return withWrapper(
+                (wrappedRequestHeaders) =>
+                    client.request<UploadMediaMutation>(
+                        UploadMediaDocument,
+                        variables,
+                        { ...requestHeaders, ...wrappedRequestHeaders }
+                    ),
+                'uploadMedia',
                 'mutation',
                 variables
             )

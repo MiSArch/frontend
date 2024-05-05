@@ -24,6 +24,12 @@ fragment currentVersion on ProductVariantVersion {
   weight
   description
   canBeReturnedForDays
+  medias {
+    nodes {
+      id
+      path
+    }
+  }
 }
 
 fragment characteristic on CategoryCharacteristic {
@@ -163,6 +169,12 @@ query getProductForBuyer($id: UUID!) {
               }
             }
           }
+          medias {
+            nodes {
+              id
+              path
+            }
+          }
         }
         inventoryCount
       }
@@ -229,6 +241,12 @@ query getProduct($id: UUID!) {
               ... on NumericalCategoryCharacteristicValue {
                 numericalValue: value
               }
+            }
+          }
+          medias {
+            nodes {
+              id
+              path
             }
           }
         }
