@@ -410,8 +410,7 @@
                                 :price="v.currentVersion.retailPrice"
                                 :retail-price="v.currentVersion.retailPrice"
                                 :image-path="
-                                    v.currentVersion.medias.nodes[0]?.path
-                                        ?? ''
+                                    v.currentVersion.medias.nodes[0]?.path ?? ''
                                 "
                             />
                         </v-list-item>

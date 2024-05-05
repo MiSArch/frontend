@@ -19,8 +19,8 @@
                     :price="productVariant.currentVersion.retailPrice"
                     :retail-price="productVariant.currentVersion.retailPrice"
                     :image-path="
-                        productVariant.currentVersion.medias.nodes[0]?.path
-                            ?? ''
+                        productVariant.currentVersion.medias.nodes[0]?.path ??
+                        ''
                     "
                 />
             </v-list-item>
