@@ -11,10 +11,13 @@
                 <v-breadcrumbs :items="checkoutStages" />
                 <v-spacer></v-spacer>
                 <v-btn
-                    :disabled="userCannotCancel"
                     prepend-icon="mdi-close"
-                    @click="onUserWantsToCancel"
-                    >cancel</v-btn
+                    @click="onUserWantsToCancelOrLeave"
+                    >{{
+                        !userHasArrivedAtCheckoutSummary
+                            ? 'cancel'
+                            : 'leave checkout'
+                    }}</v-btn
                 >
                 <v-btn
                     :disabled="backButtonIsDisabled"
@@ -91,9 +94,9 @@ const userHasArrivedAtCheckoutSummary = computed(() => {
 })
 
 /**
- * Whether the user cannot cancel the checkout process.
+ * Whether the order has been placed or not.
  */
-const userCannotCancel = computed(() => {
+const orderHasBeenPlaced = computed(() => {
     return userHasArrivedAtCheckoutSummary.value
 })
 
@@ -221,12 +224,13 @@ function onUserConfirmedCancellation(): void {
 }
 
 /**
- * Opens the the dialog that lets the user confirm (or cancel)
- * the cancelation of the checkout if the user has not arrived at
- * the checkout summary. If the user has actually already arrived at
- * the checkout summary, the function simply initiates the cancellation of the checkout.
+ * Opens a dialog that lets the user confirm (or cancel)
+ * the cancelation of the checkout if the order has not been placed yet.
+ * If the order has already been placed
+ * the function simply initiates the cancellation of the checkout
+ * which means that the user gets sent back to the storefront.
  */
-function onUserWantsToCancel(): void {
+function onUserWantsToCancelOrLeave(): void {
     if (userHasArrivedAtCheckoutSummary.value) {
         cancel()
     } else {
@@ -235,11 +239,11 @@ function onUserWantsToCancel(): void {
 }
 
 /**
- * Navigates to the shopping cart page using the router and resets the order information.
+ * Navigates to the storefront using the router and resets the order information.
  */
 function cancel(): void {
     router.push({
-        name: routeNames.shoppingCart,
+        name: routeNames.storefront,
     })
     store.resetOrderToUndefined()
 }
