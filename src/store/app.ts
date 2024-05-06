@@ -45,6 +45,7 @@ export const useAppStore = defineStore('app', {
     state: () => ({
         keycloak: null as Keycloak | null,
         isLoggedIn: false,
+        loginInitialized: Promise.withResolvers<void>(),
         currentUserId: null as string | null | undefined,
         userRolesOfCurrentUser: initialUserRolesOfCurrentUser,
         activeUserRole: defaultUserRole,
@@ -92,6 +93,14 @@ export const useAppStore = defineStore('app', {
          */
         activeUserRoleIsBuyer(): boolean {
             return this.activeUserRole === UserRole.Buyer
+        },
+        /**
+         * Checks if the active user role is UserRole.Employee.
+         *
+         * @returns A boolean indicating whether the active user role is UserRole.Admin.
+         */
+        activeUserRoleIsAdmin(): boolean {
+            return this.activeUserRole === UserRole.Admin
         },
         /**
          * Checks if the active user role is either UserRole.Admin or UserRole.Employee.
@@ -156,10 +165,9 @@ export const useAppStore = defineStore('app', {
          *     - the user roles of the current user get stored, and
          *     - the highest user role of the current user becomes the active user role.
          *
-         * @param logToken - If true, logs the Keycloak token to the console.
          * @returns A promise that resolves after the initialization is complete.
          */
-        async initLogin(logToken?: boolean) {
+        async initLogin() {
             const keycloak = new Keycloak({
                 url: '/keycloak',
                 realm: 'Misarch',
@@ -175,10 +183,6 @@ export const useAppStore = defineStore('app', {
 
                 this.keycloak = keycloak
                 this.isLoggedIn = authenticated
-
-                if (logToken === true) {
-                    console.log('Token', keycloak.token)
-                }
             } catch (error) {
                 console.error('Failed to initialize adapter:', error)
             }
@@ -192,6 +196,13 @@ export const useAppStore = defineStore('app', {
 
                 await this.restoreTheShoppingCart()
             }
+            this.loginInitialized.resolve()
+        },
+        /**
+         * Asynchronously awaits initLogin to complete.
+         */
+        async awaitLoginInitialized() {
+            await this.loginInitialized.promise
         },
         /**
          * Asynchronously retrieves the current user.

@@ -1,4 +1,5 @@
 import { UserRole } from '@/store/userRole'
+import { RouteName } from './routeNames'
 
 /**
  * For each route of the application,
@@ -19,6 +20,7 @@ export interface AccessRights {
     canAccessTaxRate: boolean
     canAccessWishlist: boolean
     canAccessWishlists: boolean
+    canAccessGraphiQL: boolean
 }
 
 /**
@@ -37,6 +39,7 @@ export const buyerAccessRights: AccessRights = {
     canAccessTaxRate: false,
     canAccessWishlist: true,
     canAccessWishlists: true,
+    canAccessGraphiQL: false,
 }
 
 /**
@@ -55,6 +58,7 @@ export const employeeAccessRights: AccessRights = {
     canAccessTaxRate: true,
     canAccessWishlist: false,
     canAccessWishlists: false,
+    canAccessGraphiQL: false,
 }
 
 /**
@@ -73,6 +77,7 @@ export const adminAccessRights: AccessRights = {
     canAccessTaxRate: true,
     canAccessWishlist: false,
     canAccessWishlists: false,
+    canAccessGraphiQL: true,
 }
 
 /**
@@ -101,13 +106,13 @@ export function getAccessRights(userRole: UserRole): AccessRights | null {
  * @returns Returns true if the user role has access; otherwise, returns false.
  */
 export function canAccess(
-    nameOfRoute: string,
+    nameOfRoute: RouteName,
     givenAccessRights: AccessRights
 ): boolean {
     /**
      * Lookup table that maps each individual route name to its corresponding AccessRights property.
      */
-    const routeAccessMap: Record<string, keyof AccessRights> = {
+    const routeAccessMap: Record<RouteName, keyof AccessRights> = {
         category: 'canAccessCategory',
         checkout: 'canAccessCheckout',
         'checkout-address': 'canAccessCheckout',
@@ -124,6 +129,7 @@ export function canAccess(
         'tax-rate': 'canAccessTaxRate',
         wishlist: 'canAccessWishlist',
         wishlists: 'canAccessWishlists',
+        graphiql: 'canAccessGraphiQL',
     }
 
     const accessKey = routeAccessMap[nameOfRoute]
