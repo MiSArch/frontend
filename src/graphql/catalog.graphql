@@ -1,280 +1,302 @@
 # Fragments:
 
 fragment defaultProductVariant on Product {
-  id
-  isPubliclyVisible
-  defaultVariant {
     id
     isPubliclyVisible
-    currentVersion {
-      ...currentVersion
+    defaultVariant {
+        id
+        isPubliclyVisible
+        currentVersion {
+            ...currentVersion
+        }
     }
-  }
-  variants {
-    totalCount
-  }
+    variants {
+        totalCount
+    }
 }
 
+# This fragment can be only used for an overview page, as it only queries the first media item.
 fragment currentVersion on ProductVariantVersion {
-  id
-  version
-  createdAt
-  name
-  retailPrice
-  weight
-  description
-  canBeReturnedForDays
-  medias {
-    nodes {
-      id
-      path
+    id
+    version
+    createdAt
+    name
+    retailPrice
+    weight
+    description
+    canBeReturnedForDays
+    medias(first: 1) {
+        nodes {
+            id
+            path
+        }
     }
-  }
 }
 
 fragment characteristic on CategoryCharacteristic {
-  __typename
-  id
-  name
-  ... on CategoricalCategoryCharacteristic {
-    values {
-      totalCount
-      nodes {
-        value
-      }
+    __typename
+    id
+    name
+    ... on CategoricalCategoryCharacteristic {
+        values {
+            totalCount
+            nodes {
+                value
+            }
+        }
     }
-  }
-  ... on NumericalCategoryCharacteristic {
-    unit
-  }
+    ... on NumericalCategoryCharacteristic {
+        unit
+    }
 }
 
 # Queries:
 
 # Gets all of the products. However, only their default product variants.
-query getDefaultProductVariants($first: Int, $skip: Int, $orderBy: ProductOrderInput) {
-  products(first: $first, skip: $skip, orderBy: $orderBy) {
-    totalCount
-    hasNextPage
-    nodes {
-      ... defaultProductVariant
-    }
-  }
-}
-
-# Gets a single category. 
-# Of that category, it gets the category's characteristics and 
-# all of the category's default product variants.
-query getCategoryWithCharacteristicsAndDefaultProductVariants($id: UUID!, $firstProducts: Int, $skipProducts: Int, $orderProductsBy: ProductOrderInput) {
-  category(id: $id) {
-    id
-    name
-    description
-    characteristics {
-      totalCount
-      nodes {
-        ... characteristic
-      }
-    }
-    products(first: $firstProducts, skip: $skipProducts, orderBy: $orderProductsBy) {
-      totalCount
-      hasNextPage
-      nodes {
-        ... defaultProductVariant
-      }
-    }
-  }
-}
-
-# Gets all categories and their individual total count of products and all of a category's products. 
-# Note that a product only comes with information regarding its public visibility and its variants' public visibility.
-query getCategoriesWithTotalCountOfProducts($first: Int, $skip: Int, $orderBy: CategoryOrderInput) {
-  categories(first: $first, skip: $skip, orderBy: $orderBy) {
-    totalCount
-    hasNextPage
-    nodes {
-      id
-      name
-      products {
+query getDefaultProductVariants(
+    $first: Int
+    $skip: Int
+    $orderBy: ProductOrderInput
+) {
+    products(first: $first, skip: $skip, orderBy: $orderBy) {
         totalCount
+        hasNextPage
         nodes {
-          isPubliclyVisible
-          variants {
+            ...defaultProductVariant
+        }
+    }
+}
+
+# Gets a single category.
+# Of that category, it gets the category's characteristics and
+# all of the category's default product variants.
+query getCategoryWithCharacteristicsAndDefaultProductVariants(
+    $id: UUID!
+    $firstProducts: Int
+    $skipProducts: Int
+    $orderProductsBy: ProductOrderInput
+) {
+    category(id: $id) {
+        id
+        name
+        description
+        characteristics {
             totalCount
             nodes {
-              isPubliclyVisible
+                ...characteristic
             }
-          }
         }
-      }
+        products(
+            first: $firstProducts
+            skip: $skipProducts
+            orderBy: $orderProductsBy
+        ) {
+            totalCount
+            hasNextPage
+            nodes {
+                ...defaultProductVariant
+            }
+        }
     }
-  }
+}
+
+# Gets all categories and their individual total count of products and all of a category's products.
+# Note that a product only comes with information regarding its public visibility and its variants' public visibility.
+query getCategoriesWithTotalCountOfProducts(
+    $first: Int
+    $skip: Int
+    $orderBy: CategoryOrderInput
+) {
+    categories(first: $first, skip: $skip, orderBy: $orderBy) {
+        totalCount
+        hasNextPage
+        nodes {
+            id
+            name
+            products {
+                totalCount
+                nodes {
+                    isPubliclyVisible
+                    variants {
+                        totalCount
+                        nodes {
+                            isPubliclyVisible
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 # Gets all of the categories and their individual category characteristics.
-query getCategoriesWithCharacteristics($first: Int, $skip: Int, $orderBy: CategoryOrderInput) {
-  categories(first: $first, skip: $skip, orderBy: $orderBy) {
-    totalCount
-    hasNextPage
-    nodes {
-      id
-      name
-      characteristics {
+query getCategoriesWithCharacteristics(
+    $first: Int
+    $skip: Int
+    $orderBy: CategoryOrderInput
+) {
+    categories(first: $first, skip: $skip, orderBy: $orderBy) {
         totalCount
+        hasNextPage
         nodes {
-          ... characteristic
+            id
+            name
+            characteristics {
+                totalCount
+                nodes {
+                    ...characteristic
+                }
+            }
         }
-      }
     }
-  }
 }
 
 # Retrieve the product with the specified ID,
 # including only the information relevant to a potential customer.
 query getProductForBuyer($id: UUID!) {
-  product(id: $id) {
-    id
-    defaultVariant {
-      id
-    }
-    variants {
-      totalCount
-      nodes {
+    product(id: $id) {
         id
-        currentVersion {
-          id
-          version
-          createdAt
-          name
-          retailPrice
-          weight
-          description
-          canBeReturnedForDays
-          characteristicValues {
+        defaultVariant {
+            id
+        }
+        variants {
             totalCount
             nodes {
-              __typename
-              characteristic {
+                id
+                currentVersion {
+                    id
+                    version
+                    createdAt
+                    name
+                    retailPrice
+                    weight
+                    description
+                    canBeReturnedForDays
+                    characteristicValues {
+                        totalCount
+                        nodes {
+                            __typename
+                            characteristic {
+                                id
+                                name
+                                category {
+                                    id
+                                }
+                            }
+                            ... on CategoricalCategoryCharacteristicValue {
+                                categoricalValue: value
+                            }
+                            ... on NumericalCategoryCharacteristicValue {
+                                numericalValue: value
+                            }
+                        }
+                    }
+                    medias {
+                        nodes {
+                            id
+                            path
+                        }
+                    }
+                }
+                inventoryCount
+            }
+        }
+        categories {
+            totalCount
+            nodes {
                 id
                 name
-                category {
-                  id
-                }
-              }
-              ... on CategoricalCategoryCharacteristicValue {
-                categoricalValue: value
-              }
-              ... on NumericalCategoryCharacteristicValue {
-                numericalValue: value
-              }
             }
-          }
-          medias {
-            nodes {
-              id
-              path
-            }
-          }
         }
-        inventoryCount
-      }
     }
-    categories {
-      totalCount
-      nodes {
-        id
-        name
-      }
-    }
-  }
 }
 
 # Retrieve the product with the specified ID,
 # including all the information relevant to an employee or an admin.
 query getProduct($id: UUID!) {
-  product(id: $id) {
-    id
-    isPubliclyVisible
-    internalName
-    defaultVariant {
-      id
-    }
-    variants {
-      totalCount
-      nodes {
+    product(id: $id) {
         id
         isPubliclyVisible
-        currentVersion {
-          id
-          version
-          createdAt
-          name
-          retailPrice
-          weight
-          description
-          canBeReturnedForDays
-          taxRate {
+        internalName
+        defaultVariant {
             id
-            name
-            description
-            currentVersion {
-              id
-              rate
-              version
-              createdAt
-            }
-          }
-          characteristicValues {
+        }
+        variants {
             totalCount
             nodes {
-              __typename
-              characteristic {
+                id
+                isPubliclyVisible
+                currentVersion {
+                    id
+                    version
+                    createdAt
+                    name
+                    retailPrice
+                    weight
+                    description
+                    canBeReturnedForDays
+                    taxRate {
+                        id
+                        name
+                        description
+                        currentVersion {
+                            id
+                            rate
+                            version
+                            createdAt
+                        }
+                    }
+                    characteristicValues {
+                        totalCount
+                        nodes {
+                            __typename
+                            characteristic {
+                                id
+                                name
+                                category {
+                                    id
+                                }
+                            }
+                            ... on CategoricalCategoryCharacteristicValue {
+                                categoricalValue: value
+                            }
+                            ... on NumericalCategoryCharacteristicValue {
+                                numericalValue: value
+                            }
+                        }
+                    }
+                    medias {
+                        nodes {
+                            id
+                            path
+                        }
+                    }
+                }
+            }
+        }
+        categories {
+            totalCount
+            nodes {
                 id
                 name
-                category {
-                  id
-                }
-              }
-              ... on CategoricalCategoryCharacteristicValue {
-                categoricalValue: value
-              }
-              ... on NumericalCategoryCharacteristicValue {
-                numericalValue: value
-              }
             }
-          }
-          medias {
-            nodes {
-              id
-              path
-            }
-          }
         }
-      }
     }
-    categories {
-      totalCount
-      nodes {
-        id
-        name
-      }
-    }
-  }
 }
 
 # Gets a single product with only the product variants of the product.
 # It only gets the ID and name of a product variant.
 query getProductWithItsVariantsOnly($id: UUID!) {
-  product(id: $id) {
-    variants {
-      nodes {
-        id
-        currentVersion {
-          name
+    product(id: $id) {
+        variants {
+            nodes {
+                id
+                currentVersion {
+                    name
+                }
+            }
         }
-      }
     }
-  }
 }
 
 # Mutations:
@@ -291,26 +313,32 @@ mutation createProductVariant($input: CreateProductVariantInput!) {
     }
 }
 
-mutation createNewProductVariantVersion($input: CreateProductVariantVersionInput!) {
-  createProductVariantVersion(input: $input) {
-    id
-  }
+mutation createNewProductVariantVersion(
+    $input: CreateProductVariantVersionInput!
+) {
+    createProductVariantVersion(input: $input) {
+        id
+    }
 }
 
 mutation createCategory($input: CreateCategoryInput!) {
-  createCategory(input: $input) {
-    id
-  }
+    createCategory(input: $input) {
+        id
+    }
 }
 
-mutation createCategoricalCategoryCharacteristic($input: CreateCategoricalCategoryCharacteristicInput!) {
-  createCategoricalCategoryCharacteristic(input: $input) {
-    id
-  }
+mutation createCategoricalCategoryCharacteristic(
+    $input: CreateCategoricalCategoryCharacteristicInput!
+) {
+    createCategoricalCategoryCharacteristic(input: $input) {
+        id
+    }
 }
 
-mutation createNumericalCategoryCharacteristic($input: CreateNumericalCategoryCharacteristicInput!) {
-  createNumericalCategoryCharacteristic(input: $input) {
-    id
-  }
+mutation createNumericalCategoryCharacteristic(
+    $input: CreateNumericalCategoryCharacteristicInput!
+) {
+    createNumericalCategoryCharacteristic(input: $input) {
+        id
+    }
 }

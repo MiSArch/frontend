@@ -199,6 +199,7 @@
                         <v-carousel-item
                             v-for="media in productVariantInfoRelevantToBuyer
                                 ?.currentVersion.medias.nodes"
+                            :key="media.id"
                             :width="360"
                             aspect-ratio="4/3"
                             :src="media.path"

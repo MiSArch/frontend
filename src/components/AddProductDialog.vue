@@ -351,7 +351,7 @@ function transformVariant(
  * Uploads files to the media service via GraphQL.
  * @param files Files to upload.
  */
-async function uploadMedias(files: File[]) {
+async function uploadMedias(files: File[]): Promise<string[]> {
     const uploadPromises = files.map(uploadFileWorkaround)
     const mediaIds = await Promise.all(uploadPromises)
     return mediaIds
@@ -363,7 +363,7 @@ async function uploadMedias(files: File[]) {
  * We do not want to use express.
  * @param file The file to upload.
  */
-async function uploadFileWorkaround(file: File) {
+async function uploadFileWorkaround(file: File): Promise<string> {
     const queryAndVariables = {
         query: `mutation ($file: Upload!) {
           uploadMedia (mediaFile: $file)
@@ -385,11 +385,11 @@ async function uploadFileWorkaround(file: File) {
         headers: { Authorization: token },
         body: formData,
     }
-    const data = await fetch('/api/graphql', requestOptions).then(
-        (response) => {
+    const data = await awaitActionAndPushErrorIfNecessary(() => {
+        return fetch('/api/graphql', requestOptions).then((response) => {
             return response.json()
-        }
-    )
+        })
+    }, errorMessages.uploadMedia)
     return data.data.uploadMedia
 }
 

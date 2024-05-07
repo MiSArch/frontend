@@ -9,6 +9,7 @@
  * @property nameOfProductVariant - The name of the product variant.
  * @property retailPrice - The retail price of the product variant.
  * @property productVariantVersionId - The unique identifier of the product variant version associated with the item.
+ * @property imagePath - Path to image associated with the default variant of the product.
  */
 export interface ShoppingCartItem {
     id: string

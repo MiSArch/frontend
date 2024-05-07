@@ -1,4 +1,0 @@
-# Mutations:
-
-# Upload media file.
-mutation uploadMedia($file: Upload!) { uploadMedia(mediaFile: $file) }
