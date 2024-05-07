@@ -1819,12 +1819,6 @@ export type CreateProductItemBatchMutation = {
     }>
 }
 
-export type UploadMediaMutationVariables = Exact<{
-    file: Scalars['Upload']['input']
-}>
-
-export type UploadMediaMutation = { __typename?: 'Mutation'; uploadMedia: any }
-
 export type GetOrderQueryVariables = Exact<{
     id: Scalars['UUID']['input']
 }>
@@ -2340,7 +2334,7 @@ export const CurrentVersionFragmentDoc = gql`
         weight
         description
         canBeReturnedForDays
-        medias {
+        medias(first: 1) {
             nodes {
                 id
                 path
@@ -2757,11 +2751,6 @@ export const CreateProductItemBatchDocument = gql`
             id
             inventoryStatus
         }
-    }
-`
-export const UploadMediaDocument = gql`
-    mutation uploadMedia($file: Upload!) {
-        uploadMedia(mediaFile: $file)
     }
 `
 export const GetOrderDocument = gql`
@@ -3408,22 +3397,6 @@ export function getSdk(
                         { ...requestHeaders, ...wrappedRequestHeaders }
                     ),
                 'createProductItemBatch',
-                'mutation',
-                variables
-            )
-        },
-        uploadMedia(
-            variables: UploadMediaMutationVariables,
-            requestHeaders?: GraphQLClientRequestHeaders
-        ): Promise<UploadMediaMutation> {
-            return withWrapper(
-                (wrappedRequestHeaders) =>
-                    client.request<UploadMediaMutation>(
-                        UploadMediaDocument,
-                        variables,
-                        { ...requestHeaders, ...wrappedRequestHeaders }
-                    ),
-                'uploadMedia',
                 'mutation',
                 variables
             )
