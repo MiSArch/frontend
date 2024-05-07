@@ -14,12 +14,11 @@
                     prepend-icon="mdi-close"
                     @click="onUserWantsToCancelOrLeave"
                     >{{
-                        !userHasArrivedAtCheckoutSummary
-                            ? 'cancel'
-                            : 'leave checkout'
+                        !orderHasAlreadyBeenPlaced ? 'cancel' : 'leave checkout'
                     }}</v-btn
                 >
                 <v-btn
+                    v-if="hasBackButtonOnTheRight"
                     :disabled="backButtonIsDisabled"
                     prepend-icon="mdi-arrow-left"
                     @click="back"
@@ -30,11 +29,7 @@
                     :disabled="proceedButtonDisabled"
                     prepend-icon="mdi-arrow-right"
                     @click="proceed"
-                    >{{
-                        route.name === routeNames.checkoutPayment
-                            ? 'create order'
-                            : 'proceed'
-                    }}</v-btn
+                    >proceed</v-btn
                 >
             </v-toolbar>
             <router-view class="pa-4" />
@@ -76,9 +71,9 @@ const store = useAppStore()
 const {
     addressInformationIsComplete,
     currentUserId,
-    order,
     paymentInformationIsComplete,
     shipmentInformationIsComplete,
+    upcomingOrder: order,
 } = storeToRefs(store)
 
 /**
@@ -94,10 +89,17 @@ const userHasArrivedAtCheckoutSummary = computed(() => {
 })
 
 /**
- * Whether the order has been placed or not.
+ * Whether the order has already been placed.
  */
-const orderHasBeenPlaced = computed(() => {
-    return userHasArrivedAtCheckoutSummary.value
+const orderHasAlreadyBeenPlaced = computed(() => {
+    return order.value.hasBeenPlaced
+})
+
+/**
+ * Whether the back button on the right is there.
+ */
+const hasBackButtonOnTheRight = computed(() => {
+    return !userHasArrivedAtCheckoutSummary.value
 })
 
 /**
@@ -239,13 +241,14 @@ function onUserWantsToCancelOrLeave(): void {
 }
 
 /**
- * Navigates to the storefront using the router and resets the order information.
+ * Navigates to the storefront using the router.
+ * Additionally "clears" or resets the order information of the app store.
  */
 function cancel(): void {
     router.push({
         name: routeNames.storefront,
     })
-    store.resetOrderToUndefined()
+    store.resetUpcomingOrder()
 }
 
 /**
@@ -291,7 +294,6 @@ async function proceed(): Promise<void> {
 
 /**
  * Creates an order based on the current order details and user ID, then navigates to the order summary page.
- * Additionally "clears" or resets the order information of the app store to undefined.
  * @returns - A promise that resolves after the order is created and the navigation to the order summary page is completed.
  */
 async function createOrderAndNavigateToOrderSummary(): Promise<void> {
@@ -309,7 +311,6 @@ async function createOrderAndNavigateToOrderSummary(): Promise<void> {
     } finally {
         isAwaitingOrderCreation.value = false
     }
-    store.resetOrderToUndefined()
     router.push({
         name: routeNames.checkoutSummary,
         params: {

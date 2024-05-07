@@ -25,6 +25,11 @@ const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
 
 /**
+ * A new and totally empty order that has not yet been created in the backend.
+ */
+const emptyOrderThatHasNotYetBeenPlaced = new OrderImpl(false)
+
+/**
  * Interface representing a notification to be displayed.
  *
  * @property text - The main text content of the notification.
@@ -50,7 +55,7 @@ export const useAppStore = defineStore('app', {
         activeUserRole: defaultUserRole,
         queuedNotifications: [] as Notification[],
         shoppingCart: emptyShoppingCart,
-        order: new OrderImpl(),
+        upcomingOrder: emptyOrderThatHasNotYetBeenPlaced,
     }),
     getters: {
         token(): string | undefined {
@@ -113,32 +118,32 @@ export const useAppStore = defineStore('app', {
             return this.isLoggedIn && this.activeUserRoleIsBuyer
         },
         /**
-         * Checks whether the address information for the order is complete.
+         * Checks whether the address information for the upcoming order is complete.
          * @returns - Returns true if both the delivery and billing addresses have valid IDs, otherwise returns false.
          */
         addressInformationIsComplete(): boolean {
             return (
-                this.order.deliveryAddress?.id != undefined &&
-                this.order.billingAddress?.id != undefined
+                this.upcomingOrder.deliveryAddress?.id != undefined &&
+                this.upcomingOrder.billingAddress?.id != undefined
             )
         },
         /**
-         * Checks whether the shipment information for the order is complete.
+         * Checks whether the shipment information for the upcoming order is complete.
          * @returns - Returns true if for each order item the shipment method has a valid ID, otherwise returns false.
          */
         shipmentInformationIsComplete(): boolean {
             return (
-                this.order.items?.filter(
+                this.upcomingOrder.items?.filter(
                     (orderItem) => orderItem.shipmentMethod?.id == undefined
                 ).length === 0
             )
         },
         /**
-         * Checks whether the payment information for the order is complete.
+         * Checks whether the payment information for the upcoming order is complete.
          * @returns - Returns true if the payment information has a valid ID, otherwise returns false.
          */
         paymentInformationIsComplete(): boolean {
-            return this.order.paymentInformation?.id != undefined
+            return this.upcomingOrder.paymentInformation?.id != undefined
         },
     },
     actions: {
@@ -514,21 +519,21 @@ export const useAppStore = defineStore('app', {
             await this.restoreTheShoppingCart()
         },
         /**
-         * Resets the order to a state where no information has been provided.
+         * Resets the upcoming order to a state where no information has been provided.
          */
-        resetOrderToUndefined() {
-            this.order = new OrderImpl()
+        resetUpcomingOrder() {
+            this.upcomingOrder = emptyOrderThatHasNotYetBeenPlaced
         },
         /**
          * Creates order items based on the items in the shopping cart and assigns them to the order.
          * If the order is undefined, the function returns without creating order items.
          */
         createOrderItems() {
-            if (this.order == undefined) {
+            if (this.upcomingOrder == undefined) {
                 return
             }
 
-            this.order.items = this.shoppingCart.items.map(
+            this.upcomingOrder.items = this.shoppingCart.items.map(
                 (shoppingCartItem) => new OrderItemImpl(shoppingCartItem)
             )
         },

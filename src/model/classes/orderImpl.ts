@@ -10,12 +10,14 @@ import { PaymentInformation } from '../interfaces/PaymentInformation'
 export class OrderImpl implements Order {
     /**
      * Creates an instance of OrderInformationImpl.
+     * @param hasBeenPlaced - Whether the order has been placed or not.
      * @param [items] - The items that make up the order.
      * @param [deliveryAddress] - The delivery address for the order.
      * @param [billingAddress] - The billing address for the order.
      * @param [paymentInformation] - The payment information for the order.
      */
     constructor(
+        public hasBeenPlaced: boolean,
         public items?: OrderItem[],
         public deliveryAddress?: Address,
         public billingAddress?: Address,
