@@ -118,3 +118,43 @@ export function isValidCreditCardExpirationDate(
 
     return true
 }
+
+/**
+ * Checks whether the input is undefined, an empty string, or a valid VAT identification number (VATIN).
+ * @param input - The string to be validated.
+ * @returns Returns true if the input is undefined, an empty string, or a valid VATIN. Otherwise, returns a string error message indicating the validation failure.
+ */
+export function isUndefinedOrEmptyStringOrValidVATIN(
+    input: string
+): boolean | string {
+    if (input == undefined) {
+        return true
+    }
+
+    if (typeof input === 'string' && input.length === 0) {
+        return true
+    }
+
+    return isValidVATIN(input)
+}
+
+/**
+ * Checks whether the input string is a valid VAT identification number (VATIN).
+ * The pattern to match was derived from the specification of a VATIN's structure on Wikipedia:
+ * https://en.wikipedia.org/wiki/VAT_identification_number
+ * @param input - The string to be validated as a VATIN.
+ * @returns Returns true if the input is a valid VATIN, otherwise returns a string error message indicating the validation failure.
+ */
+export function isValidVATIN(input: string): boolean | string {
+    if (typeof input !== 'string' || input.length === 0) {
+        return false
+    }
+
+    const patternToMatch = /^(EU|[A-Z]{2}|EL|XI)[\dA-Z]{2,13}$/
+
+    if (!patternToMatch.test(input)) {
+        return "Please enter a valid VATIN, e.g., 'DE' followed by 9 digits, for a German-based company."
+    }
+
+    return true
+}

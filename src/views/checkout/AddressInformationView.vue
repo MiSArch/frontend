@@ -9,6 +9,16 @@
                 v-model:address="selectedDeliveryAddress"
                 @new-address-saved="triggerForQueryingOfBillingAddresses++"
             />
+            <v-text-field
+                clearable
+                label="VAT Identification Number"
+                prepend-icon="mdi-card-account-details"
+                required
+                :rules="[isUndefinedOrEmptyStringOrValidVATIN]"
+                type="input"
+                variant="underlined"
+                v-model="_VATIN"
+            ></v-text-field>
             <v-checkbox
                 label="The billing address differs from the delivery address."
                 v-model="billingAddressDiffersFromDeliveryAddress"
@@ -30,6 +40,7 @@
 import SelectOrAddNewAddressCard from '@/components/SelectOrAddNewAddressCard.vue'
 import { AddressImpl } from '@/model/classes/AddressImpl'
 import { useAppStore } from '@/store/app'
+import { isUndefinedOrEmptyStringOrValidVATIN } from '@/util/rules'
 import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 
@@ -45,6 +56,13 @@ const selectedDeliveryAddress = ref<AddressImpl | undefined>(
 watch(
     () => selectedDeliveryAddress.value,
     () => onSelectedDeliveryAddressChanged()
+)
+
+const _VATIN = ref<string | undefined>(order.value.vatNumber)
+
+watch(
+    () => _VATIN.value,
+    () => updateVATINOfOrderInformation()
 )
 
 const triggerForQueryingOfBillingAddresses = ref<number>(0)
@@ -92,6 +110,14 @@ function onSelectedDeliveryAddressChanged() {
  */
 function updateDeliveryAddressOfOrderInformation(): void {
     order.value.deliveryAddress = selectedDeliveryAddress.value
+}
+
+/**
+ * Updates the VAT identification number of the order information -- see Order.vatNumber --
+ * to the value of the corresponding input field of this view.
+ */
+function updateVATINOfOrderInformation() {
+    order.value.vatNumber = _VATIN.value
 }
 
 /**
