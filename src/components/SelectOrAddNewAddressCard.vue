@@ -417,7 +417,6 @@ function selectAddress(id: string): void {
     }
     const foundAddress =
         addresses.value?.find((address) => address.id === id) ?? null
-    console.log(foundAddress)
     selectedAddress.value = foundAddress
 }
 </script>
