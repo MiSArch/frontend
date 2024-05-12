@@ -266,6 +266,8 @@ export type CreateOrderInput = {
     shipmentAddressId: Scalars['UUID']['input']
     /** UUID of user owning the order. */
     userId: Scalars['UUID']['input']
+    /** VAT number. */
+    vatNumber: Scalars['String']['input']
 }
 
 /** Input for the createProduct mutation */
@@ -588,6 +590,11 @@ export enum OrderStatus {
     Rejected = 'REJECTED',
 }
 
+export type PaymentAuthorizationInput = {
+    /** CVC/CVV number of 3-4 digits. */
+    cvc?: InputMaybe<Scalars['Int']['input']>
+}
+
 /** Filtering options for payments */
 export type PaymentFilter = {
     /** Timebox start for payment creation */
@@ -660,6 +667,13 @@ export enum PaymentStatus {
     Pending = 'PENDING',
     /** The payment was successfully processed and the amount was transfered */
     Succeeded = 'SUCCEEDED',
+}
+
+export type PlaceOrderInput = {
+    /** UUID of order to place. */
+    id: Scalars['UUID']['input']
+    /** Optional payment authorization data. */
+    paymentAuthorization?: InputMaybe<PaymentAuthorizationInput>
 }
 
 /** Product filter */
@@ -1847,7 +1861,7 @@ export type CreateOrderMutation = {
 }
 
 export type PlaceOrderMutationVariables = Exact<{
-    id: Scalars['UUID']['input']
+    input: PlaceOrderInput
 }>
 
 export type PlaceOrderMutation = {
@@ -2774,8 +2788,8 @@ export const CreateOrderDocument = gql`
     }
 `
 export const PlaceOrderDocument = gql`
-    mutation placeOrder($id: UUID!) {
-        placeOrder(id: $id) {
+    mutation placeOrder($input: PlaceOrderInput!) {
+        placeOrder(input: $input) {
             id
             orderStatus
         }

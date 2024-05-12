@@ -9,6 +9,7 @@ import { PaymentInformation } from './PaymentInformation'
  * @property [deliveryAddress] - The delivery address for the order.
  * @property [billingAddress] - The billing address for the order.
  * @property [paymentInformation] - The payment information for the order.
+ * @property [vatNumber] - The VAT number.
  * @method calculateTotalCost - Calculates the total cost of the order.
  */
 export interface Order {
@@ -16,5 +17,6 @@ export interface Order {
     deliveryAddress?: Address
     billingAddress?: Address
     paymentInformation?: PaymentInformation
+    vatNumber?: string
     calculateTotalCost(): number
 }

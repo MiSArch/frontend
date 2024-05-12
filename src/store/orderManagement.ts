@@ -79,6 +79,7 @@ function createInputObjectForOrderCreation(
         order.billingAddress?.id == undefined ||
         order.paymentInformation?.id == undefined ||
         order.items == undefined ||
+        order.vatNumber == undefined ||
         order.items.filter((item) => !canCreateOrderItemInput(item)).length > 0
     ) {
         throw new Error('Cannot create CreateOrderInput.')
@@ -90,6 +91,7 @@ function createInputObjectForOrderCreation(
         shipmentAddressId: order.deliveryAddress.id,
         invoiceAddressId: order.billingAddress.id,
         paymentInformationId: order.paymentInformation.id,
+        vatNumber: order.vatNumber,
     }
 }
 
@@ -100,10 +102,16 @@ function createInputObjectForOrderCreation(
  * @returns - A promise that resolves to true if the order was placed succesfully, false otherwise.
  */
 export async function placeOrder(orderId: string): Promise<boolean> {
+    if (orderId == undefined) {
+        throw new Error('Cannot create PlaceOrderInput.')
+    }
+    const placeOrderInput = {
+        id: orderId,
+    }
     const placeOrderMutation: PlaceOrderMutation =
         await awaitActionAndPushErrorIfNecessary(() => {
             return useClient().placeOrder({
-                id: orderId,
+                input: placeOrderInput,
             })
         }, errorMessages.placeOrder)
 
