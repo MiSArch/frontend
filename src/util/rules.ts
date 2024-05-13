@@ -86,6 +86,26 @@ export function isValidCreditCardNumber(input: string): boolean | string {
 }
 
 /**
+ * Checks if the provided string is a valid credit card validation code.
+ * @param input - The CVC to validate.
+ * @returns True if the CVC is valid, otherwise returns false if the given input is not a string or an empty string,
+ * otherwise returns a string inidicating a validation error.
+ */
+export function isValidCreditCardValidationCode(
+    input: string
+): boolean | string {
+    if (typeof input !== 'string' || input.length === 0) {
+        return false
+    }
+
+    if ((input.length === 3 || input.length === 4) && isNumber(input)) {
+        return true
+    } else {
+        return 'Please enter a valid CVC, e.g. 128.'
+    }
+}
+
+/**
  * Checks if the provided string is a valid credit card expiration date in the MM/YY or MM/YYYY format.
  * @param input - The expiration date to validate.
  * @returns - Returns true if the input is a valid expiration date and is in the future,
