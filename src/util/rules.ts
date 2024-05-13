@@ -21,6 +21,15 @@ export function isNumber(input: string): boolean {
 }
 
 /**
+ * Checks whether a given input is an empty string.
+ * @param input - The input value to check.
+ * @returns True if the given input value is a string and it is an empty one, false otherwise.
+ */
+export function isEmptyString(input: string): boolean {
+    return typeof input === 'string' && input.length === 0
+}
+
+/**
  * Validates the weight input: The input must be a) not null, b) a number, and c) bigger than 0.
  * @param input - The input value to validate.
  * @returns True if the weight is valid, otherwise a string describing the error.
@@ -125,17 +134,21 @@ export function isValidCreditCardExpirationDate(
  * @returns Returns true if the input is undefined, an empty string, or a valid VATIN. Otherwise, returns a string error message indicating the validation failure.
  */
 export function isUndefinedOrEmptyStringOrValidVATIN(
-    input: string
+    input: string | undefined
 ): boolean | string {
     if (input == undefined) {
         return true
     }
 
-    if (typeof input === 'string' && input.length === 0) {
+    if (isEmptyString(input)) {
         return true
     }
 
-    return isValidVATIN(input)
+    if (isValidVATIN(input)) {
+        return true
+    } else {
+        return 'Please enter a valid VAT identification number.'
+    }
 }
 
 /**
@@ -143,18 +156,13 @@ export function isUndefinedOrEmptyStringOrValidVATIN(
  * The pattern to match was derived from the specification of a VATIN's structure on Wikipedia:
  * https://en.wikipedia.org/wiki/VAT_identification_number
  * @param input - The string to be validated as a VATIN.
- * @returns Returns true if the input is a valid VATIN, otherwise returns a string error message indicating the validation failure.
+ * @returns Returns true if the input is a valid VATIN, otherwise returns false.
  */
-export function isValidVATIN(input: string): boolean | string {
-    if (typeof input !== 'string' || input.length === 0) {
+export function isValidVATIN(input: string): boolean {
+    if (typeof input === 'string' && !isEmptyString(input)) {
+        const pattern: RegExp = /^([A-Z]{2}|EU|EL|XI)(?:-?[A-Z\d]){2,13}$/
+        return pattern.test(input)
+    } else {
         return false
     }
-
-    const patternToMatch = /^(EU|[A-Z]{2}|EL|XI)[\dA-Z]{2,13}$/
-
-    if (!patternToMatch.test(input)) {
-        return "Please enter a valid VATIN, e.g., 'DE' followed by 9 digits, for a German-based company."
-    }
-
-    return true
 }

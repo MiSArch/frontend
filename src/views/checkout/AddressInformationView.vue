@@ -11,13 +11,13 @@
             />
             <v-text-field
                 clearable
+                hint="A valid VATIN consists of uppercase letters and digits. It starts with a country code, followed by 2 to 13 digits or letters. Hyphens are allowed for readability."
                 label="VAT Identification Number"
                 prepend-icon="mdi-card-account-details"
-                required
                 :rules="[isUndefinedOrEmptyStringOrValidVATIN]"
                 type="input"
                 variant="underlined"
-                v-model="_VATIN"
+                v-model="order.vatNumber"
             ></v-text-field>
             <v-checkbox
                 label="The billing address differs from the delivery address."
@@ -56,13 +56,6 @@ const selectedDeliveryAddress = ref<AddressImpl | undefined>(
 watch(
     () => selectedDeliveryAddress.value,
     () => onSelectedDeliveryAddressChanged()
-)
-
-const _VATIN = ref<string | undefined>(order.value.vatNumber)
-
-watch(
-    () => _VATIN.value,
-    () => updateVATINOfOrderInformation()
 )
 
 const triggerForQueryingOfBillingAddresses = ref<number>(0)
@@ -110,14 +103,6 @@ function onSelectedDeliveryAddressChanged() {
  */
 function updateDeliveryAddressOfOrderInformation(): void {
     order.value.deliveryAddress = selectedDeliveryAddress.value
-}
-
-/**
- * Updates the VAT identification number of the order information -- see Order.vatNumber --
- * to the value of the corresponding input field of this view.
- */
-function updateVATINOfOrderInformation() {
-    order.value.vatNumber = _VATIN.value
 }
 
 /**
