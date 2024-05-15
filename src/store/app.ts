@@ -20,6 +20,7 @@ import {
 } from './shoppingCartManagement'
 import { OrderImpl } from '@/model/classes/orderImpl'
 import { OrderItemImpl } from '@/model/classes/orderItemImpl'
+import { PaymentMethod } from '@/model/enums/paymentMethod'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
@@ -147,7 +148,18 @@ export const useAppStore = defineStore('app', {
          * @returns - Returns true if the payment information has a valid ID, otherwise returns false.
          */
         paymentInformationIsComplete(): boolean {
-            return this.order.paymentInformation?.id != undefined
+            if (this.order.paymentInformation?.id != undefined) {
+                if (
+                    this.order.paymentInformation.paymentMethod ==
+                    PaymentMethod.CreditCard
+                ) {
+                    return this.order.creditCardValidationCode != undefined
+                } else {
+                    return true
+                }
+            } else {
+                return false
+            }
         },
     },
     actions: {

@@ -4,6 +4,8 @@ import {
     CreateOrderMutation,
     OrderItemInput,
     OrderStatus,
+    PaymentAuthorizationInput,
+    PlaceOrderInput,
     PlaceOrderMutation,
 } from '@/graphql/generated'
 import { Order } from '@/model/interfaces/order'
@@ -102,16 +104,32 @@ function createInputObjectForOrderCreation(
 
 /**
  * Requests the placement of an order with the specified order ID.
+ * If the payment method of the order is credit card, a credit card validation code (CVC) must be specified.
+ * This function does not check whether the chosen payment method actually is credit card
+ * if a CVC was specified.
  * @param orderId - The ID of the order to be placed.
+ * @param [creditCardValidationCode] - The CVC of the credit card.
  * @throws Throws an error if there is any issue while placing the order.
  * @returns - A promise that resolves to true if the order was placed succesfully, false otherwise.
  */
-export async function placeOrder(orderId: string): Promise<boolean> {
+export async function placeOrder(
+    orderId: string,
+    creditCardValidationCode?: string
+): Promise<boolean> {
     if (orderId == undefined) {
         throw new Error('Cannot create PlaceOrderInput.')
     }
-    const placeOrderInput = {
+
+    const paymentAuthorizationInput: PaymentAuthorizationInput | undefined =
+        typeof creditCardValidationCode === 'string'
+            ? {
+                  cvc: Number.parseInt(creditCardValidationCode),
+              }
+            : undefined
+
+    const placeOrderInput: PlaceOrderInput = {
         id: orderId,
+        paymentAuthorization: paymentAuthorizationInput,
     }
     const placeOrderMutation: PlaceOrderMutation =
         await awaitActionAndPushErrorIfNecessary(() => {
