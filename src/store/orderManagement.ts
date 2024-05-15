@@ -10,6 +10,7 @@ import { Order } from '@/model/interfaces/order'
 import { OrderItem } from '@/model/interfaces/orderItem'
 import { errorMessages } from '@/strings/errorMessages'
 import { awaitActionAndPushErrorIfNecessary } from '@/util/errorHandler'
+import { removeHyphens } from '@/util/string'
 
 /**
  * Requests the creation of an order for the user with the specified user ID.
@@ -79,11 +80,15 @@ function createInputObjectForOrderCreation(
         order.billingAddress?.id == undefined ||
         order.paymentInformation?.id == undefined ||
         order.items == undefined ||
-        order.vatNumber == undefined ||
         order.items.filter((item) => !canCreateOrderItemInput(item)).length > 0
     ) {
         throw new Error('Cannot create CreateOrderInput.')
     }
+
+    const vatNumber: string | undefined =
+        typeof order.vatNumber === 'string'
+            ? removeHyphens(order.vatNumber)
+            : undefined
 
     return {
         userId: userId,
@@ -91,7 +96,7 @@ function createInputObjectForOrderCreation(
         shipmentAddressId: order.deliveryAddress.id,
         invoiceAddressId: order.billingAddress.id,
         paymentInformationId: order.paymentInformation.id,
-        vatNumber: order.vatNumber,
+        vatNumber: vatNumber ?? '',
     }
 }
 
