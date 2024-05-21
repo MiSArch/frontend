@@ -5,6 +5,7 @@ import { PaymentInformation } from './PaymentInformation'
 /**
  * Interface representing an order.
  * @interface
+ * @property hasBeenPlaced - Whether the order has been placed or not.
  * @property [items] - The items that make up the order.
  * @property [deliveryAddress] - The delivery address for the order.
  * @property [billingAddress] - The billing address for the order.
@@ -14,6 +15,7 @@ import { PaymentInformation } from './PaymentInformation'
  * @method calculateTotalCost - Calculates the total cost of the order.
  */
 export interface Order {
+    hasBeenPlaced: boolean
     items?: OrderItem[]
     deliveryAddress?: Address
     billingAddress?: Address

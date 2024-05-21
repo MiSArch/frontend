@@ -55,7 +55,7 @@ import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 
 const store = useAppStore()
-const { order } = storeToRefs(store)
+const { upcomingOrder: order } = storeToRefs(store)
 
 /**
  * The total value of the order -- what the user would have to pay.

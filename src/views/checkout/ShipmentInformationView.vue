@@ -26,5 +26,5 @@ import ShipmentMethodOfOrderItem from '@/components/ShipmentMethodOfOrderItem.vu
 import { useAppStore } from '@/store/app'
 import { storeToRefs } from 'pinia'
 
-const { order } = storeToRefs(useAppStore())
+const { upcomingOrder: order } = storeToRefs(useAppStore())
 </script>

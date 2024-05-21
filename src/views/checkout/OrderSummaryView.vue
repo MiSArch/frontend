@@ -47,7 +47,7 @@ const props = defineProps({
 })
 
 const store = useAppStore()
-const { order } = storeToRefs(store)
+const { upcomingOrder } = storeToRefs(store)
 
 /**
  * A trigger for the querying of the order.
@@ -80,7 +80,7 @@ function closeConfirmOrCancelDialog(): void {
  */
 async function onUserConfirmedOrderPlacement(): Promise<void> {
     closeConfirmOrCancelDialog()
-    await placeOrderAndUpdateSummary()
+    await placeOrderAndTriggerSummaryUpdate()
 }
 
 /**
@@ -89,23 +89,23 @@ async function onUserConfirmedOrderPlacement(): Promise<void> {
 const isAwaitingOrderPlacement = ref(false)
 
 /**
- * Asynchronously places an order and updates the summary.
+ * Asynchronously places the order and triggers a summary update.
  * This function sets the state to indicate that an order placement is in progress,
  * places the order with the provided orderId, and then updates the state upon completion.
  * Additionally, it pushes a notification to the store indicating the success of the order placement
  * and triggers querying for updated order information.
  * @returns A Promise that resolves once the order is successfully placed and the summary is updated.
  */
-async function placeOrderAndUpdateSummary(): Promise<void> {
+async function placeOrderAndTriggerSummaryUpdate(): Promise<void> {
     isAwaitingOrderPlacement.value = true
     try {
         if (
-            order.value.paymentInformation?.paymentMethod ===
+            upcomingOrder.value.paymentInformation?.paymentMethod ===
             PaymentMethod.CreditCard
         ) {
             await placeOrder(
                 props.orderId,
-                order.value.creditCardValidationCode
+                upcomingOrder.value.creditCardValidationCode
             )
         } else {
             await placeOrder(props.orderId)
@@ -114,12 +114,13 @@ async function placeOrderAndUpdateSummary(): Promise<void> {
         throw error
     } finally {
         isAwaitingOrderPlacement.value = false
+        triggerForQueryingOfOrder.value++
     }
+    store.upcomingOrder.hasBeenPlaced = true
     store.pushNotification({
-        text: 'Your order was placed.',
+        text: 'Your order has been placed.',
         title: 'Thank You!',
         type: 'success',
     })
-    triggerForQueryingOfOrder.value++
 }
 </script>

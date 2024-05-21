@@ -45,7 +45,7 @@ import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 
 const store = useAppStore()
-const { order } = storeToRefs(store)
+const { upcomingOrder: order } = storeToRefs(store)
 
 const triggerForQueryingOfDeliveryAddresses = ref<number>(0)
 

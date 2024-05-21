@@ -81,7 +81,7 @@ async function removeShoppingCartItem(idOfShoppingCartItem: any) {
  * This function is typically called when the user wants to proceed to checkout.
  */
 function userWantsToProceedToCheckout(): void {
-    store.resetOrderToUndefined()
+    store.resetUpcomingOrder()
     store.createOrderItems()
 
     navigateToCheckoutView()

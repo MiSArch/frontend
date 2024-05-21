@@ -11,12 +11,14 @@
                 <v-breadcrumbs :items="checkoutStages" />
                 <v-spacer></v-spacer>
                 <v-btn
-                    :disabled="userCannotCancel"
                     prepend-icon="mdi-close"
-                    @click="onUserWantsToCancel"
-                    >cancel</v-btn
+                    @click="onUserWantsToCancelOrLeave"
+                    >{{
+                        !orderHasAlreadyBeenPlaced ? 'cancel' : 'leave checkout'
+                    }}</v-btn
                 >
                 <v-btn
+                    v-if="hasBackButtonOnTheRight"
                     :disabled="backButtonIsDisabled"
                     prepend-icon="mdi-arrow-left"
                     @click="back"
@@ -27,11 +29,7 @@
                     :disabled="proceedButtonDisabled"
                     prepend-icon="mdi-arrow-right"
                     @click="proceed"
-                    >{{
-                        route.name === routeNames.checkoutPayment
-                            ? 'create order'
-                            : 'proceed'
-                    }}</v-btn
+                    >proceed</v-btn
                 >
             </v-toolbar>
             <router-view class="pa-4" />
@@ -73,9 +71,9 @@ const store = useAppStore()
 const {
     addressInformationIsComplete,
     currentUserId,
-    order,
     paymentInformationIsComplete,
     shipmentInformationIsComplete,
+    upcomingOrder: order,
 } = storeToRefs(store)
 
 /**
@@ -91,10 +89,17 @@ const userHasArrivedAtCheckoutSummary = computed(() => {
 })
 
 /**
- * Whether the user cannot cancel the checkout process.
+ * Whether the order has already been placed.
  */
-const userCannotCancel = computed(() => {
-    return userHasArrivedAtCheckoutSummary.value
+const orderHasAlreadyBeenPlaced = computed(() => {
+    return order.value.hasBeenPlaced
+})
+
+/**
+ * Whether the back button on the right is there.
+ */
+const hasBackButtonOnTheRight = computed(() => {
+    return !userHasArrivedAtCheckoutSummary.value
 })
 
 /**
@@ -221,12 +226,13 @@ function onUserConfirmedCancellation(): void {
 }
 
 /**
- * Opens the the dialog that lets the user confirm (or cancel)
- * the cancelation of the checkout if the user has not arrived at
- * the checkout summary. If the user has actually already arrived at
- * the checkout summary, the function simply initiates the cancellation of the checkout.
+ * Opens a dialog that lets the user confirm (or cancel)
+ * the cancelation of the checkout if the order has not been placed yet.
+ * If the order has already been placed
+ * the function simply initiates the cancellation of the checkout
+ * which means that the user gets sent back to the storefront.
  */
-function onUserWantsToCancel(): void {
+function onUserWantsToCancelOrLeave(): void {
     if (userHasArrivedAtCheckoutSummary.value) {
         cancel()
     } else {
@@ -235,13 +241,14 @@ function onUserWantsToCancel(): void {
 }
 
 /**
- * Navigates to the shopping cart page using the router and resets the order information.
+ * Navigates to the storefront using the router.
+ * Additionally "clears" or resets the order information of the app store.
  */
 function cancel(): void {
     router.push({
-        name: routeNames.shoppingCart,
+        name: routeNames.storefront,
     })
-    store.resetOrderToUndefined()
+    store.resetUpcomingOrder()
 }
 
 /**
@@ -278,7 +285,6 @@ async function proceed(): Promise<void> {
 
 /**
  * Creates an order based on the current order details and user ID, then navigates to the order summary page.
- * Additionally "clears" or resets the order information of the app store to undefined.
  * @returns - A promise that resolves after the order is created and the navigation to the order summary page is completed.
  */
 async function createOrderAndNavigateToOrderSummary(): Promise<void> {
@@ -296,7 +302,6 @@ async function createOrderAndNavigateToOrderSummary(): Promise<void> {
     } finally {
         isAwaitingOrderCreation.value = false
     }
-    store.resetOrderToUndefined()
     router.push({
         name: routeNames.checkoutSummary,
         params: {
