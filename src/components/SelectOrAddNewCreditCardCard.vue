@@ -35,7 +35,8 @@
                             hint="You can find the CVC on the back of your card."
                             label="Credit Card Validation Code (CVC)"
                             :persistent-hint="
-                                order.creditCardValidationCode == undefined
+                                upcomingOrder.creditCardValidationCode ==
+                                undefined
                             "
                             prepend-icon="mdi-numeric"
                             required
@@ -45,7 +46,7 @@
                             ]"
                             type="input"
                             variant="underlined"
-                            v-model="order.creditCardValidationCode"
+                            v-model="upcomingOrder.creditCardValidationCode"
                         ></v-text-field>
                     </v-col>
                 </v-row>
@@ -179,7 +180,7 @@ watch(
 const emits = defineEmits(['update:creditCard', 'newCreditCardSaved'])
 
 const store = useAppStore()
-const { order } = storeToRefs(store)
+const { upcomingOrder } = storeToRefs(store)
 
 const client = useClient()
 

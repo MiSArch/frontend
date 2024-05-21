@@ -47,7 +47,7 @@ const props = defineProps({
 })
 
 const store = useAppStore()
-const { order } = storeToRefs(store)
+const { upcomingOrder } = storeToRefs(store)
 
 /**
  * A trigger for the querying of the order.
@@ -100,12 +100,12 @@ async function placeOrderAndTriggerSummaryUpdate(): Promise<void> {
     isAwaitingOrderPlacement.value = true
     try {
         if (
-            order.value.paymentInformation?.paymentMethod ===
+            upcomingOrder.value.paymentInformation?.paymentMethod ===
             PaymentMethod.CreditCard
         ) {
             await placeOrder(
                 props.orderId,
-                order.value.creditCardValidationCode
+                upcomingOrder.value.creditCardValidationCode
             )
         } else {
             await placeOrder(props.orderId)

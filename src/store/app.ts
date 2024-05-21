@@ -155,10 +155,12 @@ export const useAppStore = defineStore('app', {
         paymentInformationIsComplete(): boolean {
             if (this.upcomingOrder.paymentInformation?.id != undefined) {
                 if (
-                    this.order.paymentInformation.paymentMethod ==
+                    this.upcomingOrder.paymentInformation.paymentMethod ==
                     PaymentMethod.CreditCard
                 ) {
-                    return this.order.creditCardValidationCode != undefined
+                    return (
+                        this.upcomingOrder.creditCardValidationCode != undefined
+                    )
                 } else {
                     return true
                 }
