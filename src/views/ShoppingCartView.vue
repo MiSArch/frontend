@@ -20,6 +20,7 @@
                         :price="item.retailPrice"
                         :retail-price="item.retailPrice"
                         :count="item.count"
+                        :image-path="item.imagePath"
                         @count-changed="updateShoppingCartItem"
                         @deleted="removeShoppingCartItem"
                     />
@@ -27,11 +28,7 @@
             </template>
         </v-virtual-scroll>
     </div>
-    <ShoppingCartToolbar
-        v-if="shoppingCart.items.length > 10"
-        :total="total"
-        @checkout-initiated="console.log('checkout initiated')"
-    />
+    <ShoppingCartToolbar v-if="shoppingCart.items.length > 10" :total="total" />
 </template>
 
 <script lang="ts" setup>

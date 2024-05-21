@@ -19,6 +19,11 @@ query getShoppingCartOfUser($id: UUID!) {
               id
               name
               retailPrice
+              medias(first: 1) {
+                nodes {
+                  path
+                }
+              }
             }
             product {
               id

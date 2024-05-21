@@ -15,6 +15,7 @@ fragment defaultProductVariant on Product {
   }
 }
 
+# This fragment can be only used for an overview page, as it only queries the first media item.
 fragment currentVersion on ProductVariantVersion {
   id
   version
@@ -24,6 +25,12 @@ fragment currentVersion on ProductVariantVersion {
   weight
   description
   canBeReturnedForDays
+  medias(first: 1) {
+    nodes {
+      id
+      path
+    }
+  }
 }
 
 fragment characteristic on CategoryCharacteristic {
@@ -46,20 +53,29 @@ fragment characteristic on CategoryCharacteristic {
 # Queries:
 
 # Gets all of the products. However, only their default product variants.
-query getDefaultProductVariants($first: Int, $skip: Int, $orderBy: ProductOrderInput) {
+query getDefaultProductVariants(
+  $first: Int
+  $skip: Int
+  $orderBy: ProductOrderInput
+  ) {
   products(first: $first, skip: $skip, orderBy: $orderBy) {
     totalCount
     hasNextPage
     nodes {
-      ... defaultProductVariant
+      ...defaultProductVariant
     }
   }
 }
 
-# Gets a single category. 
-# Of that category, it gets the category's characteristics and 
+# Gets a single category.
+# Of that category, it gets the category's characteristics and
 # all of the category's default product variants.
-query getCategoryWithCharacteristicsAndDefaultProductVariants($id: UUID!, $firstProducts: Int, $skipProducts: Int, $orderProductsBy: ProductOrderInput) {
+query getCategoryWithCharacteristicsAndDefaultProductVariants(
+  $id: UUID!
+  $firstProducts: Int
+  $skipProducts: Int
+  $orderProductsBy: ProductOrderInput
+  ) {
   category(id: $id) {
     id
     name
@@ -67,22 +83,30 @@ query getCategoryWithCharacteristicsAndDefaultProductVariants($id: UUID!, $first
     characteristics {
       totalCount
       nodes {
-        ... characteristic
+        ...characteristic
       }
     }
-    products(first: $firstProducts, skip: $skipProducts, orderBy: $orderProductsBy) {
+    products(
+      first: $firstProducts
+      skip: $skipProducts
+      orderBy: $orderProductsBy
+      ) {
       totalCount
       hasNextPage
       nodes {
-        ... defaultProductVariant
+        ...defaultProductVariant
       }
     }
   }
 }
 
-# Gets all categories and their individual total count of products and all of a category's products. 
+# Gets all categories and their individual total count of products and all of a category's products.
 # Note that a product only comes with information regarding its public visibility and its variants' public visibility.
-query getCategoriesWithTotalCountOfProducts($first: Int, $skip: Int, $orderBy: CategoryOrderInput) {
+query getCategoriesWithTotalCountOfProducts(
+  $first: Int
+  $skip: Int
+  $orderBy: CategoryOrderInput
+  ) {
   categories(first: $first, skip: $skip, orderBy: $orderBy) {
     totalCount
     hasNextPage
@@ -106,7 +130,11 @@ query getCategoriesWithTotalCountOfProducts($first: Int, $skip: Int, $orderBy: C
 }
 
 # Gets all of the categories and their individual category characteristics.
-query getCategoriesWithCharacteristics($first: Int, $skip: Int, $orderBy: CategoryOrderInput) {
+query getCategoriesWithCharacteristics(
+  $first: Int
+  $skip: Int
+  $orderBy: CategoryOrderInput
+  ) {
   categories(first: $first, skip: $skip, orderBy: $orderBy) {
     totalCount
     hasNextPage
@@ -116,7 +144,7 @@ query getCategoriesWithCharacteristics($first: Int, $skip: Int, $orderBy: Catego
       characteristics {
         totalCount
         nodes {
-          ... characteristic
+          ...characteristic
         }
       }
     }
@@ -161,6 +189,12 @@ query getProductForBuyer($id: UUID!) {
               ... on NumericalCategoryCharacteristicValue {
                 numericalValue: value
               }
+            }
+          }
+          medias {
+            nodes {
+              id
+              path
             }
           }
         }
@@ -231,6 +265,12 @@ query getProduct($id: UUID!) {
               }
             }
           }
+          medias {
+            nodes {
+              id
+              path
+            }
+          }
         }
       }
     }
@@ -262,18 +302,20 @@ query getProductWithItsVariantsOnly($id: UUID!) {
 # Mutations:
 
 mutation createProduct($input: CreateProductInput!) {
-    createProduct(input: $input) {
-        id
-    }
+  createProduct(input: $input) {
+    id
+  }
 }
 
 mutation createProductVariant($input: CreateProductVariantInput!) {
-    createProductVariant(input: $input) {
-        id
-    }
+  createProductVariant(input: $input) {
+    id
+  }
 }
 
-mutation createNewProductVariantVersion($input: CreateProductVariantVersionInput!) {
+mutation createNewProductVariantVersion(
+  $input: CreateProductVariantVersionInput!
+  ) {
   createProductVariantVersion(input: $input) {
     id
   }
@@ -285,13 +327,17 @@ mutation createCategory($input: CreateCategoryInput!) {
   }
 }
 
-mutation createCategoricalCategoryCharacteristic($input: CreateCategoricalCategoryCharacteristicInput!) {
+mutation createCategoricalCategoryCharacteristic(
+  $input: CreateCategoricalCategoryCharacteristicInput!
+  ) {
   createCategoricalCategoryCharacteristic(input: $input) {
     id
   }
 }
 
-mutation createNumericalCategoryCharacteristic($input: CreateNumericalCategoryCharacteristicInput!) {
+mutation createNumericalCategoryCharacteristic(
+  $input: CreateNumericalCategoryCharacteristicInput!
+  ) {
   createNumericalCategoryCharacteristic(input: $input) {
     id
   }

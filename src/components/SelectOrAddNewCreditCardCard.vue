@@ -11,17 +11,45 @@
             {{ selectedCreditCard?.secretMethodDetails }}<br />
         </v-card-text>
         <v-card-text>
-            <v-select
-                clearable
-                hint="Select one of your previously saved credit cards."
-                item-title="publicMethodDetails"
-                item-value="id"
-                :items="creditCards"
-                label="Credit Card"
-                :persistent-hint="!selectedCreditCard"
-                return-object
-                v-model="selectedCreditCard"
-            ></v-select>
+            <v-container>
+                <v-row>
+                    <v-col>
+                        <v-select
+                            clearable
+                            hint="Select one of your previously saved credit cards."
+                            item-title="publicMethodDetails"
+                            item-value="id"
+                            :items="creditCards"
+                            label="Credit Card"
+                            :persistent-hint="!selectedCreditCard"
+                            return-object
+                            v-model="selectedCreditCard"
+                        ></v-select>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col cols="4">
+                        <v-text-field
+                            class="mt-4"
+                            clearable
+                            hint="You can find the CVC on the back of your card."
+                            label="Credit Card Validation Code (CVC)"
+                            :persistent-hint="
+                                order.creditCardValidationCode == undefined
+                            "
+                            prepend-icon="mdi-numeric"
+                            required
+                            :rules="[
+                                inputIsRequired,
+                                isValidCreditCardValidationCode,
+                            ]"
+                            type="input"
+                            variant="underlined"
+                            v-model="order.creditCardValidationCode"
+                        ></v-text-field>
+                    </v-col>
+                </v-row>
+            </v-container>
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
@@ -119,8 +147,10 @@ import {
     inputIsRequired,
     isValidCreditCardNumber,
     isValidCreditCardExpirationDate,
+    isValidCreditCardValidationCode,
 } from '@/util/rules'
 import { asyncComputed } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
@@ -149,6 +179,7 @@ watch(
 const emits = defineEmits(['update:creditCard', 'newCreditCardSaved'])
 
 const store = useAppStore()
+const { order } = storeToRefs(store)
 
 const client = useClient()
 
@@ -373,7 +404,6 @@ function selectCreditCard(id: string): void {
     const foundCreditCard =
         creditCards.value?.find((creditCard) => creditCard.id === id) ??
         undefined
-    console.log(foundCreditCard)
     selectedCreditCard.value = foundCreditCard
 }
 

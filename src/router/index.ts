@@ -2,7 +2,7 @@
 import { useAppStore } from '@/store/app'
 import { createRouter, createWebHistory } from 'vue-router'
 import { canAccess, getAccessRights } from './accessRights'
-import { routeNames } from './routeNames'
+import { RouteName, routeNames } from './routeNames'
 
 const routes = [
     {
@@ -98,7 +98,13 @@ const routes = [
                 props: true,
             },
         ],
+        name: routeNames.checkout,
         component: () => import('@/layouts/checkout/TheCheckoutLayout.vue'),
+    },
+    {
+        path: '/graphiql',
+        name: routeNames.graphiql,
+        component: () => import('@/views/GraphiQLView.vue'),
     },
 ]
 
@@ -112,12 +118,13 @@ const router = createRouter({
  * without the required access rights to a given route,
  * cannot access that page.
  */
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
     const appStore = useAppStore()
+    await appStore.awaitLoginInitialized()
     const accessRights = getAccessRights(appStore.activeUserRole)
 
     if (typeof to.name === 'string' && accessRights !== null) {
-        const userCanAccess = canAccess(to.name, accessRights)
+        const userCanAccess = canAccess(to.name as RouteName, accessRights)
         if (process.env.NODE_ENV === 'development') {
             console.log(
                 'User can access the route to:',

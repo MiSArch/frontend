@@ -20,6 +20,7 @@ import {
 } from './shoppingCartManagement'
 import { OrderImpl } from '@/model/classes/orderImpl'
 import { OrderItemImpl } from '@/model/classes/orderItemImpl'
+import { PaymentMethod } from '@/model/enums/paymentMethod'
 
 const defaultUserRole = UserRole.Buyer
 const initialUserRolesOfCurrentUser = [defaultUserRole]
@@ -50,6 +51,7 @@ export const useAppStore = defineStore('app', {
     state: () => ({
         keycloak: null as Keycloak | null,
         isLoggedIn: false,
+        loginInitialized: Promise.withResolvers<void>(),
         currentUserId: null as string | null | undefined,
         userRolesOfCurrentUser: initialUserRolesOfCurrentUser,
         activeUserRole: defaultUserRole,
@@ -99,6 +101,14 @@ export const useAppStore = defineStore('app', {
             return this.activeUserRole === UserRole.Buyer
         },
         /**
+         * Checks if the active user role is UserRole.Employee.
+         *
+         * @returns A boolean indicating whether the active user role is UserRole.Admin.
+         */
+        activeUserRoleIsAdmin(): boolean {
+            return this.activeUserRole === UserRole.Admin
+        },
+        /**
          * Checks if the active user role is either UserRole.Admin or UserRole.Employee.
          *
          * @returns A boolean indicating whether the active user role is either Admin or Employee.
@@ -143,7 +153,18 @@ export const useAppStore = defineStore('app', {
          * @returns - Returns true if the payment information has a valid ID, otherwise returns false.
          */
         paymentInformationIsComplete(): boolean {
-            return this.upcomingOrder.paymentInformation?.id != undefined
+            if (this.upcomingOrder.paymentInformation?.id != undefined) {
+                if (
+                    this.order.paymentInformation.paymentMethod ==
+                    PaymentMethod.CreditCard
+                ) {
+                    return this.order.creditCardValidationCode != undefined
+                } else {
+                    return true
+                }
+            } else {
+                return false
+            }
         },
     },
     actions: {
@@ -161,10 +182,9 @@ export const useAppStore = defineStore('app', {
          *     - the user roles of the current user get stored, and
          *     - the highest user role of the current user becomes the active user role.
          *
-         * @param logToken - If true, logs the Keycloak token to the console.
          * @returns A promise that resolves after the initialization is complete.
          */
-        async initLogin(logToken?: boolean) {
+        async initLogin() {
             const keycloak = new Keycloak({
                 url: '/keycloak',
                 realm: 'Misarch',
@@ -180,10 +200,6 @@ export const useAppStore = defineStore('app', {
 
                 this.keycloak = keycloak
                 this.isLoggedIn = authenticated
-
-                if (logToken === true) {
-                    console.log('Token', keycloak.token)
-                }
             } catch (error) {
                 console.error('Failed to initialize adapter:', error)
             }
@@ -197,6 +213,13 @@ export const useAppStore = defineStore('app', {
 
                 await this.restoreTheShoppingCart()
             }
+            this.loginInitialized.resolve()
+        },
+        /**
+         * Asynchronously awaits initLogin to complete.
+         */
+        async awaitLoginInitialized() {
+            await this.loginInitialized.promise
         },
         /**
          * Asynchronously retrieves the current user.

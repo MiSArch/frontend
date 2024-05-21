@@ -254,33 +254,24 @@ function cancel(): void {
 /**
  * Proceeds to the next step in the checkout process based on the current route and button state.
  * If the user has already arrived at the checkout summary, the function does nothing.
- * If the current route is checkout address and the proceed button is enabled, navigates to checkout shipment.
- * If the current route is checkout shipment and the proceed button is enabled, navigates to checkout payment.
- * If the current route is checkout payment and the proceed button is enabled,
+ * If the proceed button is disabled, the function does nothing.
+ * If the current route is checkout address, navigates to checkout shipment.
+ * If the current route is checkout shipment, navigates to checkout payment.
+ * If the current route is checkout payment,
  * requests the creation of the order and navigates to the order summary.
  */
 async function proceed(): Promise<void> {
-    if (userHasArrivedAtCheckoutSummary.value) {
+    if (userHasArrivedAtCheckoutSummary.value || proceedButtonDisabled.value) {
         return
     }
 
     var whereToPushTo: string | null = null
     if (route.name === routeNames.checkoutAddress) {
-        if (!proceedButtonDisabled.value) {
-            whereToPushTo = routeNames.checkoutShipment
-        } else {
-            return
-        }
+        whereToPushTo = routeNames.checkoutShipment
     } else if (route.name === routeNames.checkoutShipment) {
-        if (!proceedButtonDisabled.value) {
-            whereToPushTo = routeNames.checkoutPayment
-        } else {
-            return
-        }
+        whereToPushTo = routeNames.checkoutPayment
     } else if (route.name === routeNames.checkoutPayment) {
-        if (!proceedButtonDisabled.value) {
-            await createOrderAndNavigateToOrderSummary()
-        }
+        await createOrderAndNavigateToOrderSummary()
 
         return
     }

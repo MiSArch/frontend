@@ -7,6 +7,7 @@
             :name="orderItem.shoppingCartItem.nameOfProductVariant"
             :price="orderItem.shoppingCartItem.retailPrice"
             :retail-price="orderItem.shoppingCartItem.retailPrice"
+            :image-path="orderItem.shoppingCartItem.imagePath"
             :count="orderItem.shoppingCartItem.count"
             :readonly="true"
         />

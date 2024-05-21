@@ -1,109 +1,141 @@
 # Fragments:
 
 fragment wishlist on Wishlist {
-  id
-  name
-  createdAt
-  lastUpdatedAt
-  productVariants {
-    totalCount
-  }
-}
-
-fragment wishlistWithProductVariants on Wishlist {
-  id
-  name
-  createdAt
-  lastUpdatedAt
-  productVariants {
-    totalCount
-    nodes {
-      id
-    }
-  }
-}
-
-# Queries:
-
-# Gets the user that has the given user ID ($userId). 
-# In addition, it gets the user's wishlists.
-query getUserWithWishlists($userId: UUID!, $firstWishlists: Int, $skipWishlist: Int, $orderWishlistsBy: WishlistOrderInput) {
-  user(id: $userId) {
-    id
-    wishlists(first: $firstWishlists, skip: $skipWishlist, orderBy: $orderWishlistsBy) {
-      totalCount
-      hasNextPage
-      nodes {
-        ... wishlist
-      }
-    }
-  }
-}
-
-# Gets the user that has the given user ID ($userId). 
-# In addition, it gets the user's wishlists and 
-# their product variants.
-query getUserWithWishlistsWithProductVariants($userId: UUID!, $firstWishlists: Int, $skipWishlist: Int, $orderWishlistsBy: WishlistOrderInput) {
-  user(id: $userId) {
-    id
-    wishlists(first: $firstWishlists, skip: $skipWishlist, orderBy: $orderWishlistsBy) {
-      totalCount
-      hasNextPage
-      nodes {
-        ... wishlistWithProductVariants
-      }
-    }
-  }
-}
-
-# Gets the wishlist that has the given ID ($id). 
-# In addition, it gets the wishlist's product variants 
-# including their current product variant version (currentVersion).
-query getWishlist($id: UUID!, $firstProductVariants: Int, $skipProductVariants: Int, $orderProductVariantsBy: CommonOrderInput) {
-  wishlist(id: $id) {
     id
     name
     createdAt
     lastUpdatedAt
-    productVariants(first: $firstProductVariants, skip: $skipProductVariants, orderBy: $orderProductVariantsBy) {
-      totalCount
-      nodes {
-        id
-        isPubliclyVisible
-        currentVersion {
-          id
-          name
-          description
-          retailPrice
-          canBeReturnedForDays
-          version
-          createdAt
-        }
-        product {
-          id
-        }
-      }
+    productVariants {
+        totalCount
     }
-  }
+}
+
+fragment wishlistWithProductVariants on Wishlist {
+    id
+    name
+    createdAt
+    lastUpdatedAt
+    productVariants {
+        totalCount
+        nodes {
+            id
+        }
+    }
+}
+
+# Queries:
+
+# Gets the user that has the given user ID ($userId).
+# In addition, it gets the user's wishlists.
+query getUserWithWishlists(
+    $userId: UUID!
+    $firstWishlists: Int
+    $skipWishlist: Int
+    $orderWishlistsBy: WishlistOrderInput
+) {
+    user(id: $userId) {
+        id
+        wishlists(
+            first: $firstWishlists
+            skip: $skipWishlist
+            orderBy: $orderWishlistsBy
+        ) {
+            totalCount
+            hasNextPage
+            nodes {
+                ...wishlist
+            }
+        }
+    }
+}
+
+# Gets the user that has the given user ID ($userId).
+# In addition, it gets the user's wishlists and
+# their product variants.
+query getUserWithWishlistsWithProductVariants(
+    $userId: UUID!
+    $firstWishlists: Int
+    $skipWishlist: Int
+    $orderWishlistsBy: WishlistOrderInput
+) {
+    user(id: $userId) {
+        id
+        wishlists(
+            first: $firstWishlists
+            skip: $skipWishlist
+            orderBy: $orderWishlistsBy
+        ) {
+            totalCount
+            hasNextPage
+            nodes {
+                ...wishlistWithProductVariants
+            }
+        }
+    }
+}
+
+# Gets the wishlist that has the given ID ($id).
+# In addition, it gets the wishlist's product variants
+# including their current product variant version (currentVersion).
+query getWishlist(
+    $id: UUID!
+    $firstProductVariants: Int
+    $skipProductVariants: Int
+    $orderProductVariantsBy: CommonOrderInput
+) {
+    wishlist(id: $id) {
+        id
+        name
+        createdAt
+        lastUpdatedAt
+        productVariants(
+            first: $firstProductVariants
+            skip: $skipProductVariants
+            orderBy: $orderProductVariantsBy
+        ) {
+            totalCount
+            nodes {
+                id
+                isPubliclyVisible
+                currentVersion {
+                    id
+                    name
+                    description
+                    retailPrice
+                    canBeReturnedForDays
+                    version
+                    createdAt
+                    medias(first: 1) {
+                        nodes {
+                            path
+                        }
+                    }
+                }
+                product {
+                    id
+                }
+            }
+        }
+    }
 }
 
 # Mutations:
 
 # Adds a wishlist.
 mutation addWishlist($input: CreateWishlistInput!) {
-  createWishlist(input: $input) {
-    ... wishlist
-  }
+    createWishlist(input: $input) {
+        ...wishlist
+    }
 }
 
 # Deletes a wishlist.
 mutation deleteWishlist($id: UUID!) {
-  deleteWishlist(id: $id)
+    deleteWishlist(id: $id)
 }
 
 # Updates a wishlist.
 mutation updateWishlist($input: UpdateWishlistInput!) {
-  updateWishlist(input: $input) {
-    id
-  }
+    updateWishlist(input: $input) {
+        id
+    }
 }

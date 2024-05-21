@@ -12,6 +12,13 @@
             Shopping Cart
         </v-btn>
         <v-btn
+            v-if="activeUserRoleIsAdmin"
+            prepend-icon="mdi-console"
+            :to="{ name: routeNames.graphiql }"
+        >
+            GraphiQL
+        </v-btn>
+        <v-btn
             v-if="currenUserHasMoreThanOneRole"
             prepend-icon="mdi-account-switch"
             @click="openSwitchUserRoleDialog"
@@ -40,6 +47,7 @@ const store = useAppStore()
 
 const {
     activeUserRoleIsBuyer,
+    activeUserRoleIsAdmin,
     currenUserHasMoreThanOneRole,
     shoppingCart,
     shoppingCartIsEnabled,

@@ -15,13 +15,17 @@ export class OrderImpl implements Order {
      * @param [deliveryAddress] - The delivery address for the order.
      * @param [billingAddress] - The billing address for the order.
      * @param [paymentInformation] - The payment information for the order.
+     * @param [creditCardValidationCode] - If the payment method is credit card, the CVC of the chosen credit card.
+     * @param [vatNumber] - The VAT number.
      */
     constructor(
         public hasBeenPlaced: boolean,
         public items?: OrderItem[],
         public deliveryAddress?: Address,
         public billingAddress?: Address,
-        public paymentInformation?: PaymentInformation
+        public paymentInformation?: PaymentInformation,
+        public creditCardValidationCode?: string,
+        public vatNumber?: string
     ) {}
 
     /**

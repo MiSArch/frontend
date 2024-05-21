@@ -26,8 +26,8 @@ mutation createOrder($input: CreateOrderInput!) {
 # Places an existing order and returns the ID of the placed order and
 # the new order status indicating whether the placement was succesful or not.
 # We expect the order status to be 'PLACED'.
-mutation placeOrder($id: UUID!) {
-  placeOrder(id: $id) {
+mutation placeOrder($input: PlaceOrderInput!) {
+  placeOrder(input: $input) {
     id
     orderStatus
   }

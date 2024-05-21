@@ -30,8 +30,10 @@
 <script lang="ts" setup>
 import ConfirmOrCancelDialog from '@/components/ConfirmOrCancelDialog.vue'
 import OrderCard from '@/components/OrderCard.vue'
+import { PaymentMethod } from '@/model/enums/paymentMethod'
 import { useAppStore } from '@/store/app'
 import { placeOrder } from '@/store/orderManagement'
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 
 const props = defineProps({
@@ -45,6 +47,7 @@ const props = defineProps({
 })
 
 const store = useAppStore()
+const { order } = storeToRefs(store)
 
 /**
  * A trigger for the querying of the order.
@@ -96,7 +99,17 @@ const isAwaitingOrderPlacement = ref(false)
 async function placeOrderAndTriggerSummaryUpdate(): Promise<void> {
     isAwaitingOrderPlacement.value = true
     try {
-        await placeOrder(props.orderId)
+        if (
+            order.value.paymentInformation?.paymentMethod ===
+            PaymentMethod.CreditCard
+        ) {
+            await placeOrder(
+                props.orderId,
+                order.value.creditCardValidationCode
+            )
+        } else {
+            await placeOrder(props.orderId)
+        }
     } catch (error) {
         throw error
     } finally {

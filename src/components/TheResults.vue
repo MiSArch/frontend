@@ -10,6 +10,10 @@
                     :retail-price="
                         product.defaultVariant.currentVersion.retailPrice
                     "
+                    :image-path="
+                        product.defaultVariant.currentVersion.medias.nodes[0]
+                            ?.path ?? ''
+                    "
                 />
             </v-list-item>
         </v-list>

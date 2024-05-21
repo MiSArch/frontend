@@ -68,4 +68,6 @@ export const errorMessages = {
     createOrder: 'Could not create the order.',
     getOrder: 'Could not load the order.',
     placeOrder: 'Could not place the order.',
+    // media
+    uploadMedia: 'Could not upload media files.',
 }

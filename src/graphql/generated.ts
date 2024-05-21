@@ -1,5 +1,4 @@
-import { GraphQLClient } from 'graphql-request'
-import { GraphQLClientRequestHeaders } from 'graphql-request/build/cjs/types'
+import { GraphQLClient, RequestOptions } from 'graphql-request'
 import gql from 'graphql-tag'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = Maybe<T>
@@ -23,6 +22,7 @@ export type Incremental<T> =
               ? T[P]
               : never
       }
+type GraphQLClientRequestHeaders = RequestOptions['requestHeaders']
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
     ID: { input: string; output: string }
@@ -34,6 +34,7 @@ export type Scalars = {
     DateTime: { input: any; output: any }
     JSONObject: { input: any; output: any }
     UUID: { input: any; output: any }
+    Upload: { input: any; output: any }
 }
 
 /** Input for the archiveShipmentMethod mutation. */
@@ -128,17 +129,13 @@ export type CategoryOrderInput = {
     field?: InputMaybe<CategoryOrderField>
 }
 
-/**
- * Describes the fields that a foreign types can be ordered by.
- *
- * Only the Id valid at the moment.
- */
+/** Common order fields */
 export enum CommonOrderField {
-    /** Orders by "id". */
+    /** Order entities by their id */
     Id = 'ID',
 }
 
-/** Specifies the order of foreign types. */
+/** Discount order */
 export type CommonOrderInput = {
     /** The direction to order by */
     direction?: InputMaybe<OrderDirection>
@@ -269,6 +266,8 @@ export type CreateOrderInput = {
     shipmentAddressId: Scalars['UUID']['input']
     /** UUID of user owning the order. */
     userId: Scalars['UUID']['input']
+    /** VAT number. */
+    vatNumber: Scalars['String']['input']
 }
 
 /** Input for the createProduct mutation */
@@ -309,6 +308,8 @@ export type CreateProductVariantVersionInput = {
     categoricalCharacteristicValues: Array<CategoricalCategoryCharacteristicValueInput>
     /** The description of the ProductVariant. */
     description: Scalars['String']['input']
+    /** The associated Media files. */
+    mediaIds: Array<Scalars['UUID']['input']>
     /** The name of the ProductVariant. */
     name: Scalars['String']['input']
     /** The NumericalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product. */
@@ -589,6 +590,11 @@ export enum OrderStatus {
     Rejected = 'REJECTED',
 }
 
+export type PaymentAuthorizationInput = {
+    /** CVC/CVV number of 3-4 digits. */
+    cvc?: InputMaybe<Scalars['Int']['input']>
+}
+
 /** Filtering options for payments */
 export type PaymentFilter = {
     /** Timebox start for payment creation */
@@ -596,7 +602,7 @@ export type PaymentFilter = {
     /** Payment Information ID */
     paymentInformationId?: InputMaybe<Scalars['String']['input']>
     /** Payment method */
-    paymentMethod?: InputMaybe<Scalars['String']['input']>
+    paymentMethod?: InputMaybe<PaymentMethod>
     /** Current payment status */
     status?: InputMaybe<PaymentStatus>
     /** Timebox end for payment creation */
@@ -661,6 +667,13 @@ export enum PaymentStatus {
     Pending = 'PENDING',
     /** The payment was successfully processed and the amount was transfered */
     Succeeded = 'SUCCEEDED',
+}
+
+export type PlaceOrderInput = {
+    /** UUID of order to place. */
+    id: Scalars['UUID']['input']
+    /** Optional payment authorization data. */
+    paymentAuthorization?: InputMaybe<PaymentAuthorizationInput>
 }
 
 /** Product filter */
@@ -765,6 +778,8 @@ export type ProductVariantVersionInput = {
     categoricalCharacteristicValues: Array<CategoricalCategoryCharacteristicValueInput>
     /** The description of the ProductVariant. */
     description: Scalars['String']['input']
+    /** The associated Media files. */
+    mediaIds: Array<Scalars['UUID']['input']>
     /** The name of the ProductVariant. */
     name: Scalars['String']['input']
     /** The NumericalCategoryCharacteristicValues of the ProductVariant, must be compatible with the Categories of the associated Product. */
@@ -1239,6 +1254,10 @@ export type DefaultProductVariantFragment = {
             weight: number
             description: string
             canBeReturnedForDays?: number | null
+            medias: {
+                __typename?: 'MediaConnection'
+                nodes: Array<{ __typename?: 'Media'; id: any; path: string }>
+            }
         }
     }
     variants: { __typename?: 'ProductVariantConnection'; totalCount: number }
@@ -1254,6 +1273,10 @@ export type CurrentVersionFragment = {
     weight: number
     description: string
     canBeReturnedForDays?: number | null
+    medias: {
+        __typename?: 'MediaConnection'
+        nodes: Array<{ __typename?: 'Media'; id: any; path: string }>
+    }
 }
 
 type Characteristic_CategoricalCategoryCharacteristic_Fragment = {
@@ -1311,6 +1334,14 @@ export type GetDefaultProductVariantsQuery = {
                     weight: number
                     description: string
                     canBeReturnedForDays?: number | null
+                    medias: {
+                        __typename?: 'MediaConnection'
+                        nodes: Array<{
+                            __typename?: 'Media'
+                            id: any
+                            path: string
+                        }>
+                    }
                 }
             }
             variants: {
@@ -1383,6 +1414,14 @@ export type GetCategoryWithCharacteristicsAndDefaultProductVariantsQuery = {
                         weight: number
                         description: string
                         canBeReturnedForDays?: number | null
+                        medias: {
+                            __typename?: 'MediaConnection'
+                            nodes: Array<{
+                                __typename?: 'Media'
+                                id: any
+                                path: string
+                            }>
+                        }
                     }
                 }
                 variants: {
@@ -1554,6 +1593,14 @@ export type GetProductForBuyerQuery = {
                               }
                         >
                     }
+                    medias: {
+                        __typename?: 'MediaConnection'
+                        nodes: Array<{
+                            __typename?: 'Media'
+                            id: any
+                            path: string
+                        }>
+                    }
                 }
             }>
         }
@@ -1658,6 +1705,14 @@ export type GetProductQuery = {
                                         }
                               }
                         >
+                    }
+                    medias: {
+                        __typename?: 'MediaConnection'
+                        nodes: Array<{
+                            __typename?: 'Media'
+                            id: any
+                            path: string
+                        }>
                     }
                 }
             }>
@@ -1806,7 +1861,7 @@ export type CreateOrderMutation = {
 }
 
 export type PlaceOrderMutationVariables = Exact<{
-    id: Scalars['UUID']['input']
+    input: PlaceOrderInput
 }>
 
 export type PlaceOrderMutation = {
@@ -1899,6 +1954,13 @@ export type GetShoppingCartOfUserQuery = {
                             id: any
                             name: string
                             retailPrice: number
+                            medias: {
+                                __typename?: 'MediaConnection'
+                                nodes: Array<{
+                                    __typename?: 'Media'
+                                    path: string
+                                }>
+                            }
                         }
                         product: { __typename?: 'Product'; id: any }
                     }
@@ -2228,6 +2290,10 @@ export type GetWishlistQuery = {
                     canBeReturnedForDays?: number | null
                     version: number
                     createdAt: any
+                    medias: {
+                        __typename?: 'MediaConnection'
+                        nodes: Array<{ __typename?: 'Media'; path: string }>
+                    }
                 }
                 product: { __typename?: 'Product'; id: any }
             }>
@@ -2282,6 +2348,12 @@ export const CurrentVersionFragmentDoc = gql`
         weight
         description
         canBeReturnedForDays
+        medias(first: 1) {
+            nodes {
+                id
+                path
+            }
+        }
     }
 `
 export const DefaultProductVariantFragmentDoc = gql`
@@ -2518,6 +2590,12 @@ export const GetProductForBuyerDocument = gql`
                                 }
                             }
                         }
+                        medias {
+                            nodes {
+                                id
+                                path
+                            }
+                        }
                     }
                     inventoryCount
                 }
@@ -2583,6 +2661,12 @@ export const GetProductDocument = gql`
                                 ... on NumericalCategoryCharacteristicValue {
                                     numericalValue: value
                                 }
+                            }
+                        }
+                        medias {
+                            nodes {
+                                id
+                                path
                             }
                         }
                     }
@@ -2704,8 +2788,8 @@ export const CreateOrderDocument = gql`
     }
 `
 export const PlaceOrderDocument = gql`
-    mutation placeOrder($id: UUID!) {
-        placeOrder(id: $id) {
+    mutation placeOrder($input: PlaceOrderInput!) {
+        placeOrder(input: $input) {
             id
             orderStatus
         }
@@ -2772,6 +2856,11 @@ export const GetShoppingCartOfUserDocument = gql`
                                 id
                                 name
                                 retailPrice
+                                medias(first: 1) {
+                                    nodes {
+                                        path
+                                    }
+                                }
                             }
                             product {
                                 id
@@ -3000,6 +3089,11 @@ export const GetWishlistDocument = gql`
                         canBeReturnedForDays
                         version
                         createdAt
+                        medias(first: 1) {
+                            nodes {
+                                path
+                            }
+                        }
                     }
                     product {
                         id
@@ -3041,7 +3135,7 @@ const defaultWrapper: SdkFunctionWrapper = (
     action,
     _operationName,
     _operationType,
-    variables
+    _variables
 ) => action()
 
 export function getSdk(

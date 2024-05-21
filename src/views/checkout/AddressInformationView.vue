@@ -9,6 +9,16 @@
                 v-model:address="selectedDeliveryAddress"
                 @new-address-saved="triggerForQueryingOfBillingAddresses++"
             />
+            <v-text-field
+                clearable
+                hint="A valid VATIN consists of uppercase letters and digits. It starts with a country code, followed by 2 to 13 digits or letters. Hyphens are allowed for readability."
+                label="VAT Identification Number"
+                prepend-icon="mdi-card-account-details"
+                :rules="[isUndefinedOrEmptyStringOrValidVATIN]"
+                type="input"
+                variant="underlined"
+                v-model="order.vatNumber"
+            ></v-text-field>
             <v-checkbox
                 label="The billing address differs from the delivery address."
                 v-model="billingAddressDiffersFromDeliveryAddress"
@@ -30,6 +40,7 @@
 import SelectOrAddNewAddressCard from '@/components/SelectOrAddNewAddressCard.vue'
 import { AddressImpl } from '@/model/classes/AddressImpl'
 import { useAppStore } from '@/store/app'
+import { isUndefinedOrEmptyStringOrValidVATIN } from '@/util/rules'
 import { storeToRefs } from 'pinia'
 import { ref, watch } from 'vue'
 

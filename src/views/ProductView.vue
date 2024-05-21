@@ -197,19 +197,12 @@
                 <v-sheet border>
                     <v-carousel cycle show-arrows="hover">
                         <v-carousel-item
+                            v-for="media in productVariantInfoRelevantToBuyer
+                                ?.currentVersion.medias.nodes"
+                            :key="media.id"
                             :width="360"
                             aspect-ratio="4/3"
-                            src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
-                        ></v-carousel-item>
-                        <v-carousel-item
-                            :width="360"
-                            aspect-ratio="4/3"
-                            src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
-                        ></v-carousel-item>
-                        <v-carousel-item
-                            :width="360"
-                            aspect-ratio="4/3"
-                            src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"
+                            :src="media.path"
                         ></v-carousel-item>
                     </v-carousel>
                 </v-sheet>
@@ -417,6 +410,9 @@
                                 :name="v.currentVersion.name"
                                 :price="v.currentVersion.retailPrice"
                                 :retail-price="v.currentVersion.retailPrice"
+                                :image-path="
+                                    v.currentVersion.medias.nodes[0]?.path ?? ''
+                                "
                             />
                         </v-list-item>
                     </v-list>
@@ -977,7 +973,6 @@ async function getProductItemsCountOfInventoryStatus(
  * it returns the default maximum value of 10.
  */
 const maximumNumberOfProductItemsABuyerCanOrder = computed(() => {
-    console.log(productItemsCountOfItemsInStock.value)
     if (productItemsCountOfItemsInStock.value != undefined) {
         const numberOfAvailableProductItems =
             productItemsCountOfItemsInStock.value
