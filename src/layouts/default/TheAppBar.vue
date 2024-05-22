@@ -25,6 +25,15 @@
         >
             Switch User Role
         </v-btn>
+        <v-btn icon variant="plain" size="small" @click="toggleDarkMode()">
+            <v-icon
+                :icon="lightMode ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+                size="large"
+            />
+            <v-tooltip activator="parent" location="bottom">
+                Toggle light/dark mode
+            </v-tooltip>
+        </v-btn>
         <SwitchUserRoleDialog
             v-model="switchUserRoleDialogIsOpen"
             @close="closeSwitchUserRoleDialog"
@@ -39,9 +48,11 @@
 import SwitchUserRoleDialog from '@/components/SwitchUserRoleDialog.vue'
 import { routeNames } from '@/router/routeNames'
 import { useAppStore } from '@/store/app'
+import { useLocalStorage } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useTheme } from 'vuetify/lib/framework.mjs'
 
 const store = useAppStore()
 
@@ -96,4 +107,18 @@ async function goToShoppingCart() {
         name: routeNames.shoppingCart,
     })
 }
+
+const theme = useTheme()
+const lightMode = useLocalStorage<boolean>('lightMode', true)
+
+function toggleDarkMode() {
+    lightMode.value = !lightMode.value
+    updateColorMode()
+}
+
+function updateColorMode() {
+    theme.global.name.value = lightMode.value ? 'light' : 'dark'
+}
+
+updateColorMode()
 </script>
