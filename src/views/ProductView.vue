@@ -443,11 +443,7 @@ import ProductSummary from '@/components/ProductSummary.vue'
 import RelativeTime from '@/components/RelativeTime.vue'
 import RestockDialog from '@/components/RestockDialog.vue'
 import { useClient } from '@/graphql/client'
-import {
-    GetProductItemsCountOfInventoryStatusQuery,
-    ProductItemStatus,
-    UpdateWishlistInput,
-} from '@/graphql/generated'
+import { ProductItemStatus, UpdateWishlistInput } from '@/graphql/generated'
 import { routeNames } from '@/router/routeNames'
 import { useAppStore } from '@/store/app'
 import { commonStrings } from '@/strings/commonStrings'
@@ -458,7 +454,7 @@ import {
 } from '@/util/errorHandler'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 /**
@@ -481,6 +477,20 @@ const client = useClient()
  * The current route (location).
  */
 const route = useRoute()
+
+watch(
+    () => route.params.productid,
+    () => {
+        setAmountToNull()
+    }
+)
+
+watch(
+    () => route.params.productvariantid,
+    () => {
+        setAmountToNull()
+    }
+)
 
 /**
  * The router.
@@ -1029,6 +1039,13 @@ function reevaluateInventoryStatus() {
 const amount = ref<string | null>(null)
 
 /**
+ * Sets the value of the amount ref to null.
+ */
+function setAmountToNull(): void {
+    amount.value = null
+}
+
+/**
  * Whether or not the product variant can be added to the cart.
  */
 const canAddToCart = computed(() => {
@@ -1042,6 +1059,8 @@ const canAddToCart = computed(() => {
 /**
  * Asynchronously adds the product variant to the shopping cart based on the specified amount
  * if the product variant can actually be added to the cart.
+ * Set the value of the amount ref back to null
+ * if the product variant was added to the cart.
  */
 async function addToCart() {
     if (canAddToCart.value && amount.value !== null) {
@@ -1049,6 +1068,7 @@ async function addToCart() {
             productVariantId.value,
             parseInt(amount.value)
         )
+        setAmountToNull()
     }
 }
 
