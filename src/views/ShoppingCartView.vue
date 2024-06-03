@@ -28,7 +28,11 @@
             </template>
         </v-virtual-scroll>
     </div>
-    <ShoppingCartToolbar v-if="shoppingCart.items.length > 10" :total="total" />
+    <ShoppingCartToolbar
+        v-if="shoppingCart.items.length > 5"
+        :total="total"
+        @checkout-initiated="userWantsToProceedToCheckout"
+    />
 </template>
 
 <script lang="ts" setup>
