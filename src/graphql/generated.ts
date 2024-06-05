@@ -1,4 +1,5 @@
-import { GraphQLClient, RequestOptions } from 'graphql-request'
+import { GraphQLClient } from 'graphql-request'
+import { GraphQLClientRequestHeaders } from 'graphql-request/build/cjs/types'
 import gql from 'graphql-tag'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = Maybe<T>
@@ -22,7 +23,6 @@ export type Incremental<T> =
               ? T[P]
               : never
       }
-type GraphQLClientRequestHeaders = RequestOptions['requestHeaders']
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
     ID: { input: string; output: string }
@@ -47,12 +47,6 @@ export type ArchiveShipmentMethodInput = {
 export type ArchiveUserAddressInput = {
     /** The id of the user address to archive. */
     id: Scalars['UUID']['input']
-}
-
-/** Input for calculateShipmentFees query. */
-export type CalculateShipmentFeesInput = {
-    /** The items to calculate the shipment fees for. */
-    items: Array<ProductVariantVersionWithQuantityAndShipmentMethodInput>
 }
 
 /** Input to create a CategoricalCategoryCharacteristic for a Category */
@@ -266,8 +260,8 @@ export type CreateOrderInput = {
     shipmentAddressId: Scalars['UUID']['input']
     /** UUID of user owning the order. */
     userId: Scalars['UUID']['input']
-    /** VAT number. */
-    vatNumber: Scalars['String']['input']
+    /** Optional VAT number. */
+    vatNumber?: InputMaybe<Scalars['String']['input']>
 }
 
 /** Input for the createProduct mutation */
@@ -333,13 +327,13 @@ export type CreateReturnInput = {
 }
 
 export type CreateReviewInput = {
-    /** Body of Review. */
+    /** Body of review. */
     body: Scalars['String']['input']
     /** Flag if review is visible, by default set to true. */
     isVisible?: InputMaybe<Scalars['Boolean']['input']>
     /** UUID of product variant in review. */
     productVariantId: Scalars['UUID']['input']
-    /** Rating of Review in 1-5 stars. */
+    /** Rating of review in 1-5 stars. */
     rating: Rating
     /** UUID of user owning the review. */
     userId: Scalars['UUID']['input']
@@ -364,7 +358,7 @@ export type CreateShipmentMethodInput = {
 export type CreateShoppingCartItemInput = {
     /** UUID of user owning the shopping cart. */
     id: Scalars['UUID']['input']
-    /** ShoppingCartItem in shoppingcart to update */
+    /** shopping cart item in shopping cart to update */
     shoppingCartItem: ShoppingCartItemInput
 }
 
@@ -394,6 +388,8 @@ export type CreateUserAddressInput = {
     companyName?: InputMaybe<Scalars['String']['input']>
     /** The country part of the address to create */
     country: Scalars['String']['input']
+    /** The name of the address to create */
+    name?: InputMaybe<NameInput>
     /** The postal code part of the address to create */
     postalCode: Scalars['String']['input']
     /** The first part of the street part of the address to create */
@@ -412,6 +408,8 @@ export type CreateVendorAddressInput = {
     companyName?: InputMaybe<Scalars['String']['input']>
     /** The country part of the address to create */
     country: Scalars['String']['input']
+    /** The name of the address to create */
+    name?: InputMaybe<NameInput>
     /** The postal code part of the address to create */
     postalCode: Scalars['String']['input']
     /** The first part of the street part of the address to create */
@@ -463,26 +461,6 @@ export type DiscountUsageOrderInput = {
     field?: InputMaybe<DiscountUsageOrderField>
 }
 
-/** Input for the findApplicableDiscounts query. */
-export type FindApplicableDiscountsInput = {
-    /** The order amount, used to filter applicable discounts. */
-    orderAmount: Scalars['Int']['input']
-    /** The list of product variants for which discounts should be computed. */
-    productVariants: Array<FindApplicableDiscountsProductVariantInput>
-    /** The user id for which discounts should be computed. */
-    userId: Scalars['UUID']['input']
-}
-
-/** Triple of a product variant id, a count, and a list of coupon ids for which discounts should be computed */
-export type FindApplicableDiscountsProductVariantInput = {
-    /** The number of items to which the discounts should be applied. */
-    count: Scalars['Int']['input']
-    /** The list of coupon ids for which discounts should be computed. */
-    couponIds: Array<Scalars['UUID']['input']>
-    /** The product variant id for which discounts should be computed. */
-    productVariantId: Scalars['UUID']['input']
-}
-
 /** The gender of a user */
 export enum Gender {
     /** Diverse gender */
@@ -493,6 +471,14 @@ export enum Gender {
     Male = 'MALE',
     /** Other gender */
     Other = 'OTHER',
+}
+
+/** A name consisting of a firstName and lastName. */
+export type NameInput = {
+    /** The first name of the user */
+    firstName: Scalars['String']['input']
+    /** The last name of the user */
+    lastName: Scalars['String']['input']
 }
 
 /** Notification order fields */
@@ -580,7 +566,7 @@ export type OrderOrderInput = {
     field?: InputMaybe<OrderOrderField>
 }
 
-/** Describes if Order is placed, or yet pending. An Order can be rejected during its lifetime. */
+/** Describes if order is placed, or yet pending. An order can be rejected during its lifetime. */
 export enum OrderStatus {
     /** Order is saved a a template, this status can only last for max. 1 hour. */
     Pending = 'PENDING',
@@ -844,7 +830,7 @@ export type RegisterCouponInput = {
     userId: Scalars['UUID']['input']
 }
 
-/** Describes the reason why an Order was rejected, in case of rejection: `OrderStatus::Rejected`. */
+/** Describes the reason why an order was rejected, in case of rejection: `OrderStatus::Rejected`. */
 export enum RejectionReason {
     /** The order was rejected due to its invalid content. */
     InvalidOrderData = 'INVALID_ORDER_DATA',
@@ -951,9 +937,9 @@ export enum ShipmentStatus {
 }
 
 export type ShoppingCartItemInput = {
-    /** Count of items in basket. */
+    /** Count of shopping cart items in cart. */
     count: Scalars['Int']['input']
-    /** Uuid of product variant. */
+    /** UUID of product variant. */
     productVariantId: Scalars['UUID']['input']
 }
 
@@ -1088,25 +1074,25 @@ export type UpdateProductVariantInput = {
 }
 
 export type UpdateReviewInput = {
-    /** Body of Review to update. */
+    /** Body of review to update. */
     body?: InputMaybe<Scalars['String']['input']>
     /** UUID of review to update. */
     id: Scalars['UUID']['input']
     /** Flag if review is visible. */
     isVisible?: InputMaybe<Scalars['Boolean']['input']>
-    /** Rating of Review in 1-5 stars to update. */
+    /** Rating of review in 1-5 stars to update. */
     rating?: InputMaybe<Rating>
 }
 
 export type UpdateShoppingCartInput = {
     /** UUID of user owning shopping cart. */
     id: Scalars['UUID']['input']
-    /** ShoppingCartItems of shoppingcart to update */
+    /** Shopping cart items of shopping cart to update. */
     shoppingCartItems?: InputMaybe<Array<ShoppingCartItemInput>>
 }
 
 export type UpdateShoppingCartItemInput = {
-    /** Count of items in basket. */
+    /** Count of shopping cart items in cart. */
     count: Scalars['Int']['input']
     /** UUID of shoppingcart item to update. */
     id: Scalars['UUID']['input']
@@ -1222,6 +1208,11 @@ export type GetActiveAddressesOfCurrentUserQuery = {
                 postalCode: string
                 street1: string
                 street2: string
+                name?: {
+                    __typename?: 'Name'
+                    firstName: string
+                    lastName: string
+                } | null
             }>
         }
     } | null
@@ -2436,6 +2427,10 @@ export const GetActiveAddressesOfCurrentUserDocument = gql`
                     city
                     companyName
                     country
+                    name {
+                        firstName
+                        lastName
+                    }
                     postalCode
                     street1
                     street2
@@ -3135,7 +3130,7 @@ const defaultWrapper: SdkFunctionWrapper = (
     action,
     _operationName,
     _operationType,
-    _variables
+    variables
 ) => action()
 
 export function getSdk(

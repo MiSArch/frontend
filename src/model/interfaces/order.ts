@@ -1,4 +1,4 @@
-import { Address } from './Address'
+import { Address } from './address'
 import { OrderItem } from './orderItem'
 import { PaymentInformation } from './PaymentInformation'
 

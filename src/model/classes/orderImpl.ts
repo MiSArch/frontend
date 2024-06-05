@@ -1,4 +1,4 @@
-import { Address } from '../interfaces/Address'
+import { Address } from '../interfaces/address'
 import { Order } from '../interfaces/order'
 import { OrderItem } from '../interfaces/orderItem'
 import { PaymentInformation } from '../interfaces/PaymentInformation'

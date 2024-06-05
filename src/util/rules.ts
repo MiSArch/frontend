@@ -25,8 +25,21 @@ export function isNumber(input: string): boolean {
  * @param input - The input value to check.
  * @returns True if the given input value is a string and it is an empty one, false otherwise.
  */
-export function isEmptyString(input: string): boolean {
+export function isEmptyString(input: string | null | undefined): boolean {
     return typeof input === 'string' && input.length === 0
+}
+
+/**
+ * Checks if the given input is a non-empty string.
+ *
+ * This function verifies that the input is of type `string` and that it has a length greater than zero.
+ * It returns `true` if both conditions are met, otherwise it returns `false`.
+ *
+ * @param input - The input to be checked.
+ * @returns Returns `true` if the input is a non-empty string, otherwise `false`.
+ */
+export function isNonEmptyString(input: string | null | undefined): boolean {
+    return typeof input === 'string' && input.length > 0
 }
 
 /**

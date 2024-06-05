@@ -6,12 +6,21 @@
             >
         </v-card-item>
         <v-card-text v-if="selectedAddress" class="text-body-2">
-            {{ selectedAddress?.companyName }}<br />
-            {{ selectedAddress?.street1 }}<br />
-            {{ selectedAddress?.street2 }}<br />
-            {{ selectedAddress?.city }}<br />
-            {{ selectedAddress?.postalCode }}<br />
-            {{ selectedAddress?.country }}<br />
+            {{ selectedAddress.name?.firstName }}
+            {{ selectedAddress.name?.lastName
+            }}<br
+                v-if="
+                    selectedAddress.name?.firstName &&
+                    selectedAddress.name?.lastName
+                "
+            />
+            {{ selectedAddress.companyName
+            }}<br v-if="selectedAddress.companyName" />
+            {{ selectedAddress.street1 }}<br />
+            {{ selectedAddress.street2 }}<br />
+            {{ selectedAddress.city }}<br />
+            {{ selectedAddress.postalCode }}<br />
+            {{ selectedAddress.country }}<br />
         </v-card-text>
         <v-card-text>
             <v-select
@@ -41,25 +50,50 @@
                     >Enter your {{ props.purpose }} address.</v-card-text
                 >
                 <v-card-text>
-                    <v-form v-model="newAddressIsValid">
+                    <v-form
+                        v-model="newAddressIsValid"
+                        validate-on="input"
+                        @submit.prevent
+                    >
                         <v-container>
                             <v-row>
-                                <v-col>
+                                <v-col cols="6">
                                     <v-text-field
-                                        class="text-capitalize"
                                         clearable
-                                        label="name"
-                                        prepend-icon="mdi-account"
-                                        required
-                                        :rules="[inputIsRequired]"
+                                        :hint="
+                                            nameIsUndefined
+                                                ? 'Optional. This field defaults to the logged in user\'s first name.'
+                                                : undefined
+                                        "
+                                        label="First Name"
+                                        persistent-hint
+                                        :required="lastName"
+                                        :rules="[firstNameIsValid]"
                                         type="input"
                                         variant="underlined"
-                                        v-model="name"
+                                        v-model="firstName"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="6">
+                                    <v-text-field
+                                        clearable
+                                        :hint="
+                                            nameIsUndefined
+                                                ? 'Optional. This field defaults to the logged in user\'s last name.'
+                                                : undefined
+                                        "
+                                        label="Last Name"
+                                        persistent-hint
+                                        :required="firstName"
+                                        :rules="[lastNameIsValid]"
+                                        type="input"
+                                        variant="underlined"
+                                        v-model="lastName"
                                     ></v-text-field>
                                 </v-col>
                             </v-row>
                             <v-row>
-                                <v-col>
+                                <v-col cols="6">
                                     <v-text-field
                                         class="text-capitalize"
                                         clearable
@@ -74,7 +108,7 @@
                                 </v-col>
                             </v-row>
                             <v-row>
-                                <v-col>
+                                <v-col cols="9">
                                     <v-text-field
                                         class="text-capitalize"
                                         clearable
@@ -89,7 +123,7 @@
                                 </v-col>
                             </v-row>
                             <v-row>
-                                <v-col>
+                                <v-col cols="9">
                                     <v-text-field
                                         class="text-capitalize"
                                         clearable
@@ -104,7 +138,7 @@
                                 </v-col>
                             </v-row>
                             <v-row>
-                                <v-col cols="4">
+                                <v-col cols="6">
                                     <v-text-field
                                         class="text-capitalize"
                                         clearable
@@ -117,7 +151,7 @@
                                         v-model="city"
                                     ></v-text-field>
                                 </v-col>
-                                <v-col cols="4">
+                                <v-col cols="3">
                                     <v-text-field
                                         class="text-capitalize"
                                         clearable
@@ -132,7 +166,7 @@
                                 </v-col>
                             </v-row>
                             <v-row>
-                                <v-col cols="8">
+                                <v-col cols="6">
                                     <v-text-field
                                         class="text-capitalize"
                                         clearable
@@ -146,18 +180,20 @@
                                     ></v-text-field>
                                 </v-col>
                             </v-row>
+                            <v-row>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                    prepend-icon="mdi-content-save"
+                                    type="submit"
+                                    variant="text"
+                                    @click="trySaveAddress"
+                                >
+                                    save address
+                                </v-btn>
+                            </v-row>
                         </v-container>
                     </v-form>
                 </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                        :disabled="!newAddressIsValid"
-                        prepend-icon="mdi-content-save"
-                        @click="saveAddress"
-                        >save address</v-btn
-                    >
-                </v-card-actions>
             </div>
         </v-expand-transition>
     </v-card>
@@ -169,15 +205,17 @@ import {
     CreateUserAddressInput,
     CreateUserAddressMutation,
 } from '@/graphql/generated'
-import { AddressImpl } from '@/model/classes/AddressImpl'
-import { Address } from '@/model/interfaces/Address'
+import { AddressImpl } from '@/model/classes/addressImpl'
+import { NameImpl } from '@/model/classes/nameImpl'
+import { Address } from '@/model/interfaces/address'
+import { Name } from '@/model/interfaces/name'
 import { useAppStore } from '@/store/app'
 import { errorMessages } from '@/strings/errorMessages'
 import {
     awaitActionAndPushErrorIfNecessary,
     pushErrorNotification,
 } from '@/util/errorHandler'
-import { inputIsRequired } from '@/util/rules'
+import { inputIsRequired, isEmptyString, isNonEmptyString } from '@/util/rules'
 import { capitalize } from '@/util/string'
 import { asyncComputed } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
@@ -258,23 +296,77 @@ const addresses = computed(() => {
         return
     }
 
-    return nodes.map(
-        (address) =>
-            new AddressImpl(
-                address.id,
-                address.street1,
-                address.street2,
-                address.city,
-                address.postalCode,
-                address.country,
-                address.companyName ?? undefined
-            )
-    )
+    return nodes.map((address) => {
+        let name: undefined | Name = undefined
+        if (address.name) {
+            name = new NameImpl(address.name.firstName, address.name.lastName)
+        }
+
+        return new AddressImpl(
+            address.city,
+            address.country,
+            address.id,
+            address.postalCode,
+            address.street1,
+            address.street2,
+            address.companyName ?? undefined,
+            name
+        )
+    })
 })
 
 const showExpansion = ref<boolean>(false)
 
-const name = ref<string | null | undefined>(null)
+const firstName = ref<string | null | undefined>(null)
+const lastName = ref<string | null | undefined>(null)
+
+/**
+ * Whether both refs, `firstName` and `lastName`, are undefined.
+ */
+const nameIsUndefined = computed(() => {
+    return firstName.value == undefined && lastName.value == undefined
+})
+
+/**
+ * Validates the first name based on the presence of a last name.
+ *
+ * This function checks if the `lastName` field has a non-empty value. If it does,
+ * it ensures that the `firstName` field also has a non-empty value. If the `firstName`
+ * field is empty while the `lastName` field is not, it returns an error message.
+ *
+ * @returns Returns `true` if the validation passes, or a string
+ * indicating the validation error if it fails.
+ */
+function firstNameIsValid(): boolean | string {
+    if (isNonEmptyString(lastName.value)) {
+        return isNonEmptyString(firstName.value)
+            ? true
+            : 'If you entered a last name, you must also enter the first name.'
+    }
+
+    return true
+}
+
+/**
+ * Validates the last name based on the presence of a first name.
+ *
+ * This function checks if the `firstName` field has a non-empty value. If it does,
+ * it ensures that the `lastName` field also has a non-empty value. If the `lastName`
+ * field is empty while the `firstName` field is not, it returns an error message.
+ *
+ * @returns Returns `true` if the validation passes, or a string
+ * indicating the validation error if it fails.
+ */
+function lastNameIsValid(): boolean | string {
+    if (isNonEmptyString(firstName.value)) {
+        return isNonEmptyString(lastName.value)
+            ? true
+            : 'If you entered a first name, you must also enter the last name.'
+    }
+
+    return true
+}
+
 const companyName = ref<string | null | undefined>(null)
 const street = ref<string | null | undefined>(null)
 const extraStreetInfo = ref<string | null | undefined>(null)
@@ -283,13 +375,6 @@ const postalCode = ref<string | null | undefined>(null)
 const country = ref<string | null | undefined>(null)
 
 const newAddressIsValid = ref<boolean | null | undefined>(null)
-
-const newAddressIsNotValid = computed(() => {
-    return (
-        newAddressIsValid.value == undefined ||
-        newAddressIsValid.value === false
-    )
-})
 
 /**
  * Sets the selected address to null and shows the expansion.
@@ -300,12 +385,15 @@ function userWantsToAddNewAddress(): void {
 }
 
 /**
- * Saves the address information.
+ * Tries to save the address information.
  * If the new address is not valid or if any required fields are undefined, the function returns early.
  * @returns A Promise that resolves once the address is saved.
  */
-async function saveAddress(): Promise<void> {
-    if (newAddressIsNotValid.value) {
+async function trySaveAddress(): Promise<void> {
+    if (
+        newAddressIsValid.value == undefined ||
+        newAddressIsValid.value === false
+    ) {
         return
     }
 
@@ -319,10 +407,21 @@ async function saveAddress(): Promise<void> {
         return
     }
 
+    let name: undefined | Name = undefined
+    if (
+        typeof firstName.value === 'string' &&
+        typeof lastName.value === 'string' &&
+        !isEmptyString(firstName.value) &&
+        !isEmptyString(lastName.value)
+    ) {
+        name = new NameImpl(firstName.value, lastName.value)
+    }
+
     const input: CreateUserAddressInput = {
         city: city.value,
         companyName: companyName.value,
         country: country.value,
+        name: name,
         postalCode: postalCode.value,
         street1: street.value,
         street2: extraStreetInfo.value,
@@ -359,7 +458,8 @@ function queryAddressesOnceAgain(): void {
  * Clears the input fields of the form.
  */
 function clearInputForm(): void {
-    name.value = null
+    firstName.value = null
+    lastName.value = null
     companyName.value = null
     street.value = null
     extraStreetInfo.value = null
