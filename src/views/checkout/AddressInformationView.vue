@@ -112,4 +112,3 @@ function updateBillingAddressOfOrderInformation() {
     order.value.billingAddress = selectedBillingAddress.value
 }
 </script>
-@/model/classes/addressImpl
