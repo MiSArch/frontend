@@ -338,10 +338,11 @@ const nameIsUndefined = computed(() => {
  * indicating the validation error if it fails.
  */
 function firstNameIsValid(): boolean | string {
-    if (isNonEmptyString(lastName.value)) {
-        return isNonEmptyString(firstName.value)
-            ? true
-            : 'If you entered a last name, you must also enter the first name.'
+    if (
+        isNonEmptyString(lastName.value) &&
+        !isNonEmptyString(firstName.value)
+    ) {
+        return 'If you entered a last name, you must also enter the first name.'
     }
 
     return true
@@ -358,10 +359,11 @@ function firstNameIsValid(): boolean | string {
  * indicating the validation error if it fails.
  */
 function lastNameIsValid(): boolean | string {
-    if (isNonEmptyString(firstName.value)) {
-        return isNonEmptyString(lastName.value)
-            ? true
-            : 'If you entered a first name, you must also enter the last name.'
+    if (
+        isNonEmptyString(firstName.value) &&
+        !isNonEmptyString(lastName.value)
+    ) {
+        return 'If you entered a first name, you must also enter the last name.'
     }
 
     return true
