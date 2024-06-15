@@ -38,7 +38,7 @@
 
 <script lang="ts" setup>
 import SelectOrAddNewAddressCard from '@/components/SelectOrAddNewAddressCard.vue'
-import { AddressImpl } from '@/model/classes/AddressImpl'
+import { AddressImpl } from '@/model/classes/addressImpl'
 import { useAppStore } from '@/store/app'
 import { isUndefinedOrEmptyStringOrValidVATIN } from '@/util/rules'
 import { storeToRefs } from 'pinia'
